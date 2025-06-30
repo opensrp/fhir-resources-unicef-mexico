@@ -1,0 +1,464 @@
+{
+  "resourceType": "Composition",
+  "id": "unicef-mexico",
+  "identifier": {
+    "use": "official",
+    "value": "contigo"
+  },
+  "status": "final",
+  "type": {
+    "coding": [
+      {
+        "system": "http://loinc.org",
+        "code": "11503-0",
+        "display": "Medical records"
+      },
+      {
+        "system": "http://snomed.info/sct",
+        "code": "1156600005",
+        "display": "Device setting parameter"
+      }
+    ]
+  },
+  "category": [
+    {
+      "coding": [
+        {
+          "system": "http://snomed.info/sct",
+          "code": "1156600005",
+          "display": "Device setting parameter"
+        }
+      ]
+    }
+  ],
+  "date": "2025-06-08",
+  "title": "Device configurations",
+  "confidentiality": "L",
+  "section": [
+    {
+      "title": "Binary",
+      "text": {
+        "status": "generated",
+        "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Binary</div>"
+      },
+      "mode": "working",
+      "section": [
+        {
+          "title": "Application configuration",
+          "focus": {
+            "reference": "Binary/unicef-mexico-application",
+            "identifier": {
+              "value": "application"
+            }
+          },
+          "mode": "working"
+        },
+        {
+          "title": "Sync configuration",
+          "focus": {
+            "reference": "Binary/unicef-mexico-sync",
+            "identifier": {
+              "value": "sync"
+            }
+          },
+          "mode": "working"
+        },
+        {
+          "title": "Navigation configuration",
+          "focus": {
+            "reference": "Binary/unicef-mexico-navigation",
+            "identifier": {
+              "value": "navigation"
+            }
+          },
+          "mode": "working"
+        },
+        {
+          "title": "Translation English",
+          "focus": {
+            "reference": "Binary/unicef-mexico-translation-en",
+            "identifier": {
+              "value": "strings"
+            }
+          }
+        },
+        {
+          "title": "Translation Spanish",
+          "focus": {
+            "reference": "Binary/unicef-mexico-translation-es",
+            "identifier": {
+              "value": "stringsEs"
+            }
+          }
+        },
+        {
+          "title": "Child profile configuration",
+          "focus": {
+            "reference": "Binary/unicef-mexico-child-profile",
+            "identifier": {
+              "value": "childProfile"
+            }
+          }
+        },
+        {
+          "title": "Child Upcoming Immunization Encounters profile configuration",
+          "focus": {
+            "reference": "Binary/unicef-mexico-child-upcoming-immunization-encounters-profile",
+            "identifier": {
+              "value": "childupcomingimmunizationencountersProfile"
+            }
+          }
+        },
+        {
+          "title": "Child Past Immunization Encounters profile configuration",
+          "focus": {
+            "reference": "Binary/unicef-mexico-child-past-immunization-encounters-profile",
+            "identifier": {
+              "value": "childpastimmunizationencountersProfile"
+            }
+          }
+        },
+        {
+          "title": "Child Past Encounters profile configuration",
+          "focus": {
+            "reference": "Binary/unicef-mexico-child-past-encounters-profile",
+            "identifier": {
+              "value": "childpastencountersProfile"
+            }
+          }
+        },
+        {
+          "title": "Caregiver profile configuration",
+          "focus": {
+            "reference": "Binary/unicef-mexico-caregiver-profile",
+            "identifier": {
+              "value": "caregiverProfile"
+            }
+          }
+        },
+        {
+          "title": "Pathological History profile configuration",
+          "focus": {
+            "reference": "Binary/unicef-mexico-pathological-history-profile",
+            "identifier": {
+              "value": "pathologicalHistoryProfile"
+            }
+          }
+        },
+        {
+          "title": "Caregiver Past Pregnancy Encounters profile configuration",
+          "focus": {
+            "reference": "Binary/unicef-mexico-caregiver-past-pregnancy-encounters-profile",
+            "identifier": {
+              "value": "caregiverpastpregnancyencountersProfile"
+            }
+          }
+        },
+        {
+          "title": "Caregiver Past Lactating Encounters profile configuration",
+          "focus": {
+            "reference": "Binary/unicef-mexico-caregiver-past-lactating-encounters-profile",
+            "identifier": {
+              "value": "caregiverpastlactatingencountersProfile"
+            }
+          }
+        },
+        {
+          "title": "Caregiver Past Follow Up Encounters profile configuration",
+          "focus": {
+            "reference": "Binary/unicef-mexico-caregiver-past-follow-up-encounters-profile",
+            "identifier": {
+              "value": "caregiverpastencountersProfile"
+            }
+          }
+        },
+        {
+          "title": "Children register configuration",
+          "focus": {
+            "reference": "Binary/unicef-mexico-children-register",
+            "identifier": {
+              "value": "childRegister"
+            }
+          }
+        },
+        {
+          "title": "Caregiver register configuration",
+          "focus": {
+            "reference": "Binary/unicef-mexico-caregiver-register",
+            "identifier": {
+              "value": "caregiverRegister"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "title": "PlanDefinitions",
+      "mode": "working",
+      "section": [
+        {
+          "title": "Child Immunization",
+          "focus": {
+            "reference": "PlanDefinition/unicef-mexico-child-immunization",
+            "identifier": {
+              "value": "child-immunization"
+            }
+          },
+          "mode": "working"
+        }
+      ]
+    },
+    {
+      "title": "Questionnaires",
+      "mode": "working",
+      "section": [
+        {
+          "title": "Patient Registration",
+          "focus": {
+            "reference": "Questionnaire/unicef-mexico-patient-registration",
+            "identifier": {
+              "value": "caregiver-registration"
+            }
+          },
+          "mode": "working"
+        },
+        {
+          "title": "Child Registration",
+          "focus": {
+            "reference": "Questionnaire/unicef-mexico-child-registration",
+            "identifier": {
+              "value": "child-registration"
+            }
+          },
+          "mode": "working"
+        },
+        {
+          "title": "Record Single Dose",
+          "focus": {
+            "reference": "Questionnaire/unicef-mexico-record-single-dose",
+            "identifier": {
+              "value": "record-single-dose"
+            }
+          },
+          "mode": "working"
+        },
+        {
+          "title": "Record All Dose",
+          "focus": {
+            "reference": "Questionnaire/unicef-mexico-record-all-dose",
+            "identifier": {
+              "value": "record-all-dose"
+            }
+          },
+          "mode": "working"
+        },
+        {
+          "title": "Follow-up visit",
+          "focus": {
+            "reference": "Questionnaire/unicef-mexico-follow-up",
+            "identifier": {
+              "value": "follow-up-visit"
+            }
+          },
+          "mode": "working"
+        },
+        {
+          "title": "Child Follow Up visit",
+          "focus": {
+            "reference": "Questionnaire/unicef-mexico-child-follow-up-visit",
+            "identifier": {
+              "value": "child-follow-up-visit"
+            }
+          },
+          "mode": "working"
+        },
+        {
+          "title": "Pregnancy Enrollment",
+          "focus": {
+            "reference": "Questionnaire/unicef-mexico-pregnancy-enrollment",
+            "identifier": {
+              "value": "pregnancy-enrollment"
+            }
+          },
+          "mode": "working"
+        },
+        {
+          "title": "Pregnancy Follow Up",
+          "focus": {
+            "reference": "Questionnaire/unicef-mexico-pregnancy-follow-up",
+            "identifier": {
+              "value": "pregnancy-follow-up"
+            }
+          },
+          "mode": "working"
+        },
+        {
+          "title": "Pregnancy Outcome",
+          "focus": {
+            "reference": "Questionnaire/unicef-mexico-pregnancy-outcome",
+            "identifier": {
+              "value": "pregnancy-outcome"
+            }
+          },
+          "mode": "working"
+        },
+        {
+          "title": "Lactating Enrolment",
+          "focus": {
+            "reference": "Questionnaire/unicef-mexico-lactating-enrollment",
+            "identifier": {
+              "value": "lactating-enrollment"
+            }
+          },
+          "mode": "working"
+        },
+        {
+          "title": "Lactating Follow Up",
+          "focus": {
+            "reference": "Questionnaire/unicef-mexico-lactating-follow-up",
+            "identifier": {
+              "value": "lactating-follow-up"
+            }
+          },
+          "mode": "working"
+        },
+        {
+          "title": "Lactating Outcome",
+          "focus": {
+            "reference": "Questionnaire/unicef-mexico-lactating-outcome",
+            "identifier": {
+              "value": "lactating-outcome"
+            }
+          },
+          "mode": "working"
+        },
+        {
+          "title": "Record Workshop",
+          "focus": {
+            "reference": "Questionnaire/unicef-mexico-record-workshop",
+            "identifier": {
+              "value": "record-workshop"
+            }
+          },
+          "mode": "working"
+        }
+      ]
+    },
+    {
+      "title": "StructureMaps",
+      "mode": "working",
+      "section": [
+        {
+          "title": "Patient Registration",
+          "focus": {
+            "reference": "StructureMap/unicef-mexico-patient-registration",
+            "identifier": {
+              "value": "caregiver-registration"
+            }
+          },
+          "mode": "working"
+        },
+        {
+          "title": "Child Registration",
+          "focus": {
+            "reference": "StructureMap/unicef-mexico-child-registration",
+            "identifier": {
+              "value": "child-registration"
+            }
+          },
+          "mode": "working"
+        },
+        {
+          "title": "Child Immunizations PD SM",
+          "focus": {
+            "reference": "StructureMap/unicef-mexico-child-immunization",
+            "identifier": {
+              "value": "child-immunizations-pd-sm"
+            }
+          },
+          "mode": "working"
+        },
+        {
+          "title": "Record Single Dose",
+          "focus": {
+            "reference": "StructureMap/unicef-mexico-record-single-dose",
+            "identifier": {
+              "value": "record-single-dose-sm"
+            }
+          },
+          "mode": "working"
+        },
+        {
+          "title": "Record All Doses",
+          "focus": {
+            "reference": "StructureMap/unicef-mexico-record-all-dose",
+            "identifier": {
+              "value": "record-all-doses-sm"
+            }
+          },
+          "mode": "working"
+        },
+        {
+          "title": "Pregnancy Enrollment",
+          "focus": {
+            "reference": "StructureMap/unicef-mexico-pregnancy-enrollment",
+            "identifier": {
+              "value": "pregnancy-enrollment-sm"
+            }
+          },
+          "mode": "working"
+        },
+        {
+          "title": "Pregnancy Outcome",
+          "focus": {
+            "reference": "StructureMap/unicef-mexico-pregnancy-outcome",
+            "identifier": {
+              "value": "pregnancy-outcome"
+            }
+          },
+          "mode": "working"
+        },
+        {
+          "title": "Lactating Enrollment",
+          "focus": {
+            "reference": "StructureMap/unicef-mexico-lactating-enrollment",
+            "identifier": {
+              "value": "lactating-enrollment-sm"
+            }
+          },
+          "mode": "working"
+        },
+        {
+          "title": "Lactating Outcome",
+          "focus": {
+            "reference": "StructureMap/unicef-mexico-lactating-outcome",
+            "identifier": {
+              "value": "lactating-outcome-sm"
+            }
+          },
+          "mode": "working"
+        },
+        {
+          "title": "Follow-up Visit",
+          "focus": {
+            "reference": "StructureMap/unicef-mexico-follow-up-visit",
+            "identifier": {
+              "value": "follow-up-visit-sm"
+            }
+          },
+          "mode": "working"
+        },
+        {
+          "title": "Record Workshop",
+          "focus": {
+            "reference": "StructureMap/unicef-mexico-record-workshop",
+            "identifier": {
+              "value": "record-workshop-sm"
+            }
+          },
+          "mode": "working"
+        }
+      ]
+    }
+  ]
+}

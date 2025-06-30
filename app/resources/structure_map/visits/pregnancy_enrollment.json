@@ -1,0 +1,640 @@
+{
+  "resourceType": "StructureMap",
+  "id": "unicef-mexico-pregnancy-enrollment",
+  "url": "https://fhir-sid.stage.opensrp.id/fhir/StructureMap/unicef-mexico-pregnancy-enrollment",
+  "name": "Pregnancy",
+  "structure": [ {
+    "url": "http://hl7.org/fhir/StructureDefinition/QuestionnaireReponse",
+    "mode": "source"
+  }, {
+    "url": "http://hl7.org/fhir/StructureDefinition/Bundle",
+    "mode": "target"
+  } ],
+  "group": [ {
+    "name": "EnrollPregnancy",
+    "typeMode": "none",
+    "input": [ {
+      "name": "src",
+      "type": "QuestionnaireResponse",
+      "mode": "source"
+    }, {
+      "name": "bundle",
+      "type": "Bundle",
+      "mode": "target"
+    } ],
+    "rule": [ {
+      "name": "r_bundle_type",
+      "source": [ {
+        "context": "src"
+      } ],
+      "target": [ {
+        "context": "bundle",
+        "contextType": "variable",
+        "element": "type",
+        "transform": "copy",
+        "parameter": [ {
+          "valueString": "collection"
+        } ]
+      } ]
+    }, {
+      "name": "ruleReferralLinkIdExist",
+      "source": [ {
+        "context": "src",
+        "element": "item",
+        "variable": "item",
+        "condition": "((linkId = 'd2b277f2-a202-41af-9901-47e361caf6ef') and (answer.value.exists() and (answer.value.code = '373066001')))"
+      } ],
+      "rule": [ {
+        "name": "r_bundle_entries",
+        "source": [ {
+          "context": "src"
+        } ],
+        "target": [ {
+          "variable": "refPatient",
+          "transform": "evaluate",
+          "parameter": [ {
+            "valueId": "src"
+          }, {
+            "valueString": "$this.subject"
+          } ]
+        } ],
+        "dependent": [ {
+          "name": "ExtractEncounter",
+          "variable": [ "src", "bundle", "refPatient" ]
+        } ]
+      } ]
+    } ]
+  }, {
+    "name": "ExtractEncounter",
+    "typeMode": "none",
+    "input": [ {
+      "name": "src",
+      "type": "QuestionnaireResponse",
+      "mode": "source"
+    }, {
+      "name": "bundle",
+      "type": "Bundle",
+      "mode": "target"
+    }, {
+      "name": "refPatient",
+      "type": "Patient",
+      "mode": "source"
+    } ],
+    "rule": [ {
+      "name": "r_bundle",
+      "source": [ {
+        "context": "src"
+      } ],
+      "target": [ {
+        "context": "bundle",
+        "contextType": "variable",
+        "element": "entry",
+        "variable": "entry"
+      }, {
+        "context": "entry",
+        "contextType": "variable",
+        "element": "resource",
+        "variable": "encounter",
+        "transform": "create",
+        "parameter": [ {
+          "valueString": "Encounter"
+        } ]
+      } ],
+      "rule": [ {
+        "name": "r_enc_data",
+        "source": [ {
+          "context": "src"
+        } ],
+        "target": [ {
+          "context": "encounter",
+          "contextType": "variable",
+          "element": "id",
+          "transform": "uuid"
+        }, {
+          "context": "encounter",
+          "contextType": "variable",
+          "element": "class",
+          "transform": "c",
+          "parameter": [ {
+            "valueString": "http://terminology.hl7.org/CodeSystem/v3-ActCode"
+          }, {
+            "valueString": "HH"
+          }, {
+            "valueString": "home health"
+          } ]
+        } ]
+      }, {
+        "name": "r_en_typ",
+        "source": [ {
+          "context": "src"
+        } ],
+        "target": [ {
+          "context": "encounter",
+          "contextType": "variable",
+          "element": "type",
+          "variable": "concept",
+          "transform": "create",
+          "parameter": [ {
+            "valueString": "CodeableConcept"
+          } ]
+        } ],
+        "rule": [ {
+          "name": "r_en_text",
+          "source": [ {
+            "context": "src"
+          } ],
+          "target": [ {
+            "context": "concept",
+            "contextType": "variable",
+            "element": "text",
+            "transform": "copy",
+            "parameter": [ {
+              "valueString": "Pregnancy registration"
+            } ]
+          } ]
+        }, {
+          "name": "r_en_cc_cod",
+          "source": [ {
+            "context": "src"
+          } ],
+          "target": [ {
+            "context": "concept",
+            "contextType": "variable",
+            "element": "coding",
+            "variable": "coding",
+            "transform": "c",
+            "parameter": [ {
+              "valueString": "http://snomed.info/sct"
+            }, {
+              "valueString": "167226008"
+            } ]
+          } ],
+          "rule": [ {
+            "name": "r_en_cod_disp",
+            "source": [ {
+              "context": "src"
+            } ],
+            "target": [ {
+              "context": "coding",
+              "contextType": "variable",
+              "element": "display",
+              "transform": "copy",
+              "parameter": [ {
+                "valueString": "Pregnancy registration"
+              } ]
+            } ]
+          } ]
+        } ]
+      }, {
+        "name": "r_priority",
+        "source": [ {
+          "context": "src"
+        } ],
+        "target": [ {
+          "context": "encounter",
+          "contextType": "variable",
+          "element": "priority",
+          "variable": "codeableConcept",
+          "transform": "create",
+          "parameter": [ {
+            "valueString": "CodeableConcept"
+          } ]
+        } ],
+        "rule": [ {
+          "name": "r_enc_code_text",
+          "source": [ {
+            "context": "src"
+          } ],
+          "target": [ {
+            "context": "codeableConcept",
+            "contextType": "variable",
+            "element": "text",
+            "transform": "copy",
+            "parameter": [ {
+              "valueString": "Elective"
+            } ]
+          } ]
+        }, {
+          "name": "r_enc_code_coding",
+          "source": [ {
+            "context": "src"
+          } ],
+          "target": [ {
+            "context": "codeableConcept",
+            "contextType": "variable",
+            "element": "coding",
+            "variable": "coding",
+            "transform": "create",
+            "parameter": [ {
+              "valueString": "Coding"
+            } ]
+          } ],
+          "rule": [ {
+            "name": "r_enc_code_coding_value",
+            "source": [ {
+              "context": "src"
+            } ],
+            "target": [ {
+              "context": "coding",
+              "contextType": "variable",
+              "element": "system",
+              "transform": "copy",
+              "parameter": [ {
+                "valueString": "http://terminology.hl7.org/ValueSet/v3-ActPriority"
+              } ]
+            }, {
+              "context": "coding",
+              "contextType": "variable",
+              "element": "code",
+              "transform": "copy",
+              "parameter": [ {
+                "valueString": "EL"
+              } ]
+            }, {
+              "context": "coding",
+              "contextType": "variable",
+              "element": "display",
+              "transform": "copy",
+              "parameter": [ {
+                "valueString": "Elective"
+              } ]
+            } ]
+          } ]
+        } ]
+      }, {
+        "name": "r_en_sub",
+        "source": [ {
+          "context": "src"
+        } ],
+        "target": [ {
+          "context": "encounter",
+          "contextType": "variable",
+          "element": "subject",
+          "transform": "evaluate",
+          "parameter": [ {
+            "valueId": "src"
+          }, {
+            "valueString": "$this.subject"
+          } ]
+        } ]
+      }, {
+        "name": "r_bbbnv",
+        "source": [ {
+          "context": "src"
+        } ],
+        "target": [ {
+          "context": "encounter",
+          "contextType": "variable",
+          "element": "reasonCode",
+          "variable": "reasonConcept",
+          "transform": "create",
+          "parameter": [ {
+            "valueString": "CodeableConcept"
+          } ]
+        } ],
+        "rule": [ {
+          "name": "r_en_st_com",
+          "source": [ {
+            "context": "src"
+          } ],
+          "target": [ {
+            "context": "encounter",
+            "contextType": "variable",
+            "element": "status",
+            "transform": "copy",
+            "parameter": [ {
+              "valueString": "finished"
+            } ]
+          } ]
+        }, {
+          "name": "r_enc_resonCode_text",
+          "source": [ {
+            "context": "src"
+          } ],
+          "target": [ {
+            "context": "reasonConcept",
+            "contextType": "variable",
+            "element": "text",
+            "transform": "copy",
+            "parameter": [ {
+              "valueString": "Pregnancy registration"
+            } ]
+          } ]
+        }, {
+          "name": "r_enc_resonCode_coding",
+          "source": [ {
+            "context": "src"
+          } ],
+          "target": [ {
+            "context": "reasonConcept",
+            "contextType": "variable",
+            "element": "coding",
+            "variable": "reasoncoding",
+            "transform": "create",
+            "parameter": [ {
+              "valueString": "Coding"
+            } ]
+          } ],
+          "rule": [ {
+            "name": "r_enc_resonCode_coding_value",
+            "source": [ {
+              "context": "src"
+            } ],
+            "target": [ {
+              "context": "reasoncoding",
+              "contextType": "variable",
+              "element": "system",
+              "transform": "copy",
+              "parameter": [ {
+                "valueString": "https://smartregister.org/"
+              } ]
+            }, {
+              "context": "reasoncoding",
+              "contextType": "variable",
+              "element": "code",
+              "transform": "copy",
+              "parameter": [ {
+                "valueString": "167226008"
+              } ]
+            }, {
+              "context": "reasoncoding",
+              "contextType": "variable",
+              "element": "display",
+              "transform": "copy",
+              "parameter": [ {
+                "valueString": "Pregnancy registration"
+              } ]
+            } ]
+          } ]
+        } ]
+      }, {
+        "name": "ruleReferralLinkIdExist",
+        "source": [ {
+          "context": "src",
+          "element": "item",
+          "variable": "item",
+          "condition": "((linkId = 'd2b277f2-a202-41af-9901-47e361caf6ef') and (answer.value.exists() and (answer.value.code = '373066001')))"
+        } ],
+        "rule": [ {
+          "name": "r_extract_obs",
+          "source": [ {
+            "context": "src"
+          } ],
+          "dependent": [ {
+            "name": "ExtractRefs",
+            "variable": [ "src", "bundle", "encounter" ]
+          } ]
+        } ]
+      } ]
+    } ]
+  }, {
+    "name": "ExtractRefs",
+    "typeMode": "none",
+    "input": [ {
+      "name": "src",
+      "type": "QuestionnaireResponse",
+      "mode": "source"
+    }, {
+      "name": "bundle",
+      "type": "Bundle",
+      "mode": "target"
+    }, {
+      "name": "encounter",
+      "type": "Encounter",
+      "mode": "target"
+    } ],
+    "rule": [ {
+      "name": "r_enc_refs",
+      "source": [ {
+        "context": "src"
+      } ],
+      "dependent": [ {
+        "name": "ExtractPregnancyCondition",
+        "variable": [ "src", "bundle", "encounter" ]
+      } ]
+    } ]
+  }, {
+    "name": "ExtractPregnancyCondition",
+    "typeMode": "none",
+    "input": [ {
+      "name": "src",
+      "type": "QuestionnaireResponse",
+      "mode": "source"
+    }, {
+      "name": "bundle",
+      "type": "Bundle",
+      "mode": "target"
+    }, {
+      "name": "encounter",
+      "type": "Encounter",
+      "mode": "target"
+    } ],
+    "rule": [ {
+      "name": "r_cnd",
+      "source": [ {
+        "context": "src"
+      } ],
+      "target": [ {
+        "context": "bundle",
+        "contextType": "variable",
+        "element": "entry",
+        "variable": "entry"
+      }, {
+        "context": "entry",
+        "contextType": "variable",
+        "element": "resource",
+        "variable": "cnd",
+        "transform": "create",
+        "parameter": [ {
+          "valueString": "Condition"
+        } ]
+      } ],
+      "rule": [ {
+        "name": "r_obs_data_date_of_lmp_gest_age_collection",
+        "source": [ {
+          "context": "src"
+        } ],
+        "target": [ {
+          "context": "cnd",
+          "contextType": "variable",
+          "element": "id",
+          "transform": "uuid"
+        }, {
+          "context": "cnd",
+          "contextType": "variable",
+          "element": "encounter",
+          "transform": "reference",
+          "parameter": [ {
+            "valueId": "encounter"
+          } ]
+        }, {
+          "context": "cnd",
+          "contextType": "variable",
+          "element": "subject",
+          "transform": "evaluate",
+          "parameter": [ {
+            "valueId": "src"
+          }, {
+            "valueString": "$this.subject"
+          } ]
+        } ]
+      }, {
+        "name": "r_cnd_clinical_st",
+        "source": [ {
+          "context": "src"
+        } ],
+        "target": [ {
+          "context": "cnd",
+          "contextType": "variable",
+          "element": "clinicalStatus",
+          "transform": "cc",
+          "parameter": [ {
+            "valueString": "http://terminology.hl7.org/CodeSystem/condition-clinical"
+          }, {
+            "valueString": "active"
+          } ]
+        } ]
+      }, {
+        "name": "r_cnd_verif_st",
+        "source": [ {
+          "context": "src"
+        } ],
+        "target": [ {
+          "context": "cnd",
+          "contextType": "variable",
+          "element": "verificationStatus",
+          "transform": "cc",
+          "parameter": [ {
+            "valueString": "http://terminology.hl7.org/CodeSystem/condition-ver-status"
+          }, {
+            "valueString": "confirmed"
+          } ]
+        } ]
+      }, {
+        "name": "r_cnd_category",
+        "source": [ {
+          "context": "src"
+        } ],
+        "target": [ {
+          "context": "cnd",
+          "contextType": "variable",
+          "element": "category",
+          "transform": "cc",
+          "parameter": [ {
+            "valueString": "http://terminology.hl7.org/CodeSystem/condition-category"
+          }, {
+            "valueString": "problem-list-item"
+          }, {
+            "valueString": "Problem List Item"
+          } ]
+        } ]
+      }, {
+        "name": "r_cnd_recorded",
+        "source": [ {
+          "context": "src"
+        } ],
+        "target": [ {
+          "context": "cnd",
+          "contextType": "variable",
+          "element": "recordedDate",
+          "transform": "evaluate",
+          "parameter": [ {
+            "valueId": "src"
+          }, {
+            "valueString": "now()"
+          } ]
+        } ]
+      }, {
+        "name": "r_obs_ref",
+        "source": [ {
+          "context": "src"
+        } ],
+        "target": [ {
+          "context": "encounter",
+          "contextType": "variable",
+          "element": "reasonReference",
+          "variable": "ref",
+          "transform": "create",
+          "parameter": [ {
+            "valueString": "Reference"
+          } ]
+        }, {
+          "context": "ref",
+          "contextType": "variable",
+          "element": "reference",
+          "transform": "evaluate",
+          "parameter": [ {
+            "valueId": "src"
+          }, {
+            "valueString": "'Condition/' + cnd.id"
+          } ]
+        }, {
+          "context": "ref",
+          "contextType": "variable",
+          "element": "type",
+          "transform": "copy",
+          "parameter": [ {
+            "valueString": "Condition"
+          } ]
+        } ]
+      }, {
+        "name": "r_cnd_code",
+        "source": [ {
+          "context": "src"
+        } ],
+        "target": [ {
+          "context": "cnd",
+          "contextType": "variable",
+          "element": "code",
+          "variable": "ccPreg",
+          "transform": "create",
+          "parameter": [ {
+            "valueString": "CodeableConcept"
+          } ]
+        } ],
+        "rule": [ {
+          "name": "r_cnd_code_coding",
+          "source": [ {
+            "context": "src"
+          } ],
+          "target": [ {
+            "context": "ccPreg",
+            "contextType": "variable",
+            "element": "coding",
+            "variable": "coding",
+            "transform": "c",
+            "parameter": [ {
+              "valueString": "http://snomed.info/sct"
+            }, {
+              "valueString": "77386006"
+            }, {
+              "valueString": "Pregnancy"
+            } ]
+          }, {
+            "context": "coding",
+            "contextType": "variable",
+            "element": "display",
+            "transform": "copy",
+            "parameter": [ {
+              "valueString": "Pregnancy"
+            } ]
+          } ]
+        }, {
+          "name": "r_cnd_code_text",
+          "source": [ {
+            "context": "src"
+          } ],
+          "target": [ {
+            "context": "ccPreg",
+            "contextType": "variable",
+            "element": "text",
+            "transform": "copy",
+            "parameter": [ {
+              "valueString": "Pregnant"
+            } ]
+          } ]
+        } ]
+      } ]
+    } ]
+  } ]
+}

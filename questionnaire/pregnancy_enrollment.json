@@ -1,0 +1,715 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "unicef-mexico-pregnancy-enrollment",
+  "meta": {
+    "versionId": "9",
+    "lastUpdated": "2024-08-09T20:33:09.995+00:00",
+    "source": "#4437d042bcdf9535"
+  },
+  "language": "en-GB",
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-targetStructureMap",
+      "valueCanonical": "https://fhir.demo.smartregister.org/fhir/StructureMap/unicef-mexico-pregnancy-enrollment"
+    },
+    {
+      "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-launchContext",
+      "extension": [
+        {
+          "url": "name",
+          "valueCoding": {
+            "system": "http://hl7.org/fhir/uv/sdc/CodeSystem/launchContext",
+            "code": "patient",
+            "display": "Patient",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Paciente"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "url": "type",
+          "valueCode": "Patient"
+        }
+      ]
+    }
+  ],
+  "version": "0.0.1",
+  "name": "Pregnancy Outcome & Child Registration",
+  "title": "Pregnancy Outcome & Child Registration",
+  "status": "active",
+  "subjectType": [
+    "Patient"
+  ],
+  "date": "2022-07-27T00:00:00Z",
+  "publisher": "ONA",
+  "contact": [
+    {
+      "name": "https://www.smartregister.org/"
+    }
+  ],
+  "description": "Pregnancy Outcome & Child Registration",
+  "useContext": [
+    {
+      "code": {
+        "system": "http://hl7.org/fhir/ValueSet/usage-context-type",
+        "code": "focus",
+        "display": "Clinical Focus",
+        "_display": {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/translation",
+              "extension": [
+                {
+                  "url": "lang",
+                  "valueCode": "id"
+                },
+                {
+                  "url": "content",
+                  "valueString": "Fokus Klinis"
+                }
+              ]
+            },
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/translation",
+              "extension": [
+                {
+                  "url": "lang",
+                  "valueCode": "es"
+                },
+                {
+                  "url": "content",
+                  "valueString": "Enfoque clínico"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "valueCodeableConcept": {
+        "coding": [
+          {
+            "system": "urn:oid:2.16.578.1.12.4.1.1.8655",
+            "display": "Pregnancy Outcome",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "id"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Luaran kehamilan"
+                    }
+                  ]
+                },
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Resultado del embarazo"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+          "valueExpression": {
+            "language": "text/fhirpath",
+            "expression": "%patient.birthDate >= today() - 18 'years'.toQuantity() and %patient.birthDate <= today() - 0 'years'.toQuantity()"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden",
+          "valueBoolean": true
+        }
+      ],
+      "linkId": "is-under-18-years",
+      "text": "Is under 18years",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Es menores de 18 años"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "boolean",
+      "required": true,
+      "readOnly": true
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/ValueSet/questionnaire-item-control",
+                "code": "radio-button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "834f9057-21b1-4ab6-c5d1-fbe97c488e96",
+      "text": "Hello. My name is FULL NAME, I am the PROFESSIONAL AREA of Vamos Juntos. In this consultation, I will ask you for personal information about you/your child's health status. All with the purpose of determining a diagnosis and choosing the best treatment for your condition. At any time you can refuse to receive any of the procedures. Do you agree?",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Buenos días. Mi nombre es NOMBRE COMPLETO, soy el/la AREA PROFESIONAL de Vamos Juntos. En esta consulta le preguntaré información personal sobre el estado de salud de su hijo/a o ustedes.  Todo con la finalidad de determinar un diagnóstico y escoger el mejor tratamiento para su padecimiento En cualquier momento usted puede negarse a recibir cualquiera de los procedimientos ¿Está usted de acuerdo?"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "choice",
+      "required": true,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "id": "e8059a99-19f3-4390-83bd-8784fc421cd21",
+            "system": "http://snomed.info/sct",
+            "code": "373066001",
+            "display": "Yes",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Sí"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "0041d106-e8ed-46e5-9d4a-4e3f3c942f722",
+            "system": "http://snomed.info/sct",
+            "code": "373067005",
+            "display": "No",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "No"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/ValueSet/questionnaire-item-control",
+                "code": "radio-button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "d2b277f2-a202-41af-9901-47e361caf6ef",
+      "text": "Pregnant woman?",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "¿Mujer embarazada? "
+              }
+            ]
+          }
+        ]
+      },
+      "type": "choice",
+      "enableWhen": [
+        {
+          "question": "834f9057-21b1-4ab6-c5d1-fbe97c488e96",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "373066001"
+          }
+        }
+      ],
+      "required": true,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "id": "e8059a99-19f3-4390-83bd-8784fc421cd23",
+            "system": "http://snomed.info/sct",
+            "code": "373066001",
+            "display": "Yes",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Sí"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "0041d106-e8ed-46e5-9d4a-4e3f3c942f724",
+            "system": "http://snomed.info/sct",
+            "code": "373067005",
+            "display": "No",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "No"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/ValueSet/questionnaire-item-control",
+                "code": "radio-button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "d8f1c651-a641-4c11-97f1-1ec973cf4330",
+      "text": "Was informed consent taken verbally?",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "¿Se tomó consentimiento informado de forma verbal? "
+              }
+            ]
+          }
+        ]
+      },
+      "type": "choice",
+      "enableWhen": [
+        {
+          "question": "834f9057-21b1-4ab6-c5d1-fbe97c488e96",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "373066001"
+          }
+        }
+      ],
+      "required": true,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "id": "e8059a99-19f3-4390-83bd-8784fc421cd25",
+            "system": "http://snomed.info/sct",
+            "code": "373066001",
+            "display": "Yes",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Sí"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "0041d106-e8ed-46e5-9d4a-4e3f3c942f726",
+            "system": "http://snomed.info/sct",
+            "code": "373067005",
+            "display": "No",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "No"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/ValueSet/questionnaire-item-control",
+                "code": "radio-button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "719cd00c-cdb4-4c99-845e-9584a8ca3585",
+      "text": "Who was present at the consultation?",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "¿Quién estuvo presente en la consulta?"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "choice",
+      "enableWhen": [
+        {
+          "question": "834f9057-21b1-4ab6-c5d1-fbe97c488e96",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "373066001"
+          }
+        },
+        {
+          "question": "is-under-18-years",
+          "operator": "=",
+          "answerBoolean": true
+        }
+      ],
+      "enableBehavior": "all",
+      "required": false,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "id": "0504a137-36a3-4b8b-8652-3fe66068298b",
+            "system": "https://system.unicef.org",
+            "code": "male-caregiver",
+            "display": "Male caregiver",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Cuidador hombre"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "efdc9d87-0963-45ff-832e-81f623f5f4af",
+            "system": "https://system.unicef.org",
+            "code": "female-caregiver",
+            "display": "Female caregiver",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Cuidadora mujer"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "8fb1b15b-0212-4e3a-ffdd-4203bc28e049",
+            "system": "https://system.unicef.org",
+            "code": "both",
+            "display": "Both",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Ambos"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "11d69534-90a0-4b12-86d0-95e12345bfb7",
+            "system": "https://system.unicef.org",
+            "code": "neither",
+            "display": "Neither",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Ninguno"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "item": [
+        {
+          "linkId": "03396304-f0c2-4d88-c345-fa59d260ba8d",
+          "text": "Caregiver name",
+          "_text": {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                "extension": [
+                  {
+                    "url": "lang",
+                    "valueCode": "es"
+                  },
+                  {
+                    "url": "content",
+                    "valueString": "Caregiver name"
+                  }
+                ]
+              }
+            ]
+          },
+          "type": "string",
+          "enableWhen": [
+            {
+              "question": "834f9057-21b1-4ab6-c5d1-fbe97c488e96",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "373066001"
+              }
+            },
+            {
+              "question": "719cd00c-cdb4-4c99-845e-9584a8ca3585",
+              "operator": "!=",
+              "answerCoding": {
+                "system": "https://system.unicef.org",
+                "code": "neither"
+              }
+            },
+            {
+              "question": "is-under-18-years",
+              "operator": "=",
+              "answerBoolean": true
+            }
+          ],
+          "enableBehavior": "all",
+          "required": false
+        },
+        {
+          "linkId": "3d04eedc-7e43-4b8e-865b-4e715140fe0b",
+          "text": "Caregiver phone number",
+          "_text": {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                "extension": [
+                  {
+                    "url": "lang",
+                    "valueCode": "es"
+                  },
+                  {
+                    "url": "content",
+                    "valueString": "Caregiver phone number"
+                  }
+                ]
+              }
+            ]
+          },
+          "type": "integer",
+          "enableWhen": [
+            {
+              "question": "834f9057-21b1-4ab6-c5d1-fbe97c488e96",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "373066001"
+              }
+            },
+            {
+              "question": "719cd00c-cdb4-4c99-845e-9584a8ca3585",
+              "operator": "!=",
+              "answerCoding": {
+                "system": "https://system.unicef.org",
+                "code": "neither"
+              }
+            },
+            {
+              "question": "is-under-18-years",
+              "operator": "=",
+              "answerBoolean": true
+            }
+          ],
+          "enableBehavior": "all",
+          "required": false
+        }
+      ]
+    }
+  ]
+}

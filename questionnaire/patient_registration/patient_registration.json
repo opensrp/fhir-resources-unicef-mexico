@@ -1,0 +1,2786 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "unicef-mexico-patient-registration",
+  "meta": {
+    "versionId": "1"
+  },
+  "extension": [
+    {
+      "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-targetStructureMap",
+      "valueCanonical": "https://fhir.demo.smartregister.org/fhir/StructureMap/unicef-mexico-patient-registration"
+    }
+  ],
+  "version": "0.0.1",
+  "name": "Patient Registration",
+  "title": "Patient Registration",
+  "description": "Patient (Caregiver) Registration",
+  "status": "active",
+  "language": "en-GB",
+  "subjectType": [
+    "Patient"
+  ],
+  "publisher": "ONA",
+  "useContext": [
+    {
+      "code": {
+        "system": "http://hl7.org/fhir/ValueSet/usage-context-type",
+        "code": "focus",
+        "display": "Clinical Focus",
+        "_display": {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/translation",
+              "extension": [
+                {
+                  "url": "lang",
+                  "valueCode": "es"
+                },
+                {
+                  "url": "content",
+                  "valueString": "Enfoque clínico"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "valueCodeableConcept": {
+        "coding": [
+          {
+            "system": "urn:oid:2.16.578.1.12.4.1.1.8655",
+            "display": "Vamos Juntos Client Registration",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Vamos Juntos Registro de Pacientes"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden",
+          "valueBoolean": true
+        }
+      ],
+      "linkId": "is-edit-profile",
+      "type": "boolean"
+    },
+    {
+      "linkId": "804f843c-5d2d-43bf-faaa-b72c8a99795f",
+      "text": "Simplified Privacy Notice: In compliance with current Mexican legislation on the protection of personal data held by obligated parties, ADRA Mexico (Agencia Adventista de Desarrollo de Recursos Asistenciales located in Avenida Cuahutemoc No.1, Postal Code.03020, Colony. Navarrete Poniente, Ciudad de México. Estado de México), as the responsible entity for processing your personal data, informs you of the following:",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/rendering-markdown",
+            "valueMarkdown": "**Simplified Privacy Notice**: In compliance with current Mexican legislation on the protection of personal data held by obligated parties, ADRA Mexico (Agencia Adventista de Desarrollo de Recursos Asistenciales located in Avenida Cuahutemoc No.1, Postal Code.03020, Colony. Navarrete Poniente, Ciudad de México. Estado de México), as the responsible entity for processing your personal data, informs you of the following:"
+          },
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Aviso de Privacidad Simplificado : En cumplimiento con la legislación mexicana actual de protección de datos personales en posesión de sujetos obligados, ADRA México (Agencia Adventista de Desarrollo de Recursos Asistenciales located in Avenida cuahutemoc No.1, Postal Code.03020, Colony. Navarrete Poniente, Ciudad de México. Estado de México), como responsable del tratamiento de sus datos personales, le informa lo siguiente:"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "display",
+      "required": false
+    },
+    {
+      "linkId": "2d70b014-f9f8-40d0-84c3-21946f0ba15d",
+      "text": "Data Controller: ADRA México",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/rendering-markdown",
+            "valueMarkdown": "**Data Controller**: ADRA México"
+          },
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Responsable del Tratamiento : ADRA México"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "display",
+      "required": false
+    },
+    {
+      "linkId": "05bea6f8-20e6-4713-aa45-afbeb959d725",
+      "text": "Purposes of Processing Personal Data:",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/rendering-markdown",
+            "valueMarkdown": "**Purposes of Processing Personal Data:**"
+          },
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Finalidades del Tratamiento de Datos Personales:"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "display",
+      "required": false
+    },
+    {
+      "linkId": "39ef64bc-dd89-4e39-824f-e772231b655f",
+      "text": "1.To maintain statistics of services provided and health supplies granted in the \"Vamos Juntos\" project for first-level health, nutrition, and psychosocial services.",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "1. Llevar las estadísticas de servicios prestados e insumos para la salud otorgados en el proyecto \"Vamos Juntos\" para los servicios de salud, nutrición y atención psicosocial de primer nivel que se prestan."
+              }
+            ]
+          }
+        ]
+      },
+      "type": "display",
+      "required": false
+    },
+    {
+      "linkId": "8aa998fb-96d3-44a0-ac23-1d34c4ad899a",
+      "text": "2.To conduct studies, statistical analyses, and health information analyses.",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "2. Realizar estudios, análisis estadísticos y de información de salud."
+              }
+            ]
+          }
+        ]
+      },
+      "type": "display",
+      "required": false
+    },
+    {
+      "linkId": "9d6ea079-bb40-4699-8754-7547d14b775e",
+      "text": "3.To comply with the notification and statistical information obligations of the Ministry of Health.",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "3. Cumplir con las obligaciones de notificación e información estadística de la Secretaría de Salud."
+              }
+            ]
+          }
+        ]
+      },
+      "type": "display",
+      "required": false
+    },
+    {
+      "linkId": "4314c490-ad0e-4c76-82e7-9eab4b9e3cf3",
+      "text": " 4.To improve services, for academic or research purposes.",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "4. Procesos de mejora de atención, académicos o de investigación."
+              }
+            ]
+          }
+        ]
+      },
+      "type": "display",
+      "required": false
+    },
+    {
+      "linkId": "fcad17a4-de49-4288-9730-be58769b1e64",
+      "text": "Data Collection Requirements in accordance with the Law: In accordance with current Mexican legislation, the following personal data may be collected and processed by ADRA Mexico: Full name, Age, Gender, Sex, Current address, Phone and/or email, Health data (medical history, diagnoses, treatments), Demographic information, Emergency contact information.",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/rendering-markdown",
+            "valueMarkdown": "**Data Collection Requirements in accordance with the Law**: In accordance with current Mexican legislation, the following personal data may be collected and processed by ADRA Mexico: Full name, Age, Gender, Sex, Current address, Phone and/or email, Health data (medical history, diagnoses, treatments), Demographic information, Emergency contact information."
+          },
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Requisitos que Deben Recaudarse Conforme a la Ley : De acuerdo con la legislación mexicana vigente, los siguientes datos personales pueden ser recabados y tratados por ADRA México: Nombre completo, Edad, Género, Sexo, Domicilio actual, Teléfono y/o correo electrónico, Datos de salud (historial médico, diagnósticos, tratamientos), Información demográfica, Datos de contacto de emergencia"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "display",
+      "required": false
+    },
+    {
+      "linkId": "53b4548b-46da-4a3d-91f9-aa36f45e14b0",
+      "text": "Transfer of Personal Data: The transfer of personal data will only be made, in an anonymized manner, to:",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/rendering-markdown",
+            "valueMarkdown": "**Transfer of Personal Data**: The transfer of personal data will only be made, in an anonymized manner, to:"
+          },
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Transferencia de Datos Personales: La transferencia de datos personales solo se realizará, de manera anonimizada, a:"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "display",
+      "required": false
+    },
+    {
+      "linkId": "0ea88bfe-d7bd-402a-cf6e-064531650f1f",
+      "text": "1.UNICEF México: For the collection, production, and dissemination of statistical information among UNICEF, its partners, its funders, and for research and dissemination purposes in an anonymized manner.",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "1.UNICEF México: Para la captación, producción y difusión de la información estadística entre UNICEF, su socio, sus financiadores y para fines de investigación y difusión de la información de manera anonimizada."
+              }
+            ]
+          }
+        ]
+      },
+      "type": "display",
+      "required": false
+    },
+    {
+      "linkId": "186537db-b0c9-4ef9-85ef-10dc34e6c080",
+      "text": "2.Ministry of Health: For the collection, production, and dissemination of statistical information and its compliance with the provisions contained in general health and statistical and geographic information laws.",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/rendering-markdown",
+            "valueMarkdown": "2.**Ministry of Health**: For the collection, production, and dissemination of statistical information and its compliance with the provisions contained in general health and statistical and geographic information laws."
+          },
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "2. Secretaría de Salud : Para la captación, producción y difusión de la información estadística y su corresponsabilidad con las disposiciones contenidas en las leyes generales en materia de salud y de información estadística y geográfica."
+              }
+            ]
+          }
+        ]
+      },
+      "type": "display",
+      "required": false
+    },
+    {
+      "linkId": "1417a81b-2b70-431f-b2a3-af0e8893e67d",
+      "text": "Does it require the data subject's consent?",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "¿Requieren consentimiento del titular?"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "display",
+      "required": false
+    },
+    {
+      "linkId": "594329f1-fc81-4400-87b9-bf99c585c68e",
+      "text": "a) YES, the data subject's consent to UNICEF is required for the collection, production, and dissemination of statistical information among its funders and for research and dissemination purposes in an anonymized manner.",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "a) SÍ, el titular de los datos consentir para UNICEF es requerido para la captación, producción y difusión de la información estadística entre sus financiadores y para fines de investigación y difusión de la información de manera anonimizada."
+              }
+            ]
+          }
+        ]
+      },
+      "type": "display",
+      "required": false
+    },
+    {
+      "linkId": "de175710-7a8f-4345-c896-a440f0b5b357",
+      "text": "b) YES, the data subject's consent to the Federal Ministry of Health is required for the collection, production, and dissemination of statistical information and its compliance with the provisions contained in general health and statistical and geographic information laws",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "b) SÍ, el titular de los datos consentir al Secretaría de Salud Federal es requerido para la captación, producción y difusión de la información estadística y su corresponsabilidad con las disposiciones contenidas en las leyes generales en materia de salud y de información estadística y geográfica."
+              }
+            ]
+          }
+        ]
+      },
+      "type": "display",
+      "required": false
+    },
+    {
+      "linkId": "b65b3fb1-69af-4503-80a1-563bc6b19ddb",
+      "text": "Right to Object to Personal Data Processing: If you do not wish your personal data to be processed for the aforementioned purposes, you may indicate this at any time by sending an email to: proyectos@adramexico.org or at the following address: Avenida Cuauhtémoc No.1, Postal Code 03020, Colonia Navarrete Poniente, Ciudad de México, Estado de México, or at the following web page: http://www.adramexico.org/",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/rendering-markdown",
+            "valueMarkdown": "**Right to Object to Personal Data Processing**: If you do not wish your personal data to be processed for the aforementioned purposes, you may indicate this at any time by sending an email to: proyectos@adramexico.org or at the following address: Avenida Cuauhtémoc No.1, Postal Code 03020, Colonia Navarrete Poniente, Ciudad de México, Estado de México, or at the following web page: http://www.adramexico.org/"
+          },
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Derecho a Oponerse al Tratamiento de Datos Personales: En caso de que no desee que sus datos personales sean tratados para las finalidades anteriormente mencionadas, puede manifestarlo en cualquier momento enviando un correo electrónico a la dirección: proyectos@adramexico.org o a través de la página web: http://www.adramexico.org. Dirección: Avenida Cuauhtémoc No.1, Postal Code 03020, Colonia Navarrete Poniente, Ciudad de México, Estado de México."
+              }
+            ]
+          }
+        ]
+      },
+      "type": "display",
+      "required": false
+    },
+    {
+      "linkId": "b7c24ee3-17a7-4f44-8c71-ceb37cb5191e",
+      "text": "Means and Procedure for Exercising ARCO Rights (Access, Rectification, Cancellation, and Opposition): You have the right to access, rectify, and cancel your personal data, as well as to oppose their processing or revoke the consent you have given us, through the procedures we have implemented. To learn about these procedures, requirements, and deadlines, you can contact our Personal Data Department at: proyectos@adramexico.org or at the following address: Avenida Cuauhtémoc No.1, Postal Code 03020, Colonia Navarrete Poniente, Ciudad de México, Estado de México, or at the following web page: http://www.adramexico.org/",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/rendering-markdown",
+            "valueMarkdown": "**Means and Procedure for Exercising ARCO Rights (Access, Rectification, Cancellation, and Opposition)**: You have the right to access, rectify, and cancel your personal data, as well as to oppose their processing or revoke the consent you have given us, through the procedures we have implemented. To learn about these procedures, requirements, and deadlines, you can contact our Personal Data Department at: proyectos@adramexico.org or at the following address: Avenida Cuauhtémoc No.1, Postal Code 03020, Colonia Navarrete Poniente, Ciudad de México, Estado de México, or at the following web page: http://www.adramexico.org/"
+          },
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Medios y Procedimiento para el Ejercicio de los Derechos ARCO (Acceso, Rectificación, Cancelación y Oposición) : Usted tiene derecho a acceder, rectificar y cancelar sus datos personales, así como a oponerse al tratamiento de los mismos o revocar el consentimiento que para tal fin nos haya otorgado, a través de los procedimientos que hemos implementado. Para conocer dichos procedimientos, los requisitos y plazos, puede ponerse en contacto con nuestro Departamento de Datos Personales en: proyectos@adramexico.org o a través de la página web: http://www.adramexico.org. Dirección: Avenida Cuauhtémoc No.1, Postal Code 03020, Colonia Navarrete Poniente, Ciudad de México, Estado de México"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "display",
+      "required": false
+    },
+    {
+      "linkId": "8c9002ed-5c97-48d0-89c3-e518cab6a3f1",
+      "text": "For more information on the processing of your personal data, you can consult our comprehensive privacy notice available at our offices or on our website.",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Para más información sobre el tratamiento de sus datos personales, puede consultar nuestro aviso de privacidad integral disponible en nuestras oficinas o en nuestro sitio web."
+              }
+            ]
+          }
+        ]
+      },
+      "type": "display",
+      "required": false
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/ValueSet/questionnaire-item-control",
+                "code": "radio-button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "43f08bd6-f987-4f12-8dca-11a89a0af1e3",
+      "text": "Avenida cuahutemoc No.1, Postal Code.03020, Colony. Navarrete Poniente, Ciudad de México. Estado de México. By selecting Yes, you have understood and agreed to the data privacy and data collection in place of a physical or electronic signature.",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Avenida Cuauhtémoc No.1, Postal Code 03020, Colonia Navarrete Poniente, Ciudad de México, Estado de México. Al seleccionar Sí, usted ha entendido y aceptado la privacidad de los datos y la recopilación de datos en lugar de una firma física o electrónica."
+              }
+            ]
+          }
+        ]
+      },
+      "type": "choice",
+      "required": true,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "id": "c1ee2b70-bbca-4169-a9ce-a2b6bdeb59be",
+            "system": "http://snomed.info/sct",
+            "code": "373066001",
+            "display": "Yes",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Sí"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "a2b65041-f861-4f06-86d4-0ce078b07439",
+            "system": "http://snomed.info/sct",
+            "code": "373067005",
+            "display": "No",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "No"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "item": [
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-displayCategory",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-display-category",
+                    "code": "instructions"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "1-select-one",
+          "text": "Please select yes if the patient understands",
+          "_text": {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                "extension": [
+                  {
+                    "url": "lang",
+                    "valueCode": "es"
+                  },
+                  {
+                    "url": "content",
+                    "valueString": "¿Está usted de acuerdo?"
+                  }
+                ]
+              }
+            ]
+          },
+          "type": "display"
+        }
+      ]
+    },
+    {
+      "linkId": "2eb60512-9466-470c-8d5d-5eeb85f111c9",
+      "text": "Refusal to use your personal data for these purposes cannot be a reason for denying the requested services.",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "La negativa para el uso de sus datos personales para estas finalidades no podrá ser un motivo para que le neguemos los servicios solicitados a nuestro equipo."
+              }
+            ]
+          }
+        ]
+      },
+      "type": "display",
+      "required": false
+    },
+    {
+      "extension": [
+        {
+          "url": "http://helsenorge.no/fhir/StructureDefinition/sdf-sublabel",
+          "valueMarkdown": "Please list"
+        }
+      ],
+      "linkId": "1784f24d-5550-4612-9ea9-c7713da8920b",
+      "text": "If you do not want your personal data to be used for purposes that require your consent, you may indicate this below. I do not consent to my personal data being used for the following purposes:",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Si no desea que sus datos personales se utilicen para las finalidades que requieren de su consentimiento, podrá manifestarlo a continuación: No consiento que mis datos personales se utilicen para los siguientes fines:"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "string",
+      "enableWhen": [
+        {
+          "question": "43f08bd6-f987-4f12-8dca-11a89a0af1e3",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "373067005"
+          }
+        }
+      ],
+      "enableBehavior": "any",
+      "required": false
+    },
+    {
+      "linkId": "caregiver-info",
+      "text": "Caregiver Information",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Información sobre el cuidador"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "display",
+      "required": false,
+      "enableWhen": [
+        {
+          "question": "43f08bd6-f987-4f12-8dca-11a89a0af1e3",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "373066001"
+          }
+        }
+      ]
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/maxValue",
+          "valueInteger": 10000000
+        },
+        {
+          "url": "http://ehelse.no/fhir/StructureDefinition/validationtext",
+          "valueString": "Enter the correct number between 1 and 10,000,000"
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/minValue",
+          "valueInteger": 1
+        },
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+          "valueExpression": {
+            "language": "text/fhirpath",
+            "expression": "Patient.identifier.where(use = 'official').value.toInteger()"
+          }
+        }
+      ],
+      "linkId": "caregiver-id",
+      "text": "OpenSRP Caregiver ID",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "OpenSRP ID del cuidador"
+              }
+            ]
+          }
+        ]
+      },
+      "enableWhen": [
+        {
+          "question": "43f08bd6-f987-4f12-8dca-11a89a0af1e3",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "373066001"
+          }
+        }
+      ],
+      "type": "integer",
+      "required": false,
+      "readOnly": true
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+          "valueExpression": {
+            "language": "text/fhirpath",
+            "expression": "Patient.name.given"
+          }
+        }
+      ],
+      "linkId": "caregiver-name",
+      "text": "Caregiver name",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Nombre del cuidador"
+              }
+            ]
+          }
+        ]
+      },
+      "item": [
+        {
+          "linkId": "caregiver-name-hint",
+          "text": "(First and last name)",
+          "type": "display",
+          "_text": {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                "extension": [
+                  {
+                    "url": "lang",
+                    "valueCode": "es"
+                  },
+                  {
+                    "url": "content",
+                    "valueString": "(Nombre y apellido)"
+                  }
+                ]
+              }
+            ]
+          },
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-item-control",
+                    "code": "flyover",
+                    "display": "Fly-over"
+                  }
+                ],
+                "text": "Flyover"
+              }
+            }
+          ]
+        }
+      ],
+      "enableWhen": [
+        {
+          "question": "43f08bd6-f987-4f12-8dca-11a89a0af1e3",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "373066001"
+          }
+        }
+      ],
+      "type": "string",
+      "required": true
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/questionnaire-item-control",
+                "code": "check-box"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "date-of-birth-unknown-choice",
+      "type": "choice",
+      "required": false,
+      "repeats": true,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "id": "2b96ecfc-7159-40ef-ddd9-4fdf845fddb7",
+            "system": "urn:uuid:c3f41b65-196a-4c9f-87cb-5c3f12030cd5",
+            "code": "574378ab-079b-4922-9b37-6a56e2d1aa95",
+            "display": "Date of Birth Unknown",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Fecha de nacimiento desconocida"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "enableWhen": [
+        {
+          "question": "43f08bd6-f987-4f12-8dca-11a89a0af1e3",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "373066001"
+          }
+        }
+      ]
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+          "valueExpression": {
+            "language": "text/fhirpath",
+            "expression": "Patient.birthDate"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/maxValue",
+          "_valueDate": {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/cqf-calculatedValue",
+                "valueExpression": {
+                  "language": "text/fhirpath",
+                  "expression": "today()"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/minValue",
+          "_valueDate": {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/cqf-calculatedValue",
+                "valueExpression": {
+                  "language": "text/fhirpath",
+                  "expression": "today() - 43800 days"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/entryFormat",
+          "valueString": "yyyy-MM-dd"
+        }
+      ],
+      "linkId": "date-of-birth",
+      "text": "Date of Birth",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Fecha de nacimiento del cuidador"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "date",
+      "enableWhen": [
+        {
+          "question": "date-of-birth-unknown-choice",
+          "operator": "exists",
+          "answerBoolean": false
+        },
+        {
+          "question": "43f08bd6-f987-4f12-8dca-11a89a0af1e3",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "373066001"
+          }
+        }
+      ],
+      "enableBehavior": "all",
+      "required": true
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression",
+          "valueExpression": {
+            "language": "text/fhirpath",
+            "expression": "%calc-month"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden",
+          "valueBoolean": true
+        }
+      ],
+      "linkId": "calculated-month",
+      "text": "Calculated Month (Hidden)",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Calculado Mes ( oculto )"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "integer",
+      "enableWhen": [
+        {
+          "question": "date-of-birth-unknown-choice",
+          "operator": "exists",
+          "answerBoolean": false
+        }
+      ],
+      "readOnly": true
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression",
+          "valueExpression": {
+            "language": "text/fhirpath",
+            "expression": "%calc-age"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden",
+          "valueBoolean": true
+        }
+      ],
+      "linkId": "calculated-age",
+      "text": "Calculated Age (Hidden)",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Edad calculada ( oculta )"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "integer",
+      "readOnly": true
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-calculatedExpression",
+          "valueExpression": {
+            "language": "text/fhirpath",
+            "expression": "iif(%resource.descendants().where(linkId='date-of-birth-unknown-choice').answer.value.code = '574378ab-079b-4922-9b37-6a56e2d1aa95', %resource.descendants().where(linkId='patient-age-years').answer.value.toInteger(), %calc-age)"
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-hidden",
+          "valueBoolean": true
+        }
+      ],
+      "linkId": "age",
+      "text": "Age (Hidden)",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Edad ( oculta )"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "integer",
+      "readOnly": true
+    },
+    {
+      "extension": [
+        {
+          "url": "http://ehelse.no/fhir/StructureDefinition/sdf-fhirpath",
+          "valueString": "Patient.extension.where(url = 'http://helsenorge.no/fhir/StructureDefinition/sdf-age').value"
+        },
+        {
+          "url": "http://ehelse.no/fhir/StructureDefinition/validationtext",
+          "valueString": "Please enter a valid age"
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/maxValue",
+          "valueInteger": 120
+        },
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/minValue",
+          "valueInteger": 12
+        }
+      ],
+      "linkId": "patient-age-years",
+      "definition": "http://hl7.org/fhir/StructureDefinition/Patient#Patient.age",
+      "text": "Age (Years)",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Edad (años)"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "integer",
+      "enableWhen": [
+        {
+          "question": "date-of-birth-unknown-choice",
+          "operator": "=",
+          "answerCoding": {
+            "system": "urn:uuid:c3f41b65-196a-4c9f-87cb-5c3f12030cd5",
+            "code": "574378ab-079b-4922-9b37-6a56e2d1aa95"
+          }
+        },
+        {
+          "question": "43f08bd6-f987-4f12-8dca-11a89a0af1e3",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "373066001"
+          }
+        }
+      ],
+      "enableBehavior": "all",
+      "required": true
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/ValueSet/questionnaire-item-control",
+                "code": "drop-down"
+              }
+            ]
+          }
+        },
+        {
+          "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-initialExpression",
+          "valueExpression": {
+            "language": "text/fhirpath",
+            "expression": "Patient.gender"
+          }
+        }
+      ],
+      "linkId": "sex",
+      "text": "Sex",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Sexo"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "choice",
+      "enableWhen": [
+        {
+          "question": "43f08bd6-f987-4f12-8dca-11a89a0af1e3",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "373066001"
+          }
+        }
+      ],
+      "required": true,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "system": "http://hl7.org/fhir/administrative-gender",
+            "code": "male",
+            "display": "Male",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Masculino"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "system": "http://hl7.org/fhir/administrative-gender",
+            "code": "female",
+            "display": "Female",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Femenino"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "linkId": "nationality-details",
+      "text": "Nationality details",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Información sobre la nacionalidad"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "group",
+      "required": false,
+      "item": [
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/ValueSet/questionnaire-item-control",
+                    "code": "drop-down"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "nationality",
+          "text": "Nationality",
+          "_text": {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                "extension": [
+                  {
+                    "url": "lang",
+                    "valueCode": "es"
+                  },
+                  {
+                    "url": "content",
+                    "valueString": "Nacionalidad"
+                  }
+                ]
+              }
+            ]
+          },
+          "type": "choice",
+          "enableWhen": [
+            {
+              "question": "43f08bd6-f987-4f12-8dca-11a89a0af1e3",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "373066001"
+              }
+            }
+          ],
+          "enableBehavior": "any",
+          "required": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "id": "a1b2c3d4-e5f6-4a5b-8c7d-9e0f1a2b3c4d",
+                "system": "http://snomed.info/sct",
+                "code": "223688001",
+                "display": "Afghanistan",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Afganistán"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "b2c3d4e5-f6a7-5b6c-9d8e-0f1a2b3c4d5e",
+                "system": "http://snomed.info/sct",
+                "code": "223689009",
+                "display": "Argentina",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Argentina"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "c3d4e5f6-a7b8-6c7d-0e9f-1a2b3c4d5e6f",
+                "system": "http://snomed.info/sct",
+                "code": "223690000",
+                "display": "Bolivia",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Bolivia"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "7b14c37b-533b-4229-8986-488db9644683",
+                "system": "http://snomed.info/sct",
+                "code": "223715002",
+                "display": "Brazil",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Brasil"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "44f0422b-c5a9-4dde-bbc7-d5b9cc911675",
+                "system": "http://snomed.info/sct",
+                "code": "223716001",
+                "display": "Chile",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Chile"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "24037ded-c5a3-41bb-80e0-103f5a888742",
+                "system": "http://snomed.info/sct",
+                "code": "223717005",
+                "display": "Colombia",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Colombia"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "5a4a63b5-9551-4c93-909f-b67aa982f158",
+                "system": "http://snomed.info/sct",
+                "code": "223701004",
+                "display": "Cuba",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Cuba"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "7e50d648-4446-416b-ee07-e36a5bf61a2b",
+                "system": "http://snomed.info/sct",
+                "code": "223718000",
+                "display": "Ecuador",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Ecuador"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "5f9368c4-7883-4856-bfc7-ad50b21d70c0",
+                "system": "http://snomed.info/sct",
+                "code": "223692008",
+                "display": "El Salvador",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "El Salvador"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "d6e7f8a9-b0c1-7d8e-9f0a-1b2c3d4e5f6a",
+                "system": "http://snomed.info/sct",
+                "code": "223691001",
+                "display": "United States",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Estados Unidos"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "59d429fe-d2fd-4ce3-c42f-6f608a2445f8",
+                "system": "http://snomed.info/sct",
+                "code": "223693003",
+                "display": "Guatemala",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Guatemala"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "638c1492-ac66-4c81-9e32-08fedca42c2a",
+                "system": "http://snomed.info/sct",
+                "code": "223705008",
+                "display": "Haiti",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Haití"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "d487b71c-a682-4e32-d717-1c84476f794b",
+                "system": "http://snomed.info/sct",
+                "code": "223694009",
+                "display": "Honduras",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Honduras"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "2ba190fa-4353-4caa-8a76-9ca320d597e3",
+                "system": "http://snomed.info/sct",
+                "code": "223687006",
+                "display": "Mexico",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "México"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "9e044455-ef3b-4f5f-85c7-5ba609748580",
+                "system": "http://snomed.info/sct",
+                "code": "223695005",
+                "display": "Nicaragua",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Nicaragua"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "e7f8a9b0-c1d2-8e9f-0a1b-2c3d4e5f6a7b",
+                "system": "http://snomed.info/sct",
+                "code": "223696006",
+                "display": "Panama",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Panamá"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "3dd91d81-325e-4397-8f85-0ad736209aed",
+                "system": "http://snomed.info/sct",
+                "code": "223721003",
+                "display": "Peru",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Perú"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "9df19c02-f2f6-414b-840f-81b9c56d1e19",
+                "system": "http://snomed.info/sct",
+                "code": "223724006",
+                "display": "Venezuela",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Venezuela"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "f33c10d6-2067-4aa0-8e76-5e8eb715331d",
+                "system": "http://snomed.info/sct",
+                "code": "74964007",
+                "display": "Other",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Otro"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/ValueSet/questionnaire-item-control",
+                    "code": "drop-down"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "state",
+          "text": "What state were you born in?",
+          "_text": {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                "extension": [
+                  {
+                    "url": "lang",
+                    "valueCode": "es"
+                  },
+                  {
+                    "url": "content",
+                    "valueString": "¿En qué estado nació usted/su hijo/a?"
+                  }
+                ]
+              }
+            ]
+          },
+          "type": "choice",
+          "enableWhen": [
+            {
+              "question": "43f08bd6-f987-4f12-8dca-11a89a0af1e3",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "373066001"
+              }
+            },
+            {
+              "question": "nationality",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "223687006"
+              }
+            }
+          ],
+          "enableBehavior": "all",
+          "required": false,
+          "answerOption": [
+            {
+              "valueCoding": {
+                "id": "b6913a7b-4110-4661-82a9-558c929a4976",
+                "system": "https://system.unicef.org",
+                "code": "22368700601",
+                "display": "Aguascalientes",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Aguascalientes"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "47a659b2-7f10-44ac-8a32-509692bdf36c",
+                "system": "https://system.unicef.org",
+                "code": "22368700602",
+                "display": "Baja California",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Baja California"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "572866dc-20e5-4304-e682-5cb2ba2d10e1",
+                "system": "https://system.unicef.org",
+                "code": "22368700603",
+                "display": "Baja California Sur",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Baja California Sur"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "595eb934-c886-4b7e-95ec-2160553d7173",
+                "system": "https://system.unicef.org",
+                "code": "22368700604",
+                "display": "Campeche",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Campeche"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "8215eff6-6f26-4a49-82cf-42f529e2b0dc",
+                "system": "https://system.unicef.org",
+                "code": "22368700605",
+                "display": "Chiapas",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Chiapas"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "6d855b9d-8132-49c7-8576-3edc8166bddc",
+                "system": "https://system.unicef.org",
+                "code": "22368700606",
+                "display": "Chihuahua",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Chihuahua"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "122d7e28-fe20-4f50-b053-becdab022879",
+                "system": "https://system.unicef.org",
+                "code": "22368700607",
+                "display": "CDMX",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "CDMX"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "cf153114-5e6d-4c40-8f9f-63a9b897b2f3",
+                "system": "https://system.unicef.org",
+                "code": "22368700608",
+                "display": "Coahuila",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Coahuila"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "53531df6-d471-4c91-e17d-b1ea82ffe210",
+                "system": "https://system.unicef.org",
+                "code": "22368700609",
+                "display": "Colima",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Colima"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "6264981b-9d7c-42ee-854d-86c988d3c8ed",
+                "system": "https://system.unicef.org",
+                "code": "22368700610",
+                "display": "Durango",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Durango"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "e58640ba-7fbb-4782-8d75-b179deca0483",
+                "system": "https://system.unicef.org",
+                "code": "22368700611",
+                "display": "Guanajuato",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Guanajuato"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "3026f0ad-f923-4d30-8b35-45ccacf3cb9e",
+                "system": "https://system.unicef.org",
+                "code": "22368700612",
+                "display": "Guerrero",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Guerrero"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "6ecf3c02-d06b-4b11-f835-2b8ee522f1ae",
+                "system": "https://system.unicef.org",
+                "code": "22368700613",
+                "display": "Hidalgo",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Hidalgo"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "7a7cb882-8748-4052-8a82-54c2d97f1d60",
+                "system": "https://system.unicef.org",
+                "code": "22368700614",
+                "display": "Jalisco",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Jalisco"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "456ce6e2-2f24-415f-d078-bf861f0052ab",
+                "system": "https://system.unicef.org",
+                "code": "22368700615",
+                "display": "Estado de México",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Estado de México"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "b59a65d5-fdf9-4808-801e-320d0aa9516b",
+                "system": "https://system.unicef.org",
+                "code": "22368700616",
+                "display": "Michoacán de Ocampo",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Michoac án de Ocampo"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "58f491e7-3789-4523-ed90-795aadf0fd03",
+                "system": "https://system.unicef.org",
+                "code": "22368700617",
+                "display": "Morelos",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Morelos"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "7363ee49-bfe6-49a0-e9f5-b876f6d03a07",
+                "system": "https://system.unicef.org",
+                "code": "22368700618",
+                "display": "Nayarit",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Nayarit"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "a0cd675d-9e2c-46af-8533-5ae0574929ae",
+                "system": "https://system.unicef.org",
+                "code": "22368700619",
+                "display": "Nuevo León",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Nuevo León"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "7a716299-ee07-4d9f-87b9-81daaef57ade",
+                "system": "https://system.unicef.org",
+                "code": "22368700620",
+                "display": "Oaxaca",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Oaxaca"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "02dde095-79c3-4117-e841-4b8d420b8dbc",
+                "system": "https://system.unicef.org",
+                "code": "22368700621",
+                "display": "Puebla",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Puebla"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "913d3bb0-67f2-467e-8afb-6c15f7ca827e",
+                "system": "https://system.unicef.org",
+                "code": "22368700622",
+                "display": "Querétaro",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Querétaro"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "f0272133-e7ea-4468-974e-ed6242ef6c6a",
+                "system": "https://system.unicef.org",
+                "code": "22368700623",
+                "display": "Quintana Roo",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Quintana Roo"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "55b43323-ab11-4534-87f0-cc8c50b3a1ef",
+                "system": "https://system.unicef.org",
+                "code": "22368700624",
+                "display": "San Luis Potosí",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "San Luis Potosí"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "4ad2ebad-6d78-41dc-878f-52d3ac08eed4",
+                "system": "https://system.unicef.org",
+                "code": "22368700625",
+                "display": "Sinaloa",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Sinaloa"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "c1811465-7ec5-4870-89f2-40ae17ec0cac",
+                "system": "https://system.unicef.org",
+                "code": "22368700626",
+                "display": "Sonora",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Sonora"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "9809a6d7-e26e-42ac-8383-0bfb34d347a5",
+                "system": "https://system.unicef.org",
+                "code": "22368700627",
+                "display": "Tabasco",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Tabasco"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "0a53dc37-ddce-4a38-b623-7eda629c422f",
+                "system": "https://system.unicef.org",
+                "code": "22368700628",
+                "display": "Tamaulipas",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Tamaulipas"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "13a106dd-c7b7-41bd-8d94-19aa5156d912",
+                "system": "https://system.unicef.org",
+                "code": "22368700629",
+                "display": "Tlaxcala",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Tlaxcala"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "d3e25267-5a70-49a2-cab9-6f8dff381209",
+                "system": "https://system.unicef.org",
+                "code": "22368700630",
+                "display": "Veracruz",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Veracruz"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "6b3374bc-56a8-4e47-845c-00d6e019f27f",
+                "system": "https://system.unicef.org",
+                "code": "22368700631",
+                "display": "Yucatán",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Yucatán"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "valueCoding": {
+                "id": "8e43409b-fe91-4595-f75f-2d66fe876a86",
+                "system": "https://system.unicef.org",
+                "code": "22368700632",
+                "display": "Zacatecas",
+                "_display": {
+                  "extension": [
+                    {
+                      "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                      "extension": [
+                        {
+                          "url": "lang",
+                          "valueCode": "es"
+                        },
+                        {
+                          "url": "content",
+                          "valueString": "Zacatecas"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        {
+          "linkId": "specific-nationality",
+          "text": "Specify nationality",
+          "_text": {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                "extension": [
+                  {
+                    "url": "lang",
+                    "valueCode": "es"
+                  },
+                  {
+                    "url": "content",
+                    "valueString": "Especificar nacionalidad"
+                  }
+                ]
+              }
+            ]
+          },
+          "type": "string",
+          "enableWhen": [
+            {
+              "question": "43f08bd6-f987-4f12-8dca-11a89a0af1e3",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "373066001"
+              }
+            },
+            {
+              "question": "nationality",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "74964007"
+              }
+            }
+          ],
+          "enableBehavior": "all",
+          "required": false
+        }
+      ],
+      "enableWhen": [
+        {
+          "question": "43f08bd6-f987-4f12-8dca-11a89a0af1e3",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "373066001"
+          }
+        }
+      ]
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/minValue",
+          "valueInteger": 0
+        },
+        {
+          "url": "http://ehelse.no/fhir/StructureDefinition/validationtext",
+          "valueString": "Enter a value greater than or equal to 0."
+        },
+        {
+          "url": "http://helsenorge.no/fhir/StructureDefinition/sdf-sublabel",
+          "valueMarkdown": "In months. If it is less than 1 month, add \"1\"."
+        }
+      ],
+      "linkId": "months-since-leaving-place-of-origin",
+      "text": "How long ago did you leave your place of origin? (months)",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "¿Hace cuánto tiempo salió de su lugar de origen? (meses)"
+              }
+            ]
+          }
+        ]
+      },
+      "enableWhen": [
+        {
+          "question": "43f08bd6-f987-4f12-8dca-11a89a0af1e3",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "373066001"
+          }
+        }
+      ],
+      "type": "integer",
+      "required": false
+    }
+  ]
+}

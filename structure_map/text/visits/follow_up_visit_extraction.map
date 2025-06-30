@@ -1,0 +1,1410 @@
+map "https://fhir.demo.smartregister.org/fhir/StructureMap/unicef-mexico-follow-up-visit" = 'Follow-up Visit'
+
+uses "http://hl7.org/fhir/StructureDefinition/QuestionnaireResponse" as source
+uses "http://hl7.org/fhir/StructureDefinition/Bundle" as target
+
+// Main mapping group
+group FollowupVisit(source src: QuestionnaireResponse, target bundle: Bundle) {
+    src -> bundle.id = uuid() "r_bundle_id";
+    src -> bundle.type = 'collection' "r_bundle_type";
+    src -> bundle.entry as entry, entry.resource = create('Consent') as consent, 
+    create('Encounter') as encounter, evaluate(src, $this.subject) as refPatient then {
+        //Consent given
+        src.item as item where((linkId = "agreement-to-procedures" or linkId = "agreement-to-psychological-procedures") and answer.value.code = "373066001" ) then {
+        src then SetYesConsentStatus(src, consent, refPatient, bundle),
+                ExtractEncounter(src, encounter, refPatient, bundle),
+
+                //Personal pathological history
+                ExtractBloodType(src, encounter, refPatient, bundle),
+                ExtractChronicDegenerativeDiseases(src, encounter, refPatient, bundle),
+                ExtractCancerType(src, encounter, refPatient, bundle),
+                ExtractOtherCancerType(src, encounter, refPatient, bundle),
+                ExtractSurgicalProcedures(src, encounter, refPatient, bundle),
+                ExtractIllnessesWithinTheLastYear(src, encounter, refPatient, bundle),
+                ExtractOtherIllnessesWithinTheLastYear(src, encounter, refPatient, bundle),
+                ExtractOtherDiseasesChoice(src, encounter, refPatient, bundle),
+                ExtractOtherDiseases(src, encounter, refPatient, bundle),
+                ExtractTrauma(src, encounter, refPatient, bundle),
+                ExtractAllergies(src, encounter, refPatient, bundle),
+                ExtractOtherAllergies(src, encounter, refPatient, bundle),
+                ExtractFoodAllergyIntolerance(src, encounter, refPatient, bundle),
+                ExtractOtherFoodAllergyIntolerance(src, encounter, refPatient, bundle),
+                ExtractDrugAllergyIntolerance(src, encounter, refPatient, bundle),
+                ExtractOtherDrugAllergyIntolerance(src, encounter, refPatient, bundle),
+                ExtractLocalAnestheticsAllergyIntolerance(src, encounter, refPatient, bundle),
+                ExtractOtherMedicationsAllergyIntolerance(src, encounter, refPatient, bundle),
+                ExtractAntibioticsAllergyIntolerance(src, encounter, refPatient, bundle),
+                ExtractAnalgesicsAndAntiInflammatoriesAllergyIntolerance(src, encounter, refPatient, bundle),
+
+                // Gynecobstetric history
+                ExtractAlreadyHadFirstMenstrualPeriod(src, encounter, refPatient, bundle),
+                ExtractMenarcheAge(src, encounter, refPatient, bundle),
+                ExtractRegularityOfMenstrualCycle(src, encounter, refPatient, bundle),
+                ExtractDateOfLastMenstrualPeriod(src, encounter, refPatient, bundle),
+                ExtractDateOfProbableDelivery(src, encounter, refPatient, bundle),
+                ExtractFundalHeight(src, encounter, refPatient, bundle),
+                ExtractFetalHeartRate(src, encounter, refPatient, bundle),
+                ExtractIsSexuallyActive(src, encounter, refPatient, bundle),
+                ExtractAgeBecameSexuallyActive(src, encounter, refPatient, bundle),
+                ExtractNumberOfSexualPartners(src, encounter, refPatient, bundle),
+                ExtractNumberOfPregnancies(src, encounter, refPatient, bundle),
+                ExtractNumberOfAbortions(src, encounter, refPatient, bundle),
+                ExtractNumberOfVaginalDeliveries(src, encounter, refPatient, bundle),
+                ExtractNumberOfCesareanSections(src, encounter, refPatient, bundle),
+                ExtractAdditionalComments(src, encounter, refPatient, bundle),
+                
+                // Referral
+                ExtractIsReferral(src, encounter, refPatient, bundle),
+                ExtractReasonForReferral(src, encounter, refPatient, bundle),
+
+                // Consultation
+                ExtractReasonForConsultation(src, encounter, refPatient, bundle), 
+
+                // Extract reason for psychological consultation
+                ExtractReasonForPsychologicalConsultation(src, encounter, refPatient, bundle),
+
+                // Extract psychological observations (treatment provided)
+                ExtractPsychologicalObservations(src, encounter, refPatient, bundle),
+                
+                // Diagnoses 
+                ExtractClinicalNutritionalDiagnosis(src, encounter, refPatient, bundle),
+                ExtractMedicalDiagnosis(src, encounter, refPatient, bundle),
+
+                // Treatment provided
+                ExtractTreatmentProvided(src, encounter, refPatient, bundle) "r_bundle_entries";
+        } "r_cons_yes";
+
+        //No consent given
+        src.item as item where((linkId = "agreement-to-procedures" or linkId = "agreement-to-psychological-procedures") and answer.value.code = "373067005" ) then {
+            src then SetNoConsentStatus(src, consent, refPatient, bundle) "r_set_no_consent";
+        } "r_cons_no";
+    } "r_extract_consent";
+}
+
+group ExtractEncounter(source src: QuestionnaireResponse, target encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src -> bundle.entry as entry, entry.resource = encounter then {
+        src -> encounter.id = uuid() "r_encounter_id";
+        src -> encounter.status = 'finished' "r_encounter_status";
+        src -> encounter.class = c("http://terminology.hl7.org/CodeSystem/v3-ActCode", "AMB") "r_encounter_class";
+        src -> encounter.subject = patient "r_encounter_subject_ref";
+        src -> encounter.type = create('CodeableConcept') as concept then {
+            src -> concept.coding = create("Coding") as coding then {
+                src -> coding.system = "https://smartregister.org/" "r_p_coding_system";
+                src.item as visitTypeItem where(linkId = "follow-up-visit-type" and answer.exists()) then {
+                    src->evaluate(visitTypeItem, $this.answer.value) as visitType then {
+                        // Default visit type
+                        src -> coding.code = "FOLLOW_UP_VISIT" "r_p_coding_code";
+                        src -> coding.display = "Follow-up Visit" "r_p_coding_display";
+
+                        src where(visitType = "PFV") then {
+                            src -> coding.code = "PREGNANCY_FOLLOW_UP_VISIT" "r_p_coding_code";
+                            src -> coding.display = "Pregnancy Follow-up Visit" "r_p_coding_display";
+                        } "r_visit_type_pregnancy";
+                        src where(visitType = "CFV") then {
+                            src -> coding.code = "CHILD_FOLLOW_UP_VISIT" "r_p_coding_code";
+                            src -> coding.display = "Child Follow-up Visit" "r_p_coding_display";
+                        } "r_visit_type_child";
+                        src where(visitType = "LFV") then {
+                            src -> coding.code = "LACTATING_FOLLOW_UP_VISIT" "r_p_coding_code";
+                            src -> coding.display = "Lactating Follow-up Visit" "r_p_coding_display";
+                        } "r_visit_type_lactating";
+                    } "r_visit_type_item";
+                } "r_follow_up_visit_type";
+            } "r_p_meta_coding";
+        } "r_en_type";
+        src -> encounter.priority = create('CodeableConcept') as concept then {
+            src -> concept.coding = create("Coding") as coding then {
+                src -> coding.system = "http://terminology.hl7.org/ValueSet/v3-ActPriority" "r_p_coding_system";
+                src -> coding.code = "EL" "r_p_coding_code";
+                src -> coding.display = "elective" "r_p_coding_display";
+            } "r_p_meta_coding";
+            src -> concept.text = 'elective' "r_en_prio_text";
+        } "r_en_prio";
+        src -> encounter.participant as participant then {
+            src -> participant.type = cc("http://terminology.hl7.org/CodeSystem/v3-ParticipationType", "PPRF") "r_encounter_participant_type";
+            src -> participant.individual = evaluate(src, $this.generalPractitioner.first()) "r_encounter_practitioner_ref";
+        } "r_encounter_participant";
+        src -> encounter.period = create('Period') as period then {
+            src -> period.start = evaluate(src, now()) "r_encounter_period_start";
+            src -> period.end = evaluate(src, now()) "r_encounter_period_end";
+        } "r_encounter_period";
+        src->encounter.reasonCode = create("CodeableConcept") as reasonConcept then {
+            src -> encounter.status = "finished" "r_en_st_com";
+            src->reasonConcept.text = "Follow-up visit" "r_enc_resonCode_text";
+            src-> reasonConcept.coding = create("Coding") as reasoncoding then {
+                src->reasoncoding.system = "http://snomed.info/sct",
+                reasoncoding.code ="185389009",
+                reasoncoding.display = "Follow-up visit" "r_enc_resonCode_coding_value";
+            } "r_enc_resonCode_coding";
+        }"r_enc_resonCode";
+    } "r_extract_encounter";
+}
+
+group SetYesConsentStatus(source src: QuestionnaireResponse, target consent: Consent, source patient: Patient, target bundle: Bundle) {
+    src -> consent.status = 'active' "r_consent_status";
+    src then ExtractConsent(src, consent, patient, bundle) "r_extract_consent";
+}
+
+group SetNoConsentStatus(source src: QuestionnaireResponse, target consent: Consent, source patient: Patient, target bundle: Bundle) {
+    src -> consent.status = 'rejected' "r_consent_status";
+    src then ExtractConsent(src, consent, patient, bundle) "r_extract_consent";
+}
+
+// Extract Consent Data
+group ExtractConsent(source src: QuestionnaireResponse, target consent: Consent, source patient: Patient, target bundle: Bundle) {
+    src.item as consentItem where(linkId = "agreement-to-procedures") then {
+            src -> consent.id = uuid() "r_consent_id";
+            src -> consent.scope = cc("http://hl7.org/fhir/ValueSet/consent-scope", "patient-privacy", "Privacy Consent") "r_consent_scope";
+            src -> consent.category = cc("http://terminology.hl7.org/CodeSystem/consentcategorycodes", "57016-8", "Privacy policy acknowledgment") "r_consent_category";
+            src -> consent.patient = patient "r_consent_patient";
+            src -> consent.dateTime = evaluate(src, now()) "r_consent_datetime";
+            src -> consent.performer = evaluate(src, $this.generalPractitioner.first()) "r_cns_performer";
+            src -> consent.organization = create('Reference') as orgRef then {
+                src -> orgRef.reference = evaluate(src, 'Organization/' + $this.managingOrganization) "org";
+            } "r_cns_org";
+             src -> consent.source = create('Reference') as consentSource then {
+                    src -> consentSource.reference = evaluate(src, 'QuestionnaireResponse/' + src.id) "source";
+            } "r_cns_source";
+    } "r_consent_item";
+}
+
+group ExtractBloodType(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as bloodTypeItem where(linkId = "blood-group-and-rh-factor" and answer.exists()) then {
+        bloodTypeItem.answer as answer then {
+            src -> bundle.entry as entry, entry.resource = create('Observation') as observation then {  
+                src -> observation.id = uuid() "r_observation_id";
+                src -> observation.status = "final" "r_observation_status";
+                src -> observation.category = cc("http://terminology.hl7.org/CodeSystem/observation-category", "laboratory") "r_observation_category";
+                src -> observation.code = create('CodeableConcept') as concept then {
+                    src -> concept.coding = create("Coding") as coding then {
+                        src -> coding.system = "http://snomed.info/sct" "r_observation_code_system";  
+                        src -> coding.code = "365642005" "r_observation_code_code";
+                        src -> coding.display = "Blood group antigen type" "r_observation_code_display";
+                    } "r_observation_code";
+                    src -> concept.text = "Blood group antigen type" "r_observation_code_text";
+                } "r_observation_code"; 
+                src -> observation.subject = patient "r_observation_subject";
+                src -> observation.encounter = reference(encounter) "r_observation_encounter";
+                src -> observation.performer = evaluate(src, $this.generalPractitioner.first()) "r_observation_performer";
+                src -> observation.value = create('CodeableConcept') as concept then {
+                    src -> concept.coding = create("Coding") as coding then {   
+                        src -> coding.system = evaluate(bloodTypeItem, $this.answer.value.system) "r_observation_value_system";
+                        src -> coding.code = evaluate(bloodTypeItem, $this.answer.value.code) "r_observation_value_code";
+                        src -> coding.display = evaluate(bloodTypeItem, $this.answer.value.display) "r_observation_value_display";
+                    } "r_observation_value";
+                    src -> concept.text = evaluate(bloodTypeItem, $this.answer.value.display) "r_observation_value_text";
+                } "r_observation_value";    
+            } "r_extract_blood_type";
+        } "r_blood_type_answer";
+    } "r_blood_type_item";
+}
+
+group ExtractChronicDegenerativeDiseases(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as conditionItem where(linkId = "chronic-degenerative-diseases" and answer.exists()) then {
+        conditionItem.answer as answer then {
+            src->evaluate(answer, $this.value.code) as answerCode then {
+                src where(answerCode != "G31.89") then {
+                    src -> bundle.entry as entry, entry.resource = create('Condition') as condition then {
+                        src -> condition.id = uuid() "r_condition_id";
+                        src -> condition.clinicalStatus = cc("http://terminology.hl7.org/CodeSystem/condition-clinical", "active") "r_condition_clinical_status";
+                        src -> condition.verificationStatus = cc("http://terminology.hl7.org/CodeSystem/condition-ver-status", "confirmed") "r_condition_verification_status";
+                        src -> condition.category = cc("https://smartregister.org/", "chronic-problem-list-item") "r_condition_category";
+                        src -> condition.code = create('CodeableConcept') as concept then {
+                            src -> concept.coding = create("Coding") as coding then {
+                                src -> coding.system = evaluate(answer, answer.value.system) "r_condition_code_system";
+                                src -> coding.code = answerCode "r_condition_code_code";
+                                src -> coding.display = evaluate(answer, answer.value.display) "r_condition_code_display";
+                            } "r_condition_code";
+                            src -> concept.text = evaluate(answer, answer.value.display) "r_condition_code_text";
+                        } "r_condition_code";
+                        src -> condition.subject = patient "r_condition_subject";
+                        src -> condition.encounter = reference(encounter) "r_condition_encounter";
+                        src -> condition.recordedDate = evaluate(src, now()) "r_condition_recordedDate";
+                        src -> condition.recorder = evaluate(src, $this.generalPractitioner.first()) "r_condition_recorder";
+                    } "r_extract_condition";
+                } "r_condition_answer_code_not_chronic";
+            } "r_condition_answer_code";
+        } "r_condition_answer";
+    } "r_condition_item";
+}
+
+group ExtractOtherChronicDegenerativeDiseases(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as conditionItem where(linkId = "other-chronic-degenerative-diseases" and answer.exists()) then {
+        conditionItem.answer as answer then {
+            src -> bundle.entry as entry, entry.resource = create('Condition') as condition then {
+                src -> condition.id = uuid() "r_condition_id";
+                src -> condition.category = cc("https://smartregister.org/", "other-chronic-problem-list-item") "r_condition_category";
+                src -> condition.code = create('CodeableConcept') as concept then {
+                    src -> concept.coding = create("Coding") as coding then {
+                        src -> coding.system = "http://snomed.info/sct" "r_condition_code_system";
+                        src -> coding.code = "27624003" "r_condition_code_code";
+                        src -> coding.display = "Chronic disease" "r_condition_code_display";
+                    } "r_condition_code";
+                    src -> concept.text = "Chronic disease" "r_condition_code_text";
+                } "r_condition_code";
+                src -> condition.subject = patient "r_condition_subject";
+                src -> condition.encounter = reference(encounter) "r_condition_encounter";
+                src -> condition.recordedDate = evaluate(src, now()) "r_condition_recordedDate";
+                src -> condition.recorder = evaluate(src, $this.generalPractitioner.first()) "r_condition_recorder";
+                src -> condition.note = create('Annotation') as note then {
+                    src -> note.text = evaluate(conditionItem, $this.answer.value) "r_condition_note_text";
+                } "r_condition_note";
+            } "r_extract_condition";
+        } "r_condition_answer";
+    } "r_condition_item";
+}
+
+group ExtractCancerType(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as conditionItem where(linkId = "cancer-choice" and answer.exists()) then {
+        conditionItem.answer as answer then {
+            src->evaluate(answer, $this.value.code) as answerCode then {
+                src where(answerCode != "C76.8") then {
+                    src -> bundle.entry as entry, entry.resource = create('Condition') as condition then {
+                        src -> condition.id = uuid() "r_condition_id";
+                        src -> condition.clinicalStatus = cc("http://terminology.hl7.org/CodeSystem/condition-clinical", "active") "r_condition_clinical_status";
+                        src -> condition.verificationStatus = cc("http://terminology.hl7.org/CodeSystem/condition-ver-status", "confirmed") "r_condition_verification_status";
+                        src -> condition.category = cc("https://smartregister.org/", "cancer-problem-list-item") "r_condition_category";
+                        src -> condition.code = create('CodeableConcept') as concept then {
+                            src -> concept.coding = create("Coding") as coding then {
+                                src -> coding.system = evaluate(answer, answer.value.system) "r_condition_code_system";
+                                src -> coding.code = evaluate(answer, answer.value.code) "r_condition_code_code";
+                                src -> coding.display = evaluate(answer, answer.value.display) "r_condition_code_display";
+                            } "r_condition_code";
+                            src -> concept.text = evaluate(answer, answer.value.display) "r_condition_code_text";
+                        } "r_condition_code";
+                        src -> condition.subject = patient "r_condition_subject";
+                        src -> condition.encounter = reference(encounter) "r_condition_encounter";
+                        src -> condition.recordedDate = evaluate(src, now()) "r_condition_recordedDate";
+                        src -> condition.recorder = evaluate(src, $this.generalPractitioner.first()) "r_condition_recorder";
+                    } "r_extract_condition";
+                } "r_condition_answer_code_not_cancer";
+            } "r_condition_answer_code";
+        } "r_condition_answer";
+    } "r_condition_item";
+}
+
+group ExtractOtherCancerType(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as conditionItem where(linkId = "other-cancer-type" and answer.exists()) then {
+            src -> bundle.entry as entry, entry.resource = create('Condition') as condition then {
+                src -> condition.id = uuid() "r_condition_id";
+                src -> condition.category = cc("https://smartregister.org/", "other-cancer-problem-list-item") "r_condition_category";
+                src -> condition.code = create('CodeableConcept') as concept then {
+                    src -> concept.coding = create("Coding") as coding then {
+                        src -> coding.system = "http://snomed.info/sct" "r_condition_code_system";
+                        src -> coding.code = "363346000" "r_condition_code_code";
+                        src -> coding.display = "Cancer" "r_condition_code_display";
+                    } "r_condition_code";
+                    src -> concept.text = "Cancer" "r_condition_code_text";   
+                } "r_condition_code";
+                src -> condition.subject = patient "r_condition_subject";
+                src -> condition.encounter = reference(encounter) "r_condition_encounter";
+                src -> condition.recordedDate = evaluate(src, now()) "r_condition_recordedDate";
+                src -> condition.recorder = evaluate(src, $this.generalPractitioner.first()) "r_condition_recorder";
+                src -> condition.note = create('Annotation') as note then {
+                    src -> note.text = evaluate(conditionItem, $this.answer.value) "r_condition_note_text";
+                } "r_condition_note";
+            } "r_extract_condition";
+    } "r_condition_item";
+}
+
+group ExtractSurgicalProcedures(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as procedureItem where(linkId = "surgical-procedures" and answer.exists()) then {
+            src -> bundle.entry as entry, entry.resource = create('Procedure') as procedure then {
+                src -> procedure.id = uuid() "r_procedure_id";
+                src -> procedure.status = "completed" "r_procedure_status";
+                src -> procedure.category = create('CodeableConcept') as category then {
+                    src -> category.coding = create("Coding") as coding then {
+                        src -> coding.system = "http://snomed.info/sct" "r_procedure_category_system";
+                        src -> coding.code = "387713003" "r_procedure_category_code";
+                        src -> coding.display = "Diagnostic procedure (procedure)" "r_procedure_category_display";
+                    } "r_procedure_category";
+                    src -> category.text = "Diagnostic procedure" "r_procedure_category_text";
+                } "r_procedure_category";
+                src -> procedure.subject = patient "r_procedure_subject";
+                src -> procedure.encounter = reference(encounter) "r_procedure_encounter";
+                src -> procedure.performer = evaluate(src, $this.generalPractitioner.first()) "r_procedure_performer";
+                src -> procedure.note = create('Annotation') as note then {
+                    src -> note.text = evaluate(procedureItem, $this.answer.value) "r_procedure_note_text";
+                } "r_procedure_note";
+            } "r_extract_procedure";
+    } "r_procedure_item";
+}
+
+group ExtractIllnessesWithinTheLastYear(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as illnessItem where(linkId = "illnesses-within-the-last-year" and answer.exists()) then {
+        illnessItem.answer as answer then { 
+            src->evaluate(answer, $this.value.code) as answerCode then {
+                src where(answerCode != "R69") then {
+                    src -> bundle.entry as entry, entry.resource = create('Condition') as condition then {
+                        src -> condition.id = uuid() "r_condition_id";
+                         src -> condition.clinicalStatus = cc("http://terminology.hl7.org/CodeSystem/condition-clinical", "active") "r_condition_clinical_status";
+                        src -> condition.verificationStatus = cc("http://terminology.hl7.org/CodeSystem/condition-ver-status", "confirmed") "r_condition_verification_status";
+                        src -> condition.category = cc("https://smartregister.org/", "illness-problem-list-item") "r_condition_category";
+                        src -> condition.code = create('CodeableConcept') as concept then {
+                            src -> concept.coding = create("Coding") as coding then {
+                                src -> coding.system = evaluate(answer, answer.value.system) "r_condition_code_system";
+                                src -> coding.code = evaluate(answer, answer.value.code) "r_condition_code_code";
+                                src -> coding.display = evaluate(answer, answer.value.display) "r_condition_code_display";
+                            } "r_condition_code";
+                            src -> concept.text = evaluate(answer, answer.value.display) "r_condition_code_text";
+                        } "r_condition_code";
+                        src -> condition.subject = patient "r_condition_subject";
+                        src -> condition.encounter = reference(encounter) "r_condition_encounter";
+                        src -> condition.recordedDate = evaluate(src, now()) "r_condition_recordedDate";
+                        src -> condition.recorder = evaluate(src, $this.generalPractitioner.first()) "r_condition_recorder";
+                    } "r_extract_condition";
+                } "r_condition_answer_code_not_illness";
+            } "r_condition_answer_code";
+        } "r_condition_answer"; 
+    } "r_condition_item";
+}
+
+group ExtractOtherIllnessesWithinTheLastYear(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as illnessItem where(linkId = "other-illnesses-within-the-last-year" and answer.exists()) then {
+        illnessItem.answer as answer then {
+            src -> bundle.entry as entry, entry.resource = create('Condition') as condition then {
+                src -> condition.id = uuid() "r_condition_id";
+                src -> condition.clinicalStatus = cc("http://terminology.hl7.org/CodeSystem/condition-clinical", "active") "r_condition_clinical_status";
+                src -> condition.verificationStatus = cc("http://terminology.hl7.org/CodeSystem/condition-ver-status", "confirmed") "r_condition_verification_status";
+                src -> condition.category = cc("https://smartregister.org/", "other-illness-problem-list-item") "r_condition_category"; 
+                src -> condition.code = create('CodeableConcept') as concept then {
+                    src -> concept.coding = create("Coding") as coding then {
+                        src -> coding.system = "http://snomed.info/sct" "r_condition_code_system";
+                        src -> coding.code = "39104002" "r_condition_code_code";
+                        src -> coding.display = "Illness" "r_condition_code_display";
+                    } "r_condition_code";   
+                    src -> concept.text = "Illness" "r_condition_code_text";
+                } "r_condition_code";
+                src -> condition.subject = patient "r_condition_subject";
+                src -> condition.encounter = reference(encounter) "r_condition_encounter";
+                src -> condition.recordedDate = evaluate(src, now()) "r_condition_recordedDate";
+                src -> condition.recorder = evaluate(src, $this.generalPractitioner.first()) "r_condition_recorder";    
+                src -> condition.note = create('Annotation') as note then {
+                    src -> note.text = evaluate(illnessItem, $this.answer.value) "r_condition_note_text";
+                } "r_condition_note";
+            } "r_extract_condition";
+        } "r_condition_answer";
+    } "r_condition_item";
+}
+
+group ExtractOtherDiseasesChoice(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as illnessItem where(linkId = "other-diseases-choice" and answer.exists()) then {
+        illnessItem.answer as answer then {
+            src where(answer.value.code != "other") then {
+                src -> bundle.entry as entry, entry.resource = create('Condition') as condition then {
+                    src -> condition.id = uuid() "r_condition_id";  
+                    src -> condition.clinicalStatus = cc("http://terminology.hl7.org/CodeSystem/condition-clinical", "active") "r_condition_clinical_status";
+                    src -> condition.verificationStatus = cc("http://terminology.hl7.org/CodeSystem/condition-ver-status", "confirmed") "r_condition_verification_status";
+                    src -> condition.category = cc("https://smartregister.org/", "other-disease-problem-list-item") "r_condition_category"; 
+                    src -> condition.code = create('CodeableConcept') as concept then {
+                        src -> concept.coding = create("Coding") as coding then {
+                            src -> coding.system = evaluate(answer, answer.value.system) "r_condition_code_system";
+                            src -> coding.code = evaluate(answer, answer.value.code) "r_condition_code_code";
+                            src -> coding.display = evaluate(answer, answer.value.display) "r_condition_code_display";
+                        } "r_condition_code";   
+                        src -> concept.text = evaluate(answer, answer.value.display) "r_condition_code_text";
+                    } "r_condition_code";
+                    src -> condition.subject = patient "r_condition_subject";
+                    src -> condition.encounter = reference(encounter) "r_condition_encounter";
+                    src -> condition.recordedDate = evaluate(src, now()) "r_condition_recordedDate";
+                    src -> condition.recorder = evaluate(src, $this.generalPractitioner.first()) "r_condition_recorder";    
+                    } "r_extract_condition";
+            } "r_condition_answer_code_not_other";
+        } "r_condition_answer_code";
+    } "r_condition_item";
+}
+
+group ExtractOtherDiseases(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as illnessItem where(linkId = "other-diseases" and answer.exists()) then {
+        illnessItem.answer as answer then {
+            src -> bundle.entry as entry, entry.resource = create('Condition') as condition then {  
+                src -> condition.id = uuid() "r_condition_id";
+                src -> condition.clinicalStatus = cc("http://terminology.hl7.org/CodeSystem/condition-clinical", "active") "r_condition_clinical_status";
+                src -> condition.verificationStatus = cc("http://terminology.hl7.org/CodeSystem/condition-ver-status", "confirmed") "r_condition_verification_status";
+                src -> condition.category = cc("https://smartregister.org/", "other-disease-problem-item") "r_condition_category"; 
+                src -> condition.code = create('CodeableConcept') as concept then {
+                    src -> concept.coding = create("Coding") as coding then {
+                        src -> coding.system = "http://snomed.info/sct" "r_condition_code_system";
+                        src -> coding.code = "39104002" "r_condition_code_code";
+                        src -> coding.display = "Illness" "r_condition_code_display";
+                    } "r_condition_code";
+                    src -> concept.text = "Illness" "r_condition_code_text";
+                } "r_condition_code";
+                src -> condition.subject = patient "r_condition_subject";
+                src -> condition.encounter = reference(encounter) "r_condition_encounter";
+                src -> condition.recordedDate = evaluate(src, now()) "r_condition_recordedDate";
+                src -> condition.recorder = evaluate(src, $this.generalPractitioner.first()) "r_condition_recorder";
+                src -> condition.note = create('Annotation') as note then {
+                    src -> note.text = evaluate(illnessItem, $this.answer.value) "r_condition_note_text";
+                } "r_condition_note";
+            } "r_extract_condition";
+        } "r_condition_answer";
+    } "r_condition_item";
+} 
+
+group ExtractTrauma(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as traumaItem where(linkId = "trauma-choice" and answer.exists()) then {
+        traumaItem.answer as answer then {
+            src -> bundle.entry as entry, entry.resource = create('Condition') as condition then {
+                src -> condition.id = uuid() "r_condition_id";
+                src -> condition.clinicalStatus = cc("http://terminology.hl7.org/CodeSystem/condition-clinical", "active") "r_condition_clinical_status";
+                src -> condition.verificationStatus = cc("http://terminology.hl7.org/CodeSystem/condition-ver-status", "confirmed") "r_condition_verification_status";
+                src -> condition.category = cc("https://smartregister.org/", "trauma-problem-list-item") "r_condition_category";
+                src -> condition.code = create('CodeableConcept') as concept then {
+                    src -> concept.coding = create("Coding") as coding then {
+                        src -> coding.system = evaluate(answer, answer.value.system) "r_condition_code_system";
+                        src -> coding.code = evaluate(answer, answer.value.code) "r_condition_code_code";
+                        src -> coding.display = evaluate(answer, answer.value.display) "r_condition_code_display";
+                    } "r_condition_code";
+                    src -> concept.text = evaluate(answer, answer.value.display) "r_condition_code_text";
+                } "r_condition_code";
+                src -> condition.subject = patient "r_condition_subject";
+                src -> condition.encounter = reference(encounter) "r_condition_encounter";
+                src -> condition.recordedDate = evaluate(src, now()) "r_condition_recordedDate";
+                src -> condition.recorder = evaluate(src, $this.generalPractitioner.first()) "r_condition_recorder";
+            } "r_extract_condition";
+        } "r_condition_answer";
+    } "r_condition_item";
+}
+
+group ExtractAllergies(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as allergyItem where(linkId = "allergies-choice" and answer.exists()) then {
+        allergyItem.answer as answer then {
+            src->evaluate(answer, $this.value.code) as answerCode then {
+                src where(answerCode != "other") then {
+                    src -> bundle.entry as entry, entry.resource = create('AllergyIntolerance') as allergy then {
+                        src -> allergy.id = uuid() "r_allergy_id";
+                        src -> allergy.identifier = create('Identifier') as identifier then {
+                            src -> identifier.use = "secondary" "r_allergy_identifier_use";
+                            src -> identifier.system = "https://smartregister.org/" "r_allergy_identifier_system";
+                            src -> identifier.value = "general_allergy_category" "r_allergy_identifier_value";
+                        } "r_allergy_identifier";
+                        src -> allergy.clinicalStatus = cc("http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical", "active") "r_allergy_clinical_status";
+                        src -> allergy.verificationStatus = cc("http://terminology.hl7.org/CodeSystem/allergyintolerance-verification", "confirmed") "r_allergy_verification_status";
+                        src -> allergy.type = "allergy" "r_allergy_type";
+                        src -> allergy.code = create('CodeableConcept') as concept then {
+                            src -> concept.coding = create("Coding") as allergyCode then {
+                                src -> allergyCode.system = evaluate(answer, answer.value.system) "r_allergy_code_system";
+                                src -> allergyCode.code = evaluate(answer, answer.value.code) "r_allergy_code_code";
+                                src -> allergyCode.display = evaluate(answer, answer.value.display) "r_allergy_code_display";
+                            } "r_allergy_code";
+                            src -> concept.text = evaluate(answer, answer.value.display) "r_allergy_code_text";
+                        } "r_allergy_code";
+                        src -> allergy.patient = patient "r_allergy_patient";
+                        src -> allergy.recordedDate = evaluate(src, now()) "r_allergy_recordedDate";
+                        src -> allergy.recorder = evaluate(src, $this.generalPractitioner.first()) "r_allergy_recorder";
+                        src -> allergy.encounter = reference(encounter) "r_allergy_encounter";
+                    } "r_extract_allergy";
+                } "r_allergy_answer_code_not_allergy";
+            } "r_allergy_answer_code";
+        } "r_allergy_answer";
+    } "r_allergy_item";
+}   
+
+group ExtractOtherAllergies(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as allergyItem where(linkId = "other-allergies" and answer.exists()) then {
+        allergyItem.answer as answer then {
+            src -> bundle.entry as entry, entry.resource = create('AllergyIntolerance') as allergy then {
+                src -> allergy.id = uuid() "r_allergy_id";
+                src -> allergy.identifier = create('Identifier') as identifier then {
+                    src -> identifier.use = "secondary" "r_allergy_identifier_use";
+                    src -> identifier.system = "https://smartregister.org/" "r_allergy_identifier_system";
+                    src -> identifier.value = "other_allergy_category" "r_allergy_identifier_value";
+                } "r_allergy_identifier";
+                src -> allergy.clinicalStatus = cc("http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical", "active") "r_allergy_clinical_status";
+                src -> allergy.verificationStatus = cc("http://terminology.hl7.org/CodeSystem/allergyintolerance-verification", "confirmed") "r_allergy_verification_status";
+                src -> allergy.type = "allergy" "r_allergy_type";
+                src -> allergy.code = create('CodeableConcept') as concept then {
+                    src -> concept.coding = create("Coding") as allergyCode then {
+                        src -> allergyCode.system = "http://snomed.info/sct" "r_allergy_code_system";
+                        src -> allergyCode.code = "609328004" "r_allergy_code_code";
+                        src -> allergyCode.display = "Allergic disposition" "r_allergy_code_display";
+                    } "r_allergy_code";
+                    src -> concept.text = "Allergic disposition" "r_allergy_code_text";
+                } "r_allergy_code";
+                src -> allergy.patient = patient "r_allergy_patient";
+                src -> allergy.recordedDate = evaluate(src, now()) "r_allergy_recordedDate";
+                src -> allergy.recorder = evaluate(src, $this.generalPractitioner.first()) "r_allergy_recorder";
+                src -> allergy.encounter = reference(encounter) "r_allergy_encounter";
+                src -> allergy.note = create('Annotation') as note then {
+                    src -> note.text = evaluate(allergyItem, $this.answer.value) "r_allergy_note_text";
+                } "r_allergy_note";
+            } "r_extract_allergy";
+        } "r_allergy_answer";
+    } "r_allergy_item";
+}
+group ExtractFoodAllergyIntolerance(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as allergyItem where(linkId = "food-allergies" and answer.exists()) then {
+        allergyItem.answer as answer then {
+            src->evaluate(answer, $this.value.code) as answerCode then {
+                src where(answerCode != "other") then {
+                    src -> bundle.entry as entry, entry.resource = create('AllergyIntolerance') as allergy then {
+                        src -> allergy.id = uuid() "r_allergy_id";
+                        src -> allergy.identifier = create('Identifier') as identifier then {
+                            src -> identifier.use = "secondary" "r_allergy_identifier_use";
+                            src -> identifier.system = "https://smartregister.org/" "r_allergy_identifier_system";
+                            src -> identifier.value = "food_allergy_category" "r_allergy_identifier_value";
+                        } "r_allergy_identifier";
+                        src -> allergy.clinicalStatus = cc("http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical", "active") "r_allergy_clinical_status";
+                        src -> allergy.verificationStatus = cc("http://terminology.hl7.org/CodeSystem/allergyintolerance-verification", "confirmed") "r_allergy_verification_status";
+                        src -> allergy.type = "allergy" "r_allergy_type";
+                        src -> allergy.category = "food" "r_allergy_category";
+                        src -> allergy.code = create('CodeableConcept') as concept then { 
+                            src -> concept.coding = create("Coding") as allergyCode then {
+                                src -> allergyCode.system = "http://snomed.info/sct" "r_allergy_code_system";
+                                src -> allergyCode.code = evaluate(answer, answer.value.code) "r_allergy_code_code";
+                                src -> allergyCode.display = evaluate(answer, answer.value.display) "r_allergy_code_display";
+                            } "r_allergy_code";
+                            src -> concept.text = evaluate(answer, answer.value.display) "r_allergy_code_text";
+                        } "r_allergy_code";
+                        src -> allergy.patient = patient "r_allergy_patient";
+                        src -> allergy.recordedDate = evaluate(src, now()) "r_allergy_recordedDate";
+                        src -> allergy.recorder = evaluate(src, $this.generalPractitioner.first()) "r_allergy_recorder";
+                        src -> allergy.encounter = reference(encounter) "r_allergy_encounter";
+                    } "r_extract_allergy";
+                } "r_allergy_answer_code_not_allergy";
+            } "r_allergy_answer_code";
+        } "r_allergy_answer";
+    } "r_allergy_item";
+}
+
+group ExtractOtherFoodAllergyIntolerance(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as allergyItem where(linkId = "other-food-allergies" and answer.exists()) then {
+        allergyItem.answer as answer then {
+            src -> bundle.entry as entry, entry.resource = create('AllergyIntolerance') as allergy then {
+                src -> allergy.id = uuid() "r_allergy_id";
+                src -> allergy.identifier = create('Identifier') as identifier then {
+                    src -> identifier.use = "secondary" "r_allergy_identifier_use";
+                    src -> identifier.system = "https://smartregister.org/" "r_allergy_identifier_system";
+                    src -> identifier.value = "other_food_allergy_category" "r_allergy_identifier_value";
+                } "r_allergy_identifier";
+                src -> allergy.clinicalStatus = cc("http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical", "active") "r_allergy_clinical_status";
+                src -> allergy.verificationStatus = cc("http://terminology.hl7.org/CodeSystem/allergyintolerance-verification", "confirmed") "r_allergy_verification_status";
+                src -> allergy.type = "allergy" "r_allergy_type";
+                src -> allergy.category = "food" "r_allergy_category";
+                src -> allergy.code = create('CodeableConcept') as concept then { 
+                    src -> concept.coding = create("Coding") as allergyCode then {
+                        src -> allergyCode.system = "http://snomed.info/sct" "r_allergy_code_system";
+                        src -> allergyCode.code = "609328004" "r_allergy_code_code";
+                        src -> allergyCode.display = "Allergic disposition" "r_allergy_code_display";
+                    } "r_allergy_code";
+                    src -> concept.text = "Allergic disposition" "r_allergy_code_text"; 
+                } "r_allergy_code";
+                src -> allergy.patient = patient "r_allergy_patient";
+                src -> allergy.recordedDate = evaluate(src, now()) "r_allergy_recordedDate";
+                src -> allergy.recorder = evaluate(src, $this.generalPractitioner.first()) "r_allergy_recorder";
+                src -> allergy.encounter = reference(encounter) "r_allergy_encounter";
+                src -> allergy.note = create('Annotation') as note then {
+                    src -> note.text = evaluate(allergyItem, $this.answer.value) "r_allergy_note_text";
+                } "r_allergy_note";
+            } "r_extract_allergy";
+        } "r_allergy_answer";
+    } "r_allergy_item";
+}
+
+group ExtractDrugAllergyIntolerance(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as allergyItem where(linkId = "drug-allergy" and answer.exists()) then {
+        allergyItem.answer as answer then {
+            src->evaluate(answer, $this.value.code) as answerCode then {
+                src where(answerCode != "other") then {
+                    src -> bundle.entry as entry, entry.resource = create('AllergyIntolerance') as allergy then {
+                        src -> allergy.id = uuid() "r_allergy_id";
+                        src -> allergy.identifier = create('Identifier') as identifier then {
+                            src -> identifier.use = "secondary" "r_allergy_identifier_use";
+                            src -> identifier.system = "https://smartregister.org/" "r_allergy_identifier_system";
+                            src -> identifier.value = "drug_allergy_category" "r_allergy_identifier_value";
+                        } "r_allergy_identifier";
+                        src -> allergy.clinicalStatus = cc("http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical", "active") "r_allergy_clinical_status";
+                        src -> allergy.verificationStatus = cc("http://terminology.hl7.org/CodeSystem/allergyintolerance-verification", "confirmed") "r_allergy_verification_status";
+                        src -> allergy.type = "allergy" "r_allergy_type";
+                        src -> allergy.category = "medication" "r_allergy_category";
+                        src -> allergy.code = create('CodeableConcept') as concept then {
+                            src -> concept.coding = create("Coding") as allergyCode then {
+                                src -> allergyCode.system = evaluate(answer, answer.value.system) "r_allergy_code_system";
+                                src -> allergyCode.code = evaluate(answer, answer.value.code) "r_allergy_code_code";
+                                src -> allergyCode.display = evaluate(answer, answer.value.display) "r_allergy_code_display";
+                            } "r_allergy_code";
+                            src -> concept.text = evaluate(answer, answer.value.display) "r_allergy_code_text";
+                        } "r_allergy_code";
+                        src -> allergy.patient = patient "r_allergy_patient";
+                        src -> allergy.recordedDate = evaluate(src, now()) "r_allergy_recordedDate";
+                        src -> allergy.recorder = evaluate(src, $this.generalPractitioner.first()) "r_allergy_recorder";
+                        src -> allergy.encounter = reference(encounter) "r_allergy_encounter";
+                    } "r_extract_allergy";
+                } "r_allergy_answer_code_not_allergy";
+            } "r_allergy_answer_code";
+        } "r_allergy_answer";
+    } "r_allergy_item";
+}
+
+group ExtractOtherDrugAllergyIntolerance(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as allergyItem where(linkId = "other-drug-allergies" and answer.exists()) then {
+        allergyItem.answer as answer then {
+            src -> bundle.entry as entry, entry.resource = create('AllergyIntolerance') as allergy then {
+                src -> allergy.id = uuid() "r_allergy_id";
+                src -> allergy.identifier = create('Identifier') as identifier then {
+                    src -> identifier.use = "secondary" "r_allergy_identifier_use";
+                    src -> identifier.system = "https://smartregister.org/" "r_allergy_identifier_system";
+                    src -> identifier.value = "other_drug_allergy_category" "r_allergy_identifier_value";
+                } "r_allergy_identifier";
+                src -> allergy.clinicalStatus = cc("http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical", "active") "r_allergy_clinical_status";
+                src -> allergy.verificationStatus = cc("http://terminology.hl7.org/CodeSystem/allergyintolerance-verification", "confirmed") "r_allergy_verification_status";
+                src -> allergy.type = "allergy" "r_allergy_type";
+                src -> allergy.category = "medication" "r_allergy_category";  
+                src -> allergy.code = create('CodeableConcept') as concept then {
+                    src -> concept.coding = create("Coding") as allergyCode then {
+                        src -> allergyCode.system = "http://snomed.info/sct" "r_allergy_code_system";
+                        src -> allergyCode.code = "609328004" "r_allergy_code_code";
+                        src -> allergyCode.display = "Allergic disposition" "r_allergy_code_display";
+                    } "r_allergy_code"; 
+                    src -> concept.text = "Allergic disposition" "r_allergy_code_text";
+                } "r_allergy_code";
+                src -> allergy.patient = patient "r_allergy_patient";
+                src -> allergy.recordedDate = evaluate(src, now()) "r_allergy_recordedDate";
+                src -> allergy.recorder = evaluate(src, $this.generalPractitioner.first()) "r_allergy_recorder";
+                src -> allergy.encounter = reference(encounter) "r_allergy_encounter";  
+                src -> allergy.note = create('Annotation') as note then {
+                    src -> note.text = evaluate(allergyItem, $this.answer.value) "r_allergy_note_text";
+                } "r_allergy_note";
+            } "r_extract_allergy";
+        } "r_allergy_answer";
+    } "r_allergy_item";
+}
+
+group ExtractAntibioticsAllergyIntolerance(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as allergyItem where(linkId = "antibiotics-allergy" and answer.exists()) then {
+        allergyItem.answer as answer then { 
+            src -> bundle.entry as entry, entry.resource = create('AllergyIntolerance') as allergy then {
+                src -> allergy.id = uuid() "r_allergy_id";
+                src -> allergy.identifier = create('Identifier') as identifier then {
+                    src -> identifier.use = "secondary" "r_allergy_identifier_use";
+                    src -> identifier.system = "https://smartregister.org/" "r_allergy_identifier_system";
+                    src -> identifier.value = "antibiotics_allergy" "r_allergy_identifier_value";
+                } "r_allergy_identifier";
+                src -> allergy.clinicalStatus = cc("http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical", "active") "r_allergy_clinical_status";
+                src -> allergy.verificationStatus = cc("http://terminology.hl7.org/CodeSystem/allergyintolerance-verification", "confirmed") "r_allergy_verification_status";
+                src -> allergy.type = "allergy" "r_allergy_type";
+                src -> allergy.category = "medication" "r_allergy_category";    
+                src -> allergy.code = create('CodeableConcept') as concept then {
+                    src -> concept.coding = create("Coding") as allergyCode then {
+                        src -> allergyCode.system = evaluate(answer, answer.value.system) "r_allergy_code_system";
+                        src -> allergyCode.code = evaluate(answer, answer.value.code) "r_allergy_code_code";
+                        src -> allergyCode.display = evaluate(answer, answer.value.display) "r_allergy_code_display";
+                    } "r_allergy_code";
+                    src -> concept.text = evaluate(answer, answer.value.display) "r_allergy_code_text";
+                } "r_allergy_code";
+                src -> allergy.patient = patient "r_allergy_patient";
+                src -> allergy.recordedDate = evaluate(src, now()) "r_allergy_recordedDate";
+                src -> allergy.recorder = evaluate(src, $this.generalPractitioner.first()) "r_allergy_recorder";
+                src -> allergy.encounter = reference(encounter) "r_allergy_encounter";
+            } "r_extract_allergy";
+        } "r_allergy_answer";
+    } "r_allergy_item";
+}
+
+group ExtractAnalgesicsAndAntiInflammatoriesAllergyIntolerance(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as allergyItem where(linkId = "analgesics-and-anti-inflammatories-allergy" and answer.exists()) then {
+        allergyItem.answer as answer then { 
+            src -> bundle.entry as entry, entry.resource = create('AllergyIntolerance') as allergy then {
+                src -> allergy.id = uuid() "r_allergy_id";
+                src -> allergy.identifier = create('Identifier') as identifier then {
+                    src -> identifier.use = "secondary" "r_allergy_identifier_use";
+                    src -> identifier.system = "https://smartregister.org/" "r_allergy_identifier_system";
+                    src -> identifier.value = "analgesics_and_anti_inflammatories_allergy" "r_allergy_identifier_value";
+                } "r_allergy_identifier";
+                src -> allergy.clinicalStatus = cc("http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical", "active") "r_allergy_clinical_status";
+                src -> allergy.verificationStatus = cc("http://terminology.hl7.org/CodeSystem/allergyintolerance-verification", "confirmed") "r_allergy_verification_status";
+                src -> allergy.type = "allergy" "r_allergy_type";
+                src -> allergy.category = "medication" "r_allergy_category";    
+                src -> allergy.code = create('CodeableConcept') as concept then {
+                    src -> concept.coding = create("Coding") as allergyCode then {
+                        src -> allergyCode.system = evaluate(answer, answer.value.system) "r_allergy_code_system";
+                        src -> allergyCode.code = evaluate(answer, answer.value.code) "r_allergy_code_code";
+                        src -> allergyCode.display = evaluate(answer, answer.value.display) "r_allergy_code_display";
+                    } "r_allergy_code";
+                    src -> concept.text = evaluate(answer, answer.value.display) "r_allergy_code_text";
+                } "r_allergy_code";
+                src -> allergy.patient = patient "r_allergy_patient";
+                src -> allergy.recordedDate = evaluate(src, now()) "r_allergy_recordedDate";
+                src -> allergy.recorder = evaluate(src, $this.generalPractitioner.first()) "r_allergy_recorder";
+                src -> allergy.encounter = reference(encounter) "r_allergy_encounter";
+            } "r_extract_allergy";
+        } "r_allergy_answer";
+    } "r_allergy_item";
+}
+
+group ExtractLocalAnestheticsAllergyIntolerance(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as allergyItem where(linkId = "local-anesthetics-allergy" and answer.exists()) then {
+        allergyItem.answer as answer then { 
+            src -> bundle.entry as entry, entry.resource = create('AllergyIntolerance') as allergy then {
+                src -> allergy.id = uuid() "r_allergy_id";
+                src -> allergy.identifier = create('Identifier') as identifier then {
+                    src -> identifier.use = "secondary" "r_allergy_identifier_use";
+                    src -> identifier.system = "https://smartregister.org/" "r_allergy_identifier_system";
+                    src -> identifier.value = "local_anesthetics_allergy" "r_allergy_identifier_value";
+                } "r_allergy_identifier";
+                src -> allergy.clinicalStatus = cc("http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical", "active") "r_allergy_clinical_status";
+                src -> allergy.verificationStatus = cc("http://terminology.hl7.org/CodeSystem/allergyintolerance-verification", "confirmed") "r_allergy_verification_status";
+                src -> allergy.type = "allergy" "r_allergy_type";
+                src -> allergy.category = "medication" "r_allergy_category";    
+                src -> allergy.code = create('CodeableConcept') as concept then {
+                    src -> concept.coding = create("Coding") as allergyCode then {
+                        src -> allergyCode.system = evaluate(answer, answer.value.system) "r_allergy_code_system";
+                        src -> allergyCode.code = evaluate(answer, answer.value.code) "r_allergy_code_code";
+                        src -> allergyCode.display = evaluate(answer, answer.value.display) "r_allergy_code_display";
+                    } "r_allergy_code";
+                    src -> concept.text = evaluate(answer, answer.value.display) "r_allergy_code_text";
+                } "r_allergy_code";
+                src -> allergy.patient = patient "r_allergy_patient";
+                src -> allergy.recordedDate = evaluate(src, now()) "r_allergy_recordedDate";
+                src -> allergy.recorder = evaluate(src, $this.generalPractitioner.first()) "r_allergy_recorder";
+                src -> allergy.encounter = reference(encounter) "r_allergy_encounter";
+            } "r_extract_allergy";
+        } "r_allergy_answer";
+    } "r_allergy_item";
+}
+
+group ExtractOtherMedicationsAllergyIntolerance(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as allergyItem where(linkId = "other-medications-allergy" and answer.exists()) then {
+        allergyItem.answer as answer then { 
+            src -> bundle.entry as entry, entry.resource = create('AllergyIntolerance') as allergy then {
+                src -> allergy.id = uuid() "r_allergy_id";
+                src -> allergy.identifier = create('Identifier') as identifier then {
+                    src -> identifier.use = "secondary" "r_allergy_identifier_use";
+                    src -> identifier.system = "https://smartregister.org/" "r_allergy_identifier_system";
+                    src -> identifier.value = "other_medications_allergy" "r_allergy_identifier_value";
+                } "r_allergy_identifier";
+                src -> allergy.clinicalStatus = cc("http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical", "active") "r_allergy_clinical_status";
+                src -> allergy.verificationStatus = cc("http://terminology.hl7.org/CodeSystem/allergyintolerance-verification", "confirmed") "r_allergy_verification_status";
+                src -> allergy.type = "allergy" "r_allergy_type";
+                src -> allergy.category = "medication" "r_allergy_category";    
+                src -> allergy.code = create('CodeableConcept') as concept then {
+                    src -> concept.coding = create("Coding") as allergyCode then {
+                        src -> allergyCode.system = evaluate(answer, answer.value.system) "r_allergy_code_system";
+                        src -> allergyCode.code = evaluate(answer, answer.value.code) "r_allergy_code_code";
+                        src -> allergyCode.display = evaluate(answer, answer.value.display) "r_allergy_code_display";
+                    } "r_allergy_code";
+                    src -> concept.text = evaluate(answer, answer.value.display) "r_allergy_code_text";
+                } "r_allergy_code";
+                src -> allergy.patient = patient "r_allergy_patient";
+                src -> allergy.recordedDate = evaluate(src, now()) "r_allergy_recordedDate";
+                src -> allergy.recorder = evaluate(src, $this.generalPractitioner.first()) "r_allergy_recorder";
+                src -> allergy.encounter = reference(encounter) "r_allergy_encounter";
+            } "r_extract_allergy";
+        } "r_allergy_answer";
+    } "r_allergy_item";
+}
+group ExtractAlreadyHadFirstMenstrualPeriod(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as alreadyHadFirstMenstrualPeriodItem where(linkId = "had-first-menstrual-period" and answer.exists()) then {
+            src -> bundle.entry as entry, entry.resource = create('Observation') as observation then {
+                src -> observation.id = uuid() "r_observation_id";
+                src -> observation.status = "final" "r_observation_status";
+                src -> observation.category = cc("http://terminology.hl7.org/CodeSystem/observation-category", "social-history") "r_observation_category";
+                src -> observation.code = create('CodeableConcept') as concept then {
+                    src -> concept.coding = create("Coding") as coding then {
+                        src -> coding.system = "http://snomed.info/sct" "r_observation_code_system";
+                        src -> coding.code = "20016009" "r_observation_code_code";
+                        src -> coding.display = "Menarche" "r_observation_code_display";
+                    } "r_observation_code";
+                    src -> concept.text = "Menarche" "r_observation_code_text";
+                } "r_observation_code";
+                src -> observation.subject = patient "r_observation_subject";
+                src -> observation.encounter = reference(encounter) "r_observation_encounter";
+                src -> observation.effective = evaluate(src, now()) "r_observation_effective";
+                src -> observation.performer = evaluate(src, $this.generalPractitioner.first()) "r_observation_performer";
+                src -> observation.value = evaluate(alreadyHadFirstMenstrualPeriodItem, $this.answer.value.code = "373066001") "r_observation_value_boolean";
+            } "r_extract_observation";
+    } "r_observation_item";
+}
+
+group ExtractMenarcheAge(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as menarcheAgeItem where(linkId = "menarche-age" and answer.exists()) then {
+            src -> bundle.entry as entry, entry.resource = create('Observation') as observation then {
+                src -> observation.id = uuid() "r_observation_id";
+                src -> observation.status = "final" "r_observation_status";
+                src -> observation.category = cc("http://terminology.hl7.org/CodeSystem/observation-category", "social-history") "r_observation_category";  
+                src -> observation.code = create('CodeableConcept') as concept then {
+                    src -> concept.coding = create("Coding") as coding then {
+                        src -> coding.system = "http://snomed.info/sct" "r_observation_code_system";
+                        src -> coding.code = "398700009" "r_observation_code_code";
+                        src -> coding.display = "Age at menarche" "r_observation_code_display";
+                    } "r_observation_code"; 
+                    src -> concept.text = "Age at menarche" "r_observation_code_text"; 
+                } "r_observation_code";
+                src -> observation.subject = patient "r_observation_subject";
+                src -> observation.encounter = reference(encounter) "r_observation_encounter";
+                src -> observation.effective = evaluate(src, now()) "r_observation_effective";
+                src -> observation.performer = evaluate(src, $this.generalPractitioner.first()) "r_observation_performer";
+                src -> observation.value = create('Quantity') as qty then {
+                    src -> qty.value = evaluate(menarcheAgeItem, $this.answer.value) "r_obs_qty";
+                    src -> qty.unit = 'years' "r_obs_qty_unit";
+                    src -> qty.system = 'http://unitsofmeasure.org' "r_obs_qty_system";
+                    src -> qty.code = 'a' "r_obs_qty_code";
+                } "r_obs_quantity";
+            } "r_extract_observation";
+    } "r_observation_item";
+}
+
+group ExtractRegularityOfMenstrualCycle(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {  
+    src.item as regularityOfPeriodsItem where(linkId = "menstrual-cycle-regularity" and answer.exists()) then {
+            src -> bundle.entry as entry, entry.resource = create('Observation') as observation then {
+                src -> observation.id = uuid() "r_observation_id";  
+                src -> observation.status = "final" "r_observation_status";
+                src -> observation.category = cc("http://terminology.hl7.org/CodeSystem/observation-category", "social-history") "r_observation_category";
+                src -> observation.code = create('CodeableConcept') as concept then {
+                    src -> concept.coding = create("Coding") as coding then {
+                        src -> coding.system = "http://snomed.info/sct" "r_observation_code_system";
+                        src -> coding.code = "364307006" "r_observation_code_code";
+                        src -> coding.display = "Regularity of menstrual cycle" "r_observation_code_display";
+                    } "r_observation_code";
+                    src -> concept.text = "Regularity of menstrual cycle" "r_observation_code_text";    
+                } "r_observation_code";
+                src -> observation.subject = patient "r_observation_subject";
+                src -> observation.encounter = reference(encounter) "r_observation_encounter";
+                src -> observation.effective = evaluate(src, now()) "r_observation_effective";
+                src -> observation.performer = evaluate(src, $this.generalPractitioner.first()) "r_observation_performer";
+                src -> observation.value = create("CodeableConcept") as codeableConcept then {
+                    src->codeableConcept.text = evaluate(regularityOfPeriodsItem, $this.answer.value.display) "r_obs_value_text_regularity_of_periods";
+                    src->codeableConcept.coding = evaluate(regularityOfPeriodsItem, $this.answer.value.code) "r_obs_value_c_regularity_of_periods";
+                } "r_obs_value";
+            } "r_extract_observation";
+    } "r_observation_item";
+}
+
+group ExtractDateOfLastMenstrualPeriod(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as dateOfLastMenstrualPeriodItem where(linkId = "date-of-last-menstrual-period" and answer.exists()) then {
+        src -> bundle.entry as entry, entry.resource = create('Observation') as observation then {
+            src -> observation.id = uuid() "r_observation_id";  
+            src -> observation.status = "final" "r_observation_status";
+            src -> observation.category = cc("http://terminology.hl7.org/CodeSystem/observation-category", "social-history") "r_observation_category";
+            src -> observation.code = create('CodeableConcept') as concept then {
+                src -> concept.coding = create("Coding") as coding then {
+                    src -> coding.system = "http://snomed.info/sct" "r_observation_code_system";
+                    src -> coding.code = "21840007" "r_observation_code_code";
+                    src -> coding.display = "Date of last menstrual period" "r_observation_code_display";
+                } "r_observation_code";
+                src -> concept.text = "Date of last menstrual period" "r_observation_code_text";        
+            } "r_observation_code";
+            src -> observation.subject = patient "r_observation_subject";
+            src -> observation.encounter = reference(encounter) "r_observation_encounter";
+            src -> observation.effective = evaluate(src, now()) "r_observation_effective";
+            src -> observation.performer = evaluate(src, $this.generalPractitioner.first()) "r_observation_performer";
+            src -> observation.value = create("dateTime") as dt then {
+                src -> dt.value = evaluate(dateOfLastMenstrualPeriodItem, $this.answer.value.toString() + 'T00:00:00.00Z') "r_obs_value_date";
+            } "r_obs_value";
+        } "r_extract_observation";
+    } "r_observation_item";
+}
+
+group ExtractDateOfProbableDelivery(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as dateOfProbableDeliveryItem where(linkId = "date-of-probable-delivery" and answer.exists()) then {   
+        src -> bundle.entry as entry, entry.resource = create('Observation') as observation then {
+            src -> observation.id = uuid() "r_observation_id";
+            src -> observation.status = "final" "r_observation_status";
+            src -> observation.category = cc("http://terminology.hl7.org/CodeSystem/observation-category", "social-history") "r_observation_category";
+            src -> observation.code = create('CodeableConcept') as concept then {
+                src -> concept.coding = create("Coding") as coding then {
+                    src -> coding.system = "http://snomed.info/sct" "r_observation_code_system";
+                    src -> coding.code = "161714006" "r_observation_code_code";
+                    src -> coding.display = "Estimated date of delivery" "r_observation_code_display";
+                } "r_observation_code";
+                src -> concept.text = "Estimated date of delivery" "r_observation_code_text";
+            } "r_observation_code";
+            src -> observation.subject = patient "r_observation_subject";
+            src -> observation.encounter = reference(encounter) "r_observation_encounter";  
+            src -> observation.effective = evaluate(src, now()) "r_observation_effective";
+            src -> observation.performer = evaluate(src, $this.generalPractitioner.first()) "r_observation_performer";
+            src -> observation.value = create("dateTime") as dt then {
+                src -> dt.value = evaluate(dateOfProbableDeliveryItem, $this.answer.value.toString() + 'T00:00:00.00Z') "r_obs_value_date";
+            } "r_obs_value";
+        } "r_extract_observation";
+    } "r_observation_item";
+}   
+
+group ExtractFundalHeight(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as fundalHeightItem where(linkId = "fundal-height" and answer.exists()) then {
+        src -> bundle.entry as entry, entry.resource = create('Observation') as observation then {
+            src -> observation.id = uuid() "r_observation_id";
+            src -> observation.status = "final" "r_observation_status";
+            src -> observation.category = cc("http://terminology.hl7.org/CodeSystem/observation-category", "physical-exam") "r_observation_category";
+            src -> observation.code = create('CodeableConcept') as concept then {
+                src -> concept.coding = create("Coding") as coding then {
+                    src -> coding.system = "http://snomed.info/sct" "r_observation_code_system";
+                    src -> coding.code = "364253002" "r_observation_code_code";
+                    src -> coding.display = "Fundal height of uterus" "r_observation_code_display";
+                } "r_observation_code";
+                src -> concept.text = "Fundal height of uterus" "r_observation_code_text";
+            } "r_observation_code";
+            src -> observation.subject = patient "r_observation_subject";
+            src -> observation.encounter = reference(encounter) "r_observation_encounter";    
+            src -> observation.effective = evaluate(src, now()) "r_observation_effective";
+            src -> observation.performer = evaluate(src, $this.generalPractitioner.first()) "r_observation_performer";
+            src -> observation.value = create("Quantity") as qty then {
+                src -> qty.value = evaluate(fundalHeightItem, $this.answer.value) "r_obs_qty";
+                src -> qty.unit = 'cm' "r_obs_qty_unit";
+                src -> qty.system = 'http://unitsofmeasure.org' "r_obs_qty_system";
+                src -> qty.code = 'cm' "r_obs_qty_code";
+            } "r_obs_quantity";
+        } "r_extract_observation";
+    } "r_observation_item";
+}   
+
+group ExtractFetalHeartRate(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as fetalHeartRateItem where(linkId = "fetal-heart-rate" and answer.exists()) then {
+        src -> bundle.entry as entry, entry.resource = create('Observation') as observation then {
+            src -> observation.id = uuid() "r_observation_id";
+            src -> observation.status = "final" "r_observation_status";
+            src -> observation.category = cc("http://terminology.hl7.org/CodeSystem/observation-category", "physical-exam") "r_observation_category";
+            src -> observation.code = create('CodeableConcept') as concept then {
+                src -> concept.coding = create("Coding") as coding then {
+                    src -> coding.system = "http://snomed.info/sct" "r_observation_code_system";
+                    src -> coding.code = "249043002" "r_observation_code_code";
+                    src -> coding.display = "Fetal heart rate" "r_observation_code_display";
+                } "r_observation_code";
+                src -> concept.text = "Fetal heart rate" "r_observation_code_text";
+            } "r_observation_code";
+            src -> observation.subject = patient "r_observation_subject";
+            src -> observation.encounter = reference(encounter) "r_observation_encounter";
+            src -> observation.effective = evaluate(src, now()) "r_observation_effective";
+            src -> observation.performer = evaluate(src, $this.generalPractitioner.first()) "r_observation_performer";
+            src -> observation.value = create("Quantity") as qty then {
+                src -> qty.value = evaluate(fetalHeartRateItem, $this.answer.value) "r_obs_qty";
+                src -> qty.unit = 'bpm' "r_obs_qty_unit";
+                src -> qty.system = 'http://unitsofmeasure.org' "r_obs_qty_system";
+                src -> qty.code = 'bpm' "r_obs_qty_code";
+            } "r_obs_quantity";
+        } "r_extract_observation";
+    } "r_observation_item"; 
+}
+
+group ExtractIsSexuallyActive(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as isSexuallyActiveItem where(linkId = "is-sexually-active" and answer.exists()) then {
+        src -> bundle.entry as entry, entry.resource = create('Observation') as observation then {
+            src -> observation.id = uuid() "r_observation_id";
+            src -> observation.status = "final" "r_observation_status";
+            src -> observation.category = cc("http://terminology.hl7.org/CodeSystem/observation-category", "social-history") "r_observation_category";
+            src -> observation.code = create('CodeableConcept') as concept then {
+                src -> concept.coding = create("Coding") as coding then {
+                    src -> coding.system = "http://snomed.info/sct" "r_observation_code_system";
+                    src -> coding.code = "228453005" "r_observation_code_code";
+                    src -> coding.display = "Sexually active" "r_observation_code_display";
+                } "r_observation_code";
+                src -> concept.text = "Sexually active" "r_observation_code_text";
+            } "r_observation_code";
+            src -> observation.subject = patient "r_observation_subject";
+            src -> observation.encounter = reference(encounter) "r_observation_encounter";
+            src -> observation.effective = evaluate(src, now()) "r_observation_effective";
+            src -> observation.performer = evaluate(src, $this.generalPractitioner.first()) "r_observation_performer";
+            src -> observation.value = evaluate(isSexuallyActiveItem, $this.answer.value.code = "373066001") "r_obs_value_boolean";
+        } "r_extract_observation";
+    } "r_observation_item";
+} 
+
+group ExtractAgeBecameSexuallyActive(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as ageBecameSexuallyActiveItem where(linkId = "age-sexually-active" and answer.exists()) then {
+        src -> bundle.entry as entry, entry.resource = create('Observation') as observation then {
+            src -> observation.id = uuid() "r_observation_id";
+            src -> observation.status = "final" "r_observation_status";
+            src -> observation.category = cc("http://terminology.hl7.org/CodeSystem/observation-category", "social-history") "r_observation_category";
+            src -> observation.code = create('CodeableConcept') as concept then {
+                src -> concept.coding = create("Coding") as coding then {
+                    src -> coding.system = "http://snomed.info/sct" "r_observation_code_system";
+                    src -> coding.code = "228456002" "r_observation_code_code";
+                    src -> coding.display = "Age became sexually active" "r_observation_code_display";
+                } "r_observation_code";
+                src -> concept.text = "Age became sexually active" "r_observation_code_text";
+            } "r_observation_code";
+            src -> observation.subject = patient "r_observation_subject";
+            src -> observation.encounter = reference(encounter) "r_observation_encounter";
+            src -> observation.effective = evaluate(src, now()) "r_observation_effective";
+            src -> observation.performer = evaluate(src, $this.generalPractitioner.first()) "r_observation_performer";
+            src -> observation.value = create("Quantity") as qty then {
+                src -> qty.value = evaluate(ageBecameSexuallyActiveItem, $this.answer.value) "r_obs_qty";
+                src -> qty.unit = 'years' "r_obs_qty_unit";
+                src -> qty.system = 'http://unitsofmeasure.org' "r_obs_qty_system";
+                src -> qty.code = 'a' "r_obs_qty_code";
+            } "r_obs_quantity";
+        } "r_extract_observation";
+    } "r_observation_item";
+}   
+
+group ExtractNumberOfSexualPartners(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as numberOfSexualPartnersItem where(linkId = "number-of-sexual-partners" and answer.exists()) then {
+        src -> bundle.entry as entry, entry.resource = create('Observation') as observation then {
+            src -> observation.id = uuid() "r_observation_id";
+            src -> observation.status = "final" "r_observation_status";
+            src -> observation.category = cc("http://terminology.hl7.org/CodeSystem/observation-category", "social-history") "r_observation_category";
+            src -> observation.code = create('CodeableConcept') as concept then {
+                src -> concept.coding = create("Coding") as coding then {
+                    src -> coding.system = "http://snomed.info/sct" "r_observation_code_system";
+                    src -> coding.code = "225517006" "r_observation_code_code";
+                    src -> coding.display = "Sexual partners" "r_observation_code_display";
+                } "r_observation_code";
+                src -> concept.text = "Sexual partners" "r_observation_code_text";
+            } "r_observation_code";
+            src -> observation.subject = patient "r_observation_subject";
+            src -> observation.encounter = reference(encounter) "r_observation_encounter";
+            src -> observation.effective = evaluate(src, now()) "r_observation_effective";
+            src -> observation.performer = evaluate(src, $this.generalPractitioner.first()) "r_observation_performer";
+            src -> observation.value = create("Quantity") as qty then {
+                src -> qty.value = evaluate(numberOfSexualPartnersItem, $this.answer.value) "r_obs_qty";
+                src -> qty.unit = 'partners' "r_obs_qty_unit";
+                src -> qty.system = 'http://unitsofmeasure.org' "r_obs_qty_system";
+                src -> qty.code = 'partners' "r_obs_qty_code";
+            } "r_obs_quantity";
+        } "r_extract_observation";
+    } "r_observation_item";
+}             
+
+group ExtractNumberOfPregnancies(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as numberOfPregnanciesItem where(linkId = "number-of-times-pregnant" and answer.exists()) then {
+        src -> bundle.entry as entry, entry.resource = create('Observation') as observation then {  
+            src -> observation.id = uuid() "r_observation_id";
+            src -> observation.status = "final" "r_observation_status";
+            src -> observation.category = cc("http://terminology.hl7.org/CodeSystem/observation-category", "social-history") "r_observation_category";
+            src -> observation.code = create('CodeableConcept') as concept then {
+                src -> concept.coding = create("Coding") as coding then {
+                    src -> coding.system = "http://snomed.info/sct" "r_observation_code_system";
+                    src -> coding.code = "161732006" "r_observation_code_code";
+                    src -> coding.display = "Gravida" "r_observation_code_display";
+                } "r_observation_code";
+                src -> concept.text = "Gravida" "r_observation_code_text";
+            } "r_observation_code"; 
+            src -> observation.subject = patient "r_observation_subject";
+            src -> observation.encounter = reference(encounter) "r_observation_encounter";
+            src -> observation.effective = evaluate(src, now()) "r_observation_effective";
+            src -> observation.performer = evaluate(src, $this.generalPractitioner.first()) "r_observation_performer";
+            src -> observation.value = create("Quantity") as qty then {
+                src -> qty.value = evaluate(numberOfPregnanciesItem, $this.answer.value) "r_obs_qty";   
+                src -> qty.unit = 'pregnancies' "r_obs_qty_unit";
+                src -> qty.system = 'http://unitsofmeasure.org' "r_obs_qty_system";
+                src -> qty.code = 'pregnancies' "r_obs_qty_code";
+            } "r_obs_quantity";
+        } "r_extract_observation";
+    } "r_observation_item"; 
+}
+
+group ExtractNumberOfAbortions(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as numberOfAbortionsItem where(linkId = "number-of-abortions" and answer.exists()) then {
+        src -> bundle.entry as entry, entry.resource = create('Observation') as observation then {
+            src -> observation.id = uuid() "r_observation_id";
+            src -> observation.status = "final" "r_observation_status";
+            src -> observation.category = cc("http://terminology.hl7.org/CodeSystem/observation-category", "social-history") "r_observation_category";
+            src -> observation.code = create('CodeableConcept') as concept then {
+                src -> concept.coding = create("Coding") as coding then {
+                    src -> coding.system = "http://snomed.info/sct" "r_observation_code_system";
+                    src -> coding.code = "252113007" "r_observation_code_code";
+                    src -> coding.display = "Number of abortions" "r_observation_code_display";
+                } "r_observation_code";
+                src -> concept.text = "Number of abortions" "r_observation_code_text";
+            } "r_observation_code";
+            src -> observation.subject = patient "r_observation_subject";
+            src -> observation.encounter = reference(encounter) "r_observation_encounter";
+            src -> observation.effective = evaluate(src, now()) "r_observation_effective";
+            src -> observation.performer = evaluate(src, $this.generalPractitioner.first()) "r_observation_performer";
+            src -> observation.value = create("Quantity") as qty then {
+                src -> qty.value = evaluate(numberOfAbortionsItem, $this.answer.value) "r_obs_qty";
+                src -> qty.unit = 'abortions' "r_obs_qty_unit";
+                src -> qty.system = 'http://unitsofmeasure.org' "r_obs_qty_system";
+                src -> qty.code = 'abortions' "r_obs_qty_code";
+            } "r_obs_quantity";
+        } "r_extract_observation";
+    } "r_observation_item"; 
+}   
+
+group ExtractNumberOfVaginalDeliveries(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as numberOfVaginalDeliveriesItem where(linkId = "number-of-vaginal-deliveries" and answer.exists()) then {
+        src -> bundle.entry as entry, entry.resource = create('Observation') as observation then {
+            src -> observation.id = uuid() "r_observation_id";
+            src -> observation.status = "final" "r_observation_status";
+            src -> observation.category = cc("http://terminology.hl7.org/CodeSystem/observation-category", "social-history") "r_observation_category";
+            src -> observation.code = create('CodeableConcept') as concept then {
+                src -> concept.coding = create("Coding") as coding then {
+                    src -> coding.system = "http://snomed.info/sct" "r_observation_code_system";
+                    src -> coding.code = "118212000" "r_observation_code_code";
+                    src -> coding.display = "Number of deliveries" "r_observation_code_display";
+                } "r_observation_code";
+                src -> concept.text = "Number of deliveries" "r_observation_code_text";
+            } "r_observation_code";
+            src -> observation.subject = patient "r_observation_subject";
+            src -> observation.encounter = reference(encounter) "r_observation_encounter";
+            src -> observation.effective = evaluate(src, now()) "r_observation_effective";
+            src -> observation.performer = evaluate(src, $this.generalPractitioner.first()) "r_observation_performer";
+            src -> observation.value = create("Quantity") as qty then {
+                src -> qty.value = evaluate(numberOfVaginalDeliveriesItem, $this.answer.value) "r_obs_qty";
+                src -> qty.unit = 'deliveries' "r_obs_qty_unit";
+                src -> qty.system = 'http://unitsofmeasure.org' "r_obs_qty_system";
+                src -> qty.code = 'deliveries' "r_obs_qty_code";
+            } "r_obs_quantity";
+        } "r_extract_observation";  
+    } "r_observation_item";
+}   
+
+group ExtractNumberOfCesareanSections(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as numberOfCesareanSectionsItem where(linkId = "number-of-cesarean-sections" and answer.exists()) then {
+        src -> bundle.entry as entry, entry.resource = create('Observation') as observation then {
+            src -> observation.id = uuid() "r_observation_id";
+            src -> observation.status = "final" "r_observation_status";
+            src -> observation.category = cc("http://terminology.hl7.org/CodeSystem/observation-category", "social-history") "r_observation_category";
+            src -> observation.code = create('CodeableConcept') as concept then {
+                src -> concept.coding = create("Coding") as coding then {
+                    src -> coding.system = "http://snomed.info/sct" "r_observation_code_system";
+                    src -> coding.code = "252115000" "r_observation_code_code";
+                    src -> coding.display = "Number of cesarean sections" "r_observation_code_display";
+                } "r_observation_code";
+                src -> concept.text = "Number of cesarean sections" "r_observation_code_text";
+            } "r_observation_code";
+            src -> observation.subject = patient "r_observation_subject";
+            src -> observation.encounter = reference(encounter) "r_observation_encounter";
+            src -> observation.effective = evaluate(src, now()) "r_observation_effective";
+            src -> observation.performer = evaluate(src, $this.generalPractitioner.first()) "r_observation_performer";  
+            src -> observation.value = create("Quantity") as qty then {
+                src -> qty.value = evaluate(numberOfCesareanSectionsItem, $this.answer.value) "r_obs_qty";
+                src -> qty.unit = 'cesarean sections' "r_obs_qty_unit";
+                src -> qty.system = 'http://unitsofmeasure.org' "r_obs_qty_system";
+                src -> qty.code = 'cesarean sections' "r_obs_qty_code";
+            } "r_obs_quantity";
+        } "r_extract_observation";      
+    } "r_observation_item";
+}
+
+group ExtractAdditionalComments(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as additionalCommentsItem where(linkId = "additional-comments" and answer.exists()) then {
+        src -> bundle.entry as entry, entry.resource = create('Observation') as observation then {
+            src -> observation.id = uuid() "r_observation_id";
+            src -> observation.status = "final" "r_observation_status"; 
+            src -> observation.category = cc("http://terminology.hl7.org/CodeSystem/observation-category", "social-history") "r_observation_category";
+            src -> observation.code = create('CodeableConcept') as concept then {
+                src -> concept.coding = create("Coding") as coding then {
+                    src -> coding.system = "http://snomed.info/sct" "r_observation_code_system";
+                    src -> coding.code = "225414002" "r_observation_code_code";
+                    src -> coding.display = "General observation" "r_observation_code_display"; 
+                } "r_observation_code";
+                src -> concept.text = "General observation" "r_observation_code_text";
+            } "r_observation_code";
+            src -> observation.subject = patient "r_observation_subject";
+            src -> observation.encounter = reference(encounter) "r_observation_encounter";
+            src -> observation.effective = evaluate(src, now()) "r_observation_effective";  
+            src -> observation.performer = evaluate(src, $this.generalPractitioner.first()) "r_observation_performer";
+            src -> observation.value = evaluate(additionalCommentsItem, $this.answer.value) "r_obs_value_string";
+        } "r_extract_observation";
+    } "r_observation_item";
+}
+
+group ExtractIsReferral(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as wasReferredItem where(linkId = "case-was-referred" and answer.exists()) then {
+        src -> bundle.entry as entry, entry.resource = create('Observation') as observation then {
+            src -> observation.id = uuid() "r_observation_id";
+            src -> observation.status = "final" "r_observation_status";
+            src -> observation.category = cc("http://terminology.hl7.org/CodeSystem/observation-category", "social-history") "r_observation_category";
+            src -> observation.code = create('CodeableConcept') as concept then {
+                src -> concept.coding = create("Coding") as coding then {
+                    src -> coding.system = "http://snomed.info/sct" "r_observation_code_system";
+                    src -> coding.code = "440377005" "r_observation_code_code";
+                    src -> coding.display = "Referral by" "r_observation_code_display"; 
+                } "r_observation_code";
+                src -> concept.text = "Referral by" "r_observation_code_text";
+            } "r_observation_code";
+            src -> observation.subject = patient "r_observation_subject";
+            src -> observation.encounter = reference(encounter) "r_observation_encounter";
+            src -> observation.effective = evaluate(src, now()) "r_observation_effective";
+            src -> observation.performer = evaluate(src, $this.generalPractitioner.first()) "r_observation_performer";
+            src -> observation.value = evaluate(wasReferredItem, $this.answer.value.code = "373066001") "r_obs_value_boolean";
+        } "r_extract_observation";
+    } "r_observation_item";
+}
+
+group ExtractReasonForReferral(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as wasReferredItem where(linkId = "case-was-referred") then {
+        wasReferredItem.answer as wasReferredAnswer then {
+            wasReferredAnswer.item as reasonForReferralItem where(linkId = "reason-for-referral" and answer.exists()) then {
+            src -> bundle.entry as entry, entry.resource = create('Observation') as observation then {
+                src -> observation.id = uuid() "r_observation_id";
+                src -> observation.status = "final" "r_observation_status";
+                src -> observation.category = cc("http://terminology.hl7.org/CodeSystem/observation-category", "social-history") "r_observation_category";
+                src -> observation.code = create('CodeableConcept') as concept then {
+                    src -> concept.coding = create("Coding") as coding then {
+                        src -> coding.system = "http://snomed.info/sct" "r_observation_code_system";
+                        src -> coding.code = "440378000" "r_observation_code_code";
+                        src -> coding.display = "Referral for" "r_observation_code_display"; 
+                    } "r_observation_code";
+                    src -> concept.text = "Referral for" "r_observation_code_text";
+                } "r_observation_code";
+                src -> observation.subject = patient "r_observation_subject";
+                src -> observation.encounter = reference(encounter) "r_observation_encounter";
+                src -> observation.effective = evaluate(src, now()) "r_observation_effective";
+                src -> observation.performer = evaluate(src, $this.generalPractitioner.first()) "r_observation_performer";
+                src->evaluate(reasonForReferralItem, $this.answer.value.code) as reasonForReferralCode then {
+                    src where(reasonForReferralCode != "other") then {
+                        src -> observation.value = create("CodeableConcept") as concept then {
+                            src -> concept.coding = create("Coding") as coding then {
+                                src -> coding.system = evaluate(reasonForReferralItem, $this.answer.value.system) "r_observation_code_system";
+                                src -> coding.code = evaluate(reasonForReferralItem, $this.answer.value.code) "r_observation_code_code";
+                                src -> coding.display = evaluate(reasonForReferralItem, $this.answer.value.display) "r_observation_code_display";
+                            } "r_observation_code";
+                        } "r_extract_observation_value_code";
+                    } "r_where_reason_code_is_not_other";
+                    src where(reasonForReferralCode = "other") then {
+                        src.item as otherReasonForReferralItem where(linkId = "other-referral-reason" and answer.exists()) then {
+                            src -> observation.value = evaluate(otherReasonForReferralItem, $this.answer.value) "r_obs_value_string";
+                        } "r_extract_other_observation_value_text";
+                    } "r_where_reason_code_is_other";
+                } "r_evaluate_reason_code";
+            } "r_extract_observation";
+            } "r_observation_item";
+        } "r_reason_for_referral_item";
+    } "r_was_referred_item";
+}
+
+group ExtractReasonForConsultation(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as reasonForConsultationItem where(linkId = "condition-motive-for-medical-consultation" and answer.exists()) then {
+        src -> bundle.entry as entry, entry.resource = create('Observation') as observation then {
+            src -> observation.id = uuid() "r_observation_id";
+            src -> observation.status = "final" "r_observation_status"; 
+            src -> observation.category = cc("http://terminology.hl7.org/CodeSystem/observation-category", "social-history") "r_observation_category";
+            src -> observation.code = create('CodeableConcept') as concept then {
+                src -> concept.coding = create("Coding") as coding then {
+                    src -> coding.system = "http://snomed.info/sct" "r_observation_code_system";
+                    src -> coding.code = "44383000" "r_observation_code_code";
+                    src -> coding.display = "Request for consultation" "r_observation_code_display"; 
+                } "r_observation_code"; 
+                src -> concept.text = "Request for consultation" "r_observation_code_text";
+            } "r_observation_code";
+            src -> observation.subject = patient "r_observation_subject";
+            src -> observation.encounter = reference(encounter) "r_observation_encounter";
+            src -> observation.effective = evaluate(src, now()) "r_observation_effective";
+            src -> observation.performer = evaluate(src, $this.generalPractitioner.first()) "r_observation_performer";
+            src -> observation.value = evaluate(reasonForConsultationItem, $this.answer.value) "r_obs_value_string";
+        } "r_extract_observation";
+    } "r_observation_item";
+}
+
+group ExtractReasonForPsychologicalConsultation(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as reasonForPsychologicalConsultationItem where(linkId = "reason-for-consultation" and answer.exists()) then {
+        src -> bundle.entry as entry, entry.resource = create('Observation') as observation then {
+            src -> observation.id = uuid() "r_observation_id";
+            src -> observation.status = "final" "r_observation_status";
+            src -> observation.category = cc("http://terminology.hl7.org/CodeSystem/observation-category", "social-history") "r_observation_category";
+            src -> observation.code = create('CodeableConcept') as concept then {
+                src -> concept.coding = create("Coding") as coding then {
+                    src -> coding.system = "http://snomed.info/sct" "r_observation_code_system";
+                    src -> coding.code = "25618008" "r_observation_code_code";
+                    src -> coding.display = "Psychological symptom" "r_observation_code_display"; 
+                } "r_observation_code"; 
+                src -> concept.text = "Psychological symptom (Reason for consultation)" "r_observation_code_text"; 
+            } "r_observation_code";
+            src -> observation.subject = patient "r_observation_subject";
+            src -> observation.encounter = reference(encounter) "r_observation_encounter";
+            src -> observation.effective = evaluate(src, now()) "r_observation_effective";
+            src -> observation.performer = evaluate(src, $this.generalPractitioner.first()) "r_observation_performer";
+            src->evaluate(reasonForPsychologicalConsultationItem, $this.answer.value.code) as reasonForPsychologicalConsultationCode then {
+                src where(reasonForPsychologicalConsultationCode != "other") then {
+                    src -> observation.value = create("CodeableConcept") as concept then {
+                        src -> concept.coding = create("Coding") as coding then {
+                            src -> coding.system = evaluate(reasonForPsychologicalConsultationItem, $this.answer.value.system) "r_observation_code_system";
+                            src -> coding.code = evaluate(reasonForPsychologicalConsultationItem, $this.answer.value.code) "r_observation_code_code";
+                            src -> coding.display = evaluate(reasonForPsychologicalConsultationItem, $this.answer.value.display) "r_observation_code_display";
+                        } "r_observation_code";
+                    } "r_extract_observation_value_code";
+                } "r_where_reason_code_is_not_other";
+                src where(reasonForPsychologicalConsultationCode = "other") then {
+                    src.item as otherReasonForPsychologicalConsultationItem where(linkId = "other-reason-for-consultation" and answer.exists()) then {
+                        src -> observation.value = evaluate(otherReasonForPsychologicalConsultationItem, $this.answer.value) "r_obs_value_string";
+                    } "r_extract_other_observation_value_text";
+                } "r_where_reason_code_is_other";
+            } "r_evaluate_reason_code";
+        } "r_extract_observation";
+    } "r_observation_item";
+}
+
+group ExtractPsychologicalObservations(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as psychologicalObservationsItem where(linkId = "psychological-observations" and answer.exists()) then {
+        src -> bundle.entry as entry, entry.resource = create('Observation') as observation then {
+            src -> observation.id = uuid() "r_observation_id";
+            src -> observation.status = "final" "r_observation_status"; 
+            src -> observation.category = cc("http://terminology.hl7.org/CodeSystem/observation-category", "social-history") "r_observation_category";
+            src -> observation.code = create('CodeableConcept') as concept then {
+                src -> concept.coding = create("Coding") as coding then {
+                    src -> coding.system = "http://snomed.info/sct" "r_observation_code_system";
+                    src -> coding.code = "116367006" "r_observation_code_code";
+                    src -> coding.display = "Psychological finding" "r_observation_code_display"; 
+                } "r_observation_code"; 
+                src -> concept.text = "Psychological finding" "r_observation_code_text";
+            } "r_observation_code";
+            src -> observation.subject = patient "r_observation_subject";
+            src -> observation.encounter = reference(encounter) "r_observation_encounter";
+            src -> observation.effective = evaluate(src, now()) "r_observation_effective";
+            src -> observation.performer = evaluate(src, $this.generalPractitioner.first()) "r_observation_performer";
+            src -> observation.value = evaluate(psychologicalObservationsItem, $this.answer.value) "r_obs_value_string";
+        } "r_extract_observation";
+    } "r_observation_item";
+}
+
+group ExtractClinicalNutritionalDiagnosis(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as clinicalDiagnosisItem where(linkId = "clinical-diagnosis" and answer.exists()) then {
+        clinicalDiagnosisItem.answer as answerItem then {
+            src -> bundle.entry as entry, entry.resource = create('Condition') as condition then {
+                src -> condition.id = uuid() "r_condition_id";
+                src -> condition.clinicalStatus = cc("http://terminology.hl7.org/CodeSystem/condition-clinical", "active") "r_condition_clinical_status";
+                src -> condition.verificationStatus = cc("http://terminology.hl7.org/CodeSystem/condition-ver-status", "confirmed") "r_condition_verification_status";
+                src -> condition.category = cc("https://smartregister.org/", "clinical-nutrition-diagnosis") "r_condition_category";
+                src -> condition.subject = patient "r_condition_subject";
+                src -> condition.encounter = reference(encounter) "r_condition_encounter";
+                src -> condition.performer = evaluate(src, $this.generalPractitioner.first()) "r_condition_performer";
+                src -> condition.recordedDate = evaluate(src, now()) "r_condition_recordedDate";
+                src -> condition.note = create('Annotation') as note then {
+                    src -> note.text = evaluate(clinicalDiagnosisItem, $this.answer.value) "r_condition_note_text";
+                } "r_condition_note";
+            } "r_extract_condition";
+        } "r_answer_item";
+    } "r_diagnosis_item";
+}
+
+group ExtractMedicalDiagnosis(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+    src.item as diagnosisItem where(linkId = "diagnosis" and answer.exists()) then {
+        diagnosisItem.answer as answerItem then {
+            src -> bundle.entry as entry, entry.resource = create('Condition') as condition then {
+                src -> condition.id = uuid() "r_condition_id";
+                 src -> condition.clinicalStatus = cc("http://terminology.hl7.org/CodeSystem/condition-clinical", "active") "r_condition_clinical_status";
+                src -> condition.verificationStatus = cc("http://terminology.hl7.org/CodeSystem/condition-ver-status", "confirmed") "r_condition_verification_status";
+                src -> condition.category = cc("https://smartregister.org/", "medical-diagnosis") "r_condition_category";
+                src -> condition.code = create('CodeableConcept') as concept then {
+                    src -> concept.coding = create("Coding") as coding then {
+                        src -> coding.system = evaluate(answerItem, $this.value.system) "r_condition_code_system";
+                        src -> coding.code = evaluate(answerItem, $this.value.code) "r_condition_code_code";
+                        src -> coding.display = evaluate(answerItem, $this.value.display) "r_condition_code_display"; 
+                    } "r_condition_code";
+                    src -> concept.text = evaluate(answerItem, $this.value.display) "r_condition_code_text";
+                } "r_condition_code";
+                src -> condition.subject = patient "r_condition_subject";
+                src -> condition.encounter = reference(encounter) "r_condition_encounter";
+                src -> condition.performer = evaluate(src, $this.generalPractitioner.first()) "r_condition_performer";
+                src -> condition.recordedDate = evaluate(src, now()) "r_condition_recordedDate";
+            } "r_extract_condition";
+        } "r_answer_item";
+    } "r_diagnosis_item";
+}
+
+
+group ExtractTreatmentProvided(source src: QuestionnaireResponse, source encounter: Encounter, source patient: Patient, target bundle: Bundle) {
+        src.item as treatmentProvidedItem where(linkId = "nutrition-treatment-provided" and answer.exists()) then {
+        src -> bundle.entry as entry, entry.resource = create('Observation') as observation then {
+            src -> observation.id = uuid() "r_observation_id";
+            src -> observation.status = "final" "r_observation_status"; 
+            src -> observation.category = cc("http://terminology.hl7.org/CodeSystem/observation-category", "social-history") "r_observation_category";
+            src -> observation.code = create('CodeableConcept') as concept then {
+                src -> concept.coding = create("Coding") as coding then {
+                    src -> coding.system = "https://smartregister.org/" "r_observation_code_system";
+                    src -> coding.code = "nutrition-treatment-provided" "r_observation_code_code";
+                    src -> coding.display = "Nutrition treatment provided" "r_observation_code_display"; 
+                } "r_observation_code"; 
+                src -> concept.text = "Nutrition treatment provided" "r_observation_code_text";
+            } "r_observation_code";
+            src -> observation.subject = patient "r_observation_subject";
+            src -> observation.encounter = reference(encounter) "r_observation_encounter";
+            src -> observation.effective = evaluate(src, now()) "r_observation_effective";
+            src -> observation.performer = evaluate(src, $this.generalPractitioner.first()) "r_observation_performer";
+            src -> observation.value = evaluate(treatmentProvidedItem, $this.answer.value.code) "r_obs_value_string";
+        } "r_extract_observation";
+    } "r_observation_item";
+}

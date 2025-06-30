@@ -1,0 +1,249 @@
+{
+  "appId": "contigo",
+  "configType": "profile",
+  "id": "caregiverpastpregnancyencountersProfile",
+  "contentBackgroundColor": "#F2F4F7",
+  "topAppBar": {
+    "title": {
+      "viewType": "COMPOUND_TEXT",
+      "primaryText": "{{ past.pregnancy.encounters }}",
+      "primaryTextColor": "#FFFFFF",
+      "fontSize": 16.0,
+      "maxLines": 1,
+      "primaryTextFontWeight": "BOLD"
+    },
+    "collapsible": false
+  },
+  "fhirResource": {
+    "baseResource": {
+      "resource": "Patient"
+    },
+    "relatedResources": [
+      {
+        "id": "availableEncounters",
+        "resource": "Encounter",
+        "searchParameter": "subject",
+        "conditionalFhirPathExpression": "Encounter.type.coding[0].code = 'PREGNANCY_FOLLOW_UP_VISIT'",
+        "sortConfigs": [
+          {
+            "paramName": "period",
+            "dataType": "DATE"
+          }
+        ]
+      },
+      {
+        "id": "availableTasks",
+        "resource": "Task",
+        "searchParameter": "subject",
+        "sortConfigs": [
+          {
+            "paramName": "period",
+            "dataType": "DATE"
+          }
+        ]
+      }
+    ]
+  },
+  "rules": [
+    {
+      "name": "patientId",
+      "condition": "true",
+      "actions": [
+        "data.put('patientId', fhirPath.extractValue(Patient, 'Patient.id'))"
+      ]
+    },
+    {
+      "name": "patientIdentifier",
+      "condition": "true",
+      "actions": [
+        "data.put('patientIdentifier', fhirPath.extractValue(Patient, 'Patient.identifier[1].value'))"
+      ]
+    },
+    {
+      "name": "patientAge",
+      "condition": "true",
+      "actions": [
+        "data.put('patientAge', service.extractAge(Patient))"
+      ]
+    }
+  ],
+  "views": [
+    {
+      "viewType": "LIST",
+      "id": "previousScreeningsList",
+      "resources": [
+        {
+          "id": "availableEncounters",
+          "relatedResourceId": "availableEncounters",
+          "resourceType": "Encounter",
+          "searchParameter": "subject",
+          "conditionalFhirPathExpression": "Encounter.type.coding[0].code = 'PREGNANCY_FOLLOW_UP_VISIT'"
+        }
+      ],
+      "emptyList": {
+        "message": "{{ 2f262834ff4e3fd647d3fd8c3382aa1a }}"
+      },
+      "registerCard": {
+        "rules": [
+          {
+            "name": "taskStatus",
+            "condition": "true",
+            "actions": [
+              "data.put('taskStatus', fhirPath.extractValue(availableTasks, 'Task.status'))"
+            ]
+          },
+          {
+            "name": "taskStatusColorCode",
+            "condition": "true",
+            "actions": [
+              "data.put('taskStatusColorCode', service.generateTaskServiceStatus(availableTasks))"
+            ]
+          },
+          {
+            "name": "taskDescriptionWithGroupIdentifier",
+            "condition": "true",
+            "priority": 2,
+            "actions": [
+              "data.put('taskDescriptionWithGroupIdentifier', data.get('taskDescription') + ' at ' + data.get('taskGroupIdentifier').replace('_', ' '))"
+            ]
+          },
+          {
+            "name": "taskId",
+            "condition": "true",
+            "actions": [
+              "data.put('taskId', fhirPath.extractValue(availableTasks, 'Task.id'))"
+            ]
+          },
+          {
+            "name": "taskFor",
+            "condition": "true",
+            "actions": [
+              "data.put('taskFor', fhirPath.extractValue(availableTasks, 'Task.for.reference'))"
+            ]
+          },
+          {
+            "name": "taskQuestionnaireId",
+            "condition": "true",
+            "actions": [
+              "data.put('taskQuestionnaireId', fhirPath.extractValue(availableTasks, 'Task.reasonReference.reference'))"
+            ]
+          },
+          {
+            "name": "taskStatusIcon",
+            "condition": "true",
+            "actions": [
+              "data.put('taskStatusIcon', 'ic_check')"
+            ]
+          },
+          {
+            "name": "taskStatusColorCodeToTint",
+            "condition": "true",
+            "actions": [
+              "data.put('taskStatusColorCodeToTint','successColor')"
+            ]
+          },
+          {
+            "name": "encounterId",
+            "condition": "true",
+            "actions": [
+              "data.put('encounterId', fhirPath.extractValue(availableEncounters, 'Encounter.id'))"
+            ]
+          },
+          {
+            "name": "encounterDate",
+            "condition": "true",
+            "actions": [
+              "data.put('encounterDate', fhirPath.extractValue(availableEncounters, 'Encounter.period.end'))"
+            ]
+          },
+          {
+            "name": "encounterDateFormat",
+            "condition": "true",
+            "actions": [
+              "data.put('encounterDateFormat', service.formatDate(data.get('encounterDate'), \"yyyy-MM-dd'T'HH:mm:ss\", \"dd MMM yyyy\"))"
+            ]
+          },
+          {
+            "name": "encounterDescription",
+            "condition": "true",
+            "actions": [
+              "data.put('encounterDescription', fhirPath.extractValue(availableEncounters, 'Encounter.type.text'))"
+            ]
+          }
+        ],
+        "views": [
+          {
+            "viewType": "ROW",
+            "fillMaxWidth": true,
+            "clickable": true,
+            "padding": 16,
+            "children": [
+              {
+                "viewType": "IMAGE",
+                "size": 28,
+                "imageConfig": {
+                  "type": "local",
+                  "reference": "@{taskStatusIcon}",
+                  "color": "#FFFFFF"
+                },
+                "shape": "CIRCLE",
+                "backgroundColor": "@{taskStatusColorCodeToTint}"
+              },
+              {
+                "viewType": "SPACER",
+                "width": 8
+              },
+              {
+                "viewType": "COLUMN",
+                "fillMaxWidth": true,
+                "children": [
+                  {
+                    "viewType": "ROW",
+                    "fillMaxWidth": true,
+                    "arrangement": "SPACE_BETWEEN",
+                    "children": [
+                      {
+                        "viewType": "COMPOUND_TEXT",
+                        "primaryText": "@{encounterDateFormat}",
+                        "primaryTextColor": "#6F7274",
+                        "fontSize": 14.0
+                      },
+                      {
+                        "viewType": "COMPOUND_TEXT",
+                        "primaryText": "@{taskStatus}",
+                        "primaryTextColor": "#6F7274",
+                        "fontSize": 14.0,
+                        "textCase": "TITLE_CASE"
+                      }
+                    ]
+                  },
+                  {
+                    "viewType": "COMPOUND_TEXT",
+                    "primaryText": "@{encounterDescription}",
+                    "primaryTextColor": "#000000",
+                    "fontSize": 16.0
+                  }
+                ]
+              }
+            ],
+            "actions": [
+              {
+                "trigger": "ON_CLICK",
+                "workflow": "LAUNCH_QUESTIONNAIRE",
+                "questionnaire": {
+                  "id": "unicef-mexico-pregnancy-follow-up",
+                  "title": "{{ past.pregnancy.follow.up }}",
+                  "saveButtonText": "{{ save.button.text }}",
+                  "type": "READ_ONLY",
+                  "resourceIdentifier": "@{patientId}",
+                  "encountered": "@{encounterId}"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "overFlowMenuItems": []
+}

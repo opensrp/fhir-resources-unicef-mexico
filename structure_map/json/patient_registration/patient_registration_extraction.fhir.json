@@ -1,0 +1,2195 @@
+{
+    "resourceType": "StructureMap",
+    "id": "unicef-mexico-patient-registration",
+    "text": {
+        "status": "additional",
+        "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><pre>map &quot;https://fhir.demo.smartregister.org/fhir/StructureMap/unicef-mexico-patient-registration&quot; = 'Patient Registration'\n\nuses &quot;http://hl7.org/fhir/StructureDefinition/QuestionnaireReponse&quot; as source\nuses &quot;http://hl7.org/fhir/StructureDefinition/Patient&quot; as target\n\ngroup PatientRegistration(source src: QuestionnaireResponse, target bundle: Bundle) {\n    src -&gt; bundle.id = uuid() &quot;r_bundle_id&quot;;\n    src -&gt; bundle.type = 'collection' &quot;r_bundle_type&quot;;\n\n    //Consent given\n    src.item as item where(linkId = &quot;43f08bd6-f987-4f12-8dca-11a89a0af1e3&quot; and answer.value.code = &quot;373066001&quot; ) then {\n        src -&gt; bundle.entry as entry, entry.resource = create('Patient') as caregiver then {\n            src then ExtractCaregiverPatient(src, caregiver, bundle),\n            ExtractEncounter(src, caregiver, bundle),\n            ExtractConsent(src, caregiver, bundle) &quot;r_extract_consent&quot;;\n        } &quot;r_extract_caregiver&quot;;\n    } &quot;r_cons_yes&quot;;\n\n    //No consent given\n    src.item as item where(linkId = &quot;43f08bd6-f987-4f12-8dca-11a89a0af1e3&quot; and answer.value.code = &quot;373067005&quot; ) then {\n        src -&gt; bundle.entry as entry, entry.resource = create(&quot;Consent&quot;) as cns then {\n            src -&gt; cns.id = uuid()  &quot;r_cns_id&quot;;\n            src -&gt; cns.status = &quot;rejected&quot; &quot;r_status_active&quot;;\n            src -&gt; cns.scope = cc(&quot;http://hl7.org/fhir/ValueSet/consent-scope&quot;, &quot;patient-privacy&quot;, &quot;Privacy Consent&quot;),\n                cns.dateTime = evaluate(src, now()) &quot;r_date_created&quot;;\n            src -&gt; cns.performer = evaluate(src, $this.generalPractitioner.first()) &quot;r_cns_performer&quot;;\n            src -&gt; cns.organization = create('Reference') as orgRef then {\n                src -&gt; orgRef.reference = evaluate(src, 'Organization/' + $this.managingOrganization) &quot;org&quot;;\n            } &quot;r_cns_org&quot;;\n            src -&gt; cns.source = create('Reference') as consentSource then {\n                src -&gt; consentSource.reference = evaluate(src, 'QuestionnaireResponse/' + src.id) &quot;source&quot;;\n            } &quot;r_cns_source&quot;;\n        } &quot;r_cns_item&quot;;\n    } &quot;r_cons_no&quot;;\n}\n\ngroup ExtractConsent(source src : QuestionnaireResponse, source patient: Patient, target bundle: Bundle) {\n    src.item as item where(linkId = &quot;43f08bd6-f987-4f12-8dca-11a89a0af1e3&quot;) then {\n        src -&gt; bundle.entry as entry, entry.resource = create(&quot;Consent&quot;) as cns then {\n            src -&gt; cns.id = uuid()  &quot;r_cns_id&quot;;\n            src -&gt; cns.status = &quot;active&quot; &quot;r_status_active&quot;;\n            src -&gt; cns.scope = cc(&quot;http://hl7.org/fhir/ValueSet/consent-scope&quot;, &quot;patient-privacy&quot;, &quot;Privacy Consent&quot;),\n                cns.dateTime = evaluate(src, now()) &quot;r_date_created&quot;;\n            src -&gt; cns.patient = reference(patient) &quot;r_cns_patient&quot;;\n            src -&gt; cns.performer = evaluate(src, $this.generalPractitioner.first()) &quot;r_cns_performer&quot;;\n            src -&gt; cns.organization = create('Reference') as orgRef then {\n                src -&gt; orgRef.reference = evaluate(src, 'Organization/' + $this.managingOrganization) &quot;org&quot;;\n            } &quot;r_cns_org&quot;;\n            src -&gt; cns.source = create('Reference') as consentSource then {\n            src -&gt; consentSource.reference = evaluate(src, 'QuestionnaireResponse/' + src.id) &quot;source&quot;;\n            } &quot;r_cns_source&quot;;\n        } &quot;r_cns_item&quot;;\n    } &quot;r_consent&quot;;\n}\n\ngroup ExtractCaregiverPatient(source src: QuestionnaireResponse, target caregiver: Patient, target bundle: Bundle) {\n    src -&gt; caregiver.id = uuid() &quot;r_patient_id&quot;;\n    src -&gt; caregiver.identifier = create('Identifier') as caregiverId1 then {\n        src -&gt; caregiverId1.value = 'Caregiver' &quot;r_patient_identifier&quot;;\n        src -&gt; caregiverId1.use = &quot;usual&quot; &quot;r_patient_identifier_use&quot;;\n    } &quot;r_patient_identifier&quot;;\n    src -&gt; caregiver.identifier = create('Identifier') as caregiverId2 then {\n        src -&gt; caregiverId2.value = evaluate(src, $this.item.where(linkId = 'caregiver-id').answer.value) &quot;r_patient_identifier_2&quot;;\n        src -&gt; caregiverId2.use = &quot;official&quot; &quot;r_patient_identifier_2_use&quot;;\n    } &quot;r_patient_identifier_2&quot;;\n    src -&gt; caregiver.active = true &quot;r_patient_active&quot;;\n    src -&gt; caregiver.gender = evaluate(src, $this.item.where(linkId = 'sex').answer.value.code) &quot;rule_patient_gender&quot;;\n    src.item as caregiver_dob where(linkId = 'date-of-birth') then {\n        caregiver_dob.answer first as caregiverBirthDateAnswer then {   \n            caregiverBirthDateAnswer.value as val -&gt; caregiver.birthDate = val &quot;rule_patient_dob_answer&quot;;\n        } &quot;rule__first_patient_dob&quot;;\n    } &quot;rule_patient_dob&quot;;\n    src.item as caregiver_age where(linkId = 'patient-age-years' and answer.value &gt; 0) -&gt; caregiver.birthDate = evaluate(caregiver_age, today() - (($this.answer.value * 365.5).toString() + ' days').toQuantity()) &quot;rule_patient_age&quot;;\n    src -&gt; caregiver.name = create('HumanName') as caregiverName then {\n        src -&gt; caregiverName.given = evaluate(src, $this.item.where(linkId = 'caregiver-name').answer.value) &quot;r_patient_name&quot;;\n        src -&gt; caregiverName.use = 'official' &quot;r_patient_name_use&quot;;\n    } &quot;r_patient_human_name&quot;;\n    src.item as nationality_details where(linkId = 'nationality-details') then { \n        src -&gt; caregiver.address = create('Address') as caregiverAddress then {\n            src -&gt; caregiverAddress.country = evaluate(nationality_details, $this.item.where(linkId ='nationality').answer.value.display) &quot;rule_patient_address_country&quot;;\n            src -&gt; caregiverAddress.country = evaluate(nationality_details, $this.item.where(linkId ='specific-nationality').answer.value.display) &quot;rule_patient_address_specific&quot;;\n            src -&gt; caregiverAddress.state = evaluate(nationality_details, $this.item.where(linkId ='state').answer.value.display) &quot;rule_patient_address_state&quot;;\n            src -&gt; caregiverAddress.use = &quot;home&quot; &quot;r_patient_address_use&quot;;\n            src -&gt; caregiverAddress.type = &quot;physical&quot; &quot;r_patient_address_type&quot;;\n        } &quot;rule_address&quot;;\n    } &quot;rule_nationality_details&quot;;\n}\n\ngroup ExtractEncounter(source src: QuestionnaireResponse, source patient: Patient, target bundle: Bundle) {\n    src -&gt;  bundle.entry as entry, entry.resource = create('Encounter') as encounter then { \n        src -&gt; encounter.id = uuid() &quot;r_en_id&quot;;\n        src -&gt; encounter.status = 'finished' &quot;r_en_st&quot;;\n        src -&gt; encounter.class = c(&quot;http://terminology.hl7.org/CodeSystem/v3-ActCode&quot;, &quot;HH&quot;) &quot;r_en_cls&quot;;\n        src -&gt; encounter.subject = reference(patient) &quot;r_en_sub&quot;;\n        src -&gt; encounter.type = create('CodeableConcept') as concept then {\n            src -&gt; concept.coding = create(&quot;Coding&quot;) as coding then {\n                src -&gt; coding.system = &quot;http://snomed.info/sct&quot; &quot;r_p_coding_system&quot;;\n                src -&gt; coding.code = &quot;307782001&quot; &quot;r_p_coding_code&quot;;\n                src -&gt; coding.display = &quot;Caregiver Patient Registration&quot; &quot;r_p_coding_display&quot;;\n            } &quot;r_p_meta_coding&quot;;\n            src -&gt; concept.text = &quot;Caregiver Patient Registration&quot; &quot;r_en_typ_text&quot;;\n        } &quot;r_en_typ&quot;;\n        src -&gt; encounter.priority = create('CodeableConcept') as concept then {\n            src -&gt; concept.coding = create(&quot;Coding&quot;) as coding then {\n                src -&gt; coding.system = &quot;http://terminology.hl7.org/ValueSet/v3-ActPriority&quot; &quot;r_p_coding_system&quot;;\n                src -&gt; coding.code = &quot;EL&quot; &quot;r_p_coding_code&quot;;\n                src -&gt; coding.display = &quot;elective&quot; &quot;r_p_coding_display&quot;;\n            } &quot;r_p_meta_coding&quot;;\n            src -&gt; concept.text = 'elective' &quot;r_en_prio_text&quot;;\n        } &quot;r_en_prio&quot;;\n        src -&gt; encounter.period = create('Period') as enPeriod then {\n            src -&gt; enPeriod.start = evaluate(src, now()) &quot;r_en_per_start&quot;;\n            src -&gt; enPeriod.end = evaluate(src, now()) &quot;r_en_per_end&quot;;\n        } &quot;r_en_per&quot;;\n        src -&gt; encounter.reasonCode = create('CodeableConcept') as concept then {\n            src -&gt; concept.coding = create(&quot;Coding&quot;) as coding then {\n                src -&gt; coding.system = &quot;http://smartregsiter.org/&quot; &quot;r_p_coding_system&quot;;\n                src -&gt; coding.code = &quot;patient_registration&quot; &quot;r_p_coding_code&quot;;\n                src -&gt; coding.display = &quot;Patient Registration&quot; &quot;r_p_coding_display&quot;;\n            } &quot;r_p_meta_coding&quot;;\n            src -&gt; concept.text = 'Caregiver Patient Registration' &quot;r_en_text&quot;;\n        } &quot;r_en_reason&quot;;\n\n        src then ExtractLeaveOriginObservation(src, encounter, patient, bundle) &quot;r_extract_leave_origin_obs&quot;;\n\n    } &quot;r_enc_item&quot;;\n}\n\ngroup ExtractLeaveOriginObservation(source src: QuestionnaireResponse, target encounter: Encounter, source patient: Patient, target bundle: Bundle) {\n    src.item as item where($this.linkId.where(contains('months-since-leaving-place-of-origin')).exists() and answer.value.exists()) then {\n        src -&gt; bundle.entry as entry, entry.resource = create('Observation') as leaveOriginObservation then { \n            src -&gt; leaveOriginObservation.id = uuid() &quot;rule_observation_id&quot;;\n            src -&gt; leaveOriginObservation.subject = reference(patient) &quot;rule_observation_subject&quot;;\n            src -&gt; leaveOriginObservation.encounter = reference(encounter) &quot;rule_observation_encounter&quot;;\n            src -&gt; leaveOriginObservation.status = 'final' &quot;rule_observation_status&quot;;\n            src -&gt; leaveOriginObservation.effective = evaluate(src, now()) &quot;rule_observation_effective&quot;;\n            src -&gt; leaveOriginObservation.category = create('CodeableConcept') as code then {\n                src -&gt; code.coding = create('Coding') as coding then {\n                    src -&gt; coding.system = 'http://snomed.info/sct' &quot;r_leave_origin_obs_coding_system&quot;;\n                    src -&gt; coding.code = '360885002' &quot;r_leave_origin_obs_coding_code&quot;;\n                    src -&gt; coding.display = 'Change of residence status' &quot;r_leave_origin_obs_coding_display&quot;;\n                } &quot;r_leave_origin_obs_coding&quot;;\n            } &quot;r_leave_origin_obs_code&quot;;\n            src -&gt; leaveOriginObservation.value = evaluate(item, $this.answer.value.toInteger()) &quot;r_leave_obs&quot;;\n\n            src -&gt; encounter.reasonReference = create(&quot;Reference&quot;) as encRef then {\n                src -&gt; encRef.reference = evaluate(leaveOriginObservation, &quot;Observation/&quot; + $this.id) &quot;r_enc_reason_ref&quot;;\n                src -&gt; encRef.type = 'Observation' &quot;r_enc_reason_ref_type&quot;;\n            } &quot;r_enc_reason&quot;;\n\n        } &quot;r_leave_origin_obs&quot;;\n    } &quot;r_leave_origin&quot;;\n}\n</pre></div>"
+    },
+    "url": "https://fhir.demo.smartregister.org/fhir/StructureMap/unicef-mexico-patient-registration",
+    "name": "Patient Registration",
+    "structure": [
+        {
+            "url": "http://hl7.org/fhir/StructureDefinition/QuestionnaireReponse",
+            "mode": "source"
+        },
+        {
+            "url": "http://hl7.org/fhir/StructureDefinition/Patient",
+            "mode": "target"
+        }
+    ],
+    "group": [
+        {
+            "name": "PatientRegistration",
+            "typeMode": "none",
+            "input": [
+                {
+                    "name": "src",
+                    "type": "QuestionnaireResponse",
+                    "mode": "source"
+                },
+                {
+                    "name": "bundle",
+                    "type": "Bundle",
+                    "mode": "target"
+                }
+            ],
+            "rule": [
+                {
+                    "name": "r_bundle_id",
+                    "source": [
+                        {
+                            "context": "src"
+                        }
+                    ],
+                    "target": [
+                        {
+                            "context": "bundle",
+                            "contextType": "variable",
+                            "element": "id",
+                            "transform": "uuid"
+                        }
+                    ]
+                },
+                {
+                    "name": "r_bundle_type",
+                    "source": [
+                        {
+                            "context": "src"
+                        }
+                    ],
+                    "target": [
+                        {
+                            "context": "bundle",
+                            "contextType": "variable",
+                            "element": "type",
+                            "transform": "copy",
+                            "parameter": [
+                                {
+                                    "valueString": "collection"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "r_cons_yes",
+                    "source": [
+                        {
+                            "context": "src",
+                            "element": "item",
+                            "variable": "item",
+                            "condition": "((linkId = '43f08bd6-f987-4f12-8dca-11a89a0af1e3') and (answer.value.code = '373066001'))"
+                        }
+                    ],
+                    "rule": [
+                        {
+                            "name": "r_extract_caregiver",
+                            "source": [
+                                {
+                                    "context": "src"
+                                }
+                            ],
+                            "target": [
+                                {
+                                    "context": "bundle",
+                                    "contextType": "variable",
+                                    "element": "entry",
+                                    "variable": "entry"
+                                },
+                                {
+                                    "context": "entry",
+                                    "contextType": "variable",
+                                    "element": "resource",
+                                    "variable": "caregiver",
+                                    "transform": "create",
+                                    "parameter": [
+                                        {
+                                            "valueString": "Patient"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "rule": [
+                                {
+                                    "name": "r_extract_consent",
+                                    "source": [
+                                        {
+                                            "context": "src"
+                                        }
+                                    ],
+                                    "dependent": [
+                                        {
+                                            "name": "ExtractCaregiverPatient",
+                                            "variable": [
+                                                "src",
+                                                "caregiver",
+                                                "bundle"
+                                            ]
+                                        },
+                                        {
+                                            "name": "ExtractEncounter",
+                                            "variable": [
+                                                "src",
+                                                "caregiver",
+                                                "bundle"
+                                            ]
+                                        },
+                                        {
+                                            "name": "ExtractConsent",
+                                            "variable": [
+                                                "src",
+                                                "caregiver",
+                                                "bundle"
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "r_cons_no",
+                    "source": [
+                        {
+                            "context": "src",
+                            "element": "item",
+                            "variable": "item",
+                            "condition": "((linkId = '43f08bd6-f987-4f12-8dca-11a89a0af1e3') and (answer.value.code = '373067005'))"
+                        }
+                    ],
+                    "rule": [
+                        {
+                            "name": "r_cns_item",
+                            "source": [
+                                {
+                                    "context": "src"
+                                }
+                            ],
+                            "target": [
+                                {
+                                    "context": "bundle",
+                                    "contextType": "variable",
+                                    "element": "entry",
+                                    "variable": "entry"
+                                },
+                                {
+                                    "context": "entry",
+                                    "contextType": "variable",
+                                    "element": "resource",
+                                    "variable": "cns",
+                                    "transform": "create",
+                                    "parameter": [
+                                        {
+                                            "valueString": "Consent"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "rule": [
+                                {
+                                    "name": "r_cns_id",
+                                    "source": [
+                                        {
+                                            "context": "src"
+                                        }
+                                    ],
+                                    "target": [
+                                        {
+                                            "context": "cns",
+                                            "contextType": "variable",
+                                            "element": "id",
+                                            "transform": "uuid"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "r_status_active",
+                                    "source": [
+                                        {
+                                            "context": "src"
+                                        }
+                                    ],
+                                    "target": [
+                                        {
+                                            "context": "cns",
+                                            "contextType": "variable",
+                                            "element": "status",
+                                            "transform": "copy",
+                                            "parameter": [
+                                                {
+                                                    "valueString": "rejected"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "r_date_created",
+                                    "source": [
+                                        {
+                                            "context": "src"
+                                        }
+                                    ],
+                                    "target": [
+                                        {
+                                            "context": "cns",
+                                            "contextType": "variable",
+                                            "element": "scope",
+                                            "transform": "cc",
+                                            "parameter": [
+                                                {
+                                                    "valueString": "http://hl7.org/fhir/ValueSet/consent-scope"
+                                                },
+                                                {
+                                                    "valueString": "patient-privacy"
+                                                },
+                                                {
+                                                    "valueString": "Privacy Consent"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "context": "cns",
+                                            "contextType": "variable",
+                                            "element": "dateTime",
+                                            "transform": "evaluate",
+                                            "parameter": [
+                                                {
+                                                    "valueId": "src"
+                                                },
+                                                {
+                                                    "valueString": "now()"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "r_cns_performer",
+                                    "source": [
+                                        {
+                                            "context": "src"
+                                        }
+                                    ],
+                                    "target": [
+                                        {
+                                            "context": "cns",
+                                            "contextType": "variable",
+                                            "element": "performer",
+                                            "transform": "evaluate",
+                                            "parameter": [
+                                                {
+                                                    "valueId": "src"
+                                                },
+                                                {
+                                                    "valueString": "$this.generalPractitioner.first()"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "r_cns_org",
+                                    "source": [
+                                        {
+                                            "context": "src"
+                                        }
+                                    ],
+                                    "target": [
+                                        {
+                                            "context": "cns",
+                                            "contextType": "variable",
+                                            "element": "organization",
+                                            "variable": "orgRef",
+                                            "transform": "create",
+                                            "parameter": [
+                                                {
+                                                    "valueString": "Reference"
+                                                }
+                                            ]
+                                        }
+                                    ],
+                                    "rule": [
+                                        {
+                                            "name": "org",
+                                            "source": [
+                                                {
+                                                    "context": "src"
+                                                }
+                                            ],
+                                            "target": [
+                                                {
+                                                    "context": "orgRef",
+                                                    "contextType": "variable",
+                                                    "element": "reference",
+                                                    "transform": "evaluate",
+                                                    "parameter": [
+                                                        {
+                                                            "valueId": "src"
+                                                        },
+                                                        {
+                                                            "valueString": "'Organization/' + $this.managingOrganization"
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "r_cns_source",
+                                    "source": [
+                                        {
+                                            "context": "src"
+                                        }
+                                    ],
+                                    "target": [
+                                        {
+                                            "context": "cns",
+                                            "contextType": "variable",
+                                            "element": "source",
+                                            "variable": "consentSource",
+                                            "transform": "create",
+                                            "parameter": [
+                                                {
+                                                    "valueString": "Reference"
+                                                }
+                                            ]
+                                        }
+                                    ],
+                                    "rule": [
+                                        {
+                                            "name": "source",
+                                            "source": [
+                                                {
+                                                    "context": "src"
+                                                }
+                                            ],
+                                            "target": [
+                                                {
+                                                    "context": "consentSource",
+                                                    "contextType": "variable",
+                                                    "element": "reference",
+                                                    "transform": "evaluate",
+                                                    "parameter": [
+                                                        {
+                                                            "valueId": "src"
+                                                        },
+                                                        {
+                                                            "valueString": "'QuestionnaireResponse/' + src.id"
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "ExtractConsent",
+            "typeMode": "none",
+            "input": [
+                {
+                    "name": "src",
+                    "type": "QuestionnaireResponse",
+                    "mode": "source"
+                },
+                {
+                    "name": "patient",
+                    "type": "Patient",
+                    "mode": "source"
+                },
+                {
+                    "name": "bundle",
+                    "type": "Bundle",
+                    "mode": "target"
+                }
+            ],
+            "rule": [
+                {
+                    "name": "r_consent",
+                    "source": [
+                        {
+                            "context": "src",
+                            "element": "item",
+                            "variable": "item",
+                            "condition": "(linkId = '43f08bd6-f987-4f12-8dca-11a89a0af1e3')"
+                        }
+                    ],
+                    "rule": [
+                        {
+                            "name": "r_cns_item",
+                            "source": [
+                                {
+                                    "context": "src"
+                                }
+                            ],
+                            "target": [
+                                {
+                                    "context": "bundle",
+                                    "contextType": "variable",
+                                    "element": "entry",
+                                    "variable": "entry"
+                                },
+                                {
+                                    "context": "entry",
+                                    "contextType": "variable",
+                                    "element": "resource",
+                                    "variable": "cns",
+                                    "transform": "create",
+                                    "parameter": [
+                                        {
+                                            "valueString": "Consent"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "rule": [
+                                {
+                                    "name": "r_cns_id",
+                                    "source": [
+                                        {
+                                            "context": "src"
+                                        }
+                                    ],
+                                    "target": [
+                                        {
+                                            "context": "cns",
+                                            "contextType": "variable",
+                                            "element": "id",
+                                            "transform": "uuid"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "r_status_active",
+                                    "source": [
+                                        {
+                                            "context": "src"
+                                        }
+                                    ],
+                                    "target": [
+                                        {
+                                            "context": "cns",
+                                            "contextType": "variable",
+                                            "element": "status",
+                                            "transform": "copy",
+                                            "parameter": [
+                                                {
+                                                    "valueString": "active"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "r_date_created",
+                                    "source": [
+                                        {
+                                            "context": "src"
+                                        }
+                                    ],
+                                    "target": [
+                                        {
+                                            "context": "cns",
+                                            "contextType": "variable",
+                                            "element": "scope",
+                                            "transform": "cc",
+                                            "parameter": [
+                                                {
+                                                    "valueString": "http://hl7.org/fhir/ValueSet/consent-scope"
+                                                },
+                                                {
+                                                    "valueString": "patient-privacy"
+                                                },
+                                                {
+                                                    "valueString": "Privacy Consent"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "context": "cns",
+                                            "contextType": "variable",
+                                            "element": "dateTime",
+                                            "transform": "evaluate",
+                                            "parameter": [
+                                                {
+                                                    "valueId": "src"
+                                                },
+                                                {
+                                                    "valueString": "now()"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "r_cns_patient",
+                                    "source": [
+                                        {
+                                            "context": "src"
+                                        }
+                                    ],
+                                    "target": [
+                                        {
+                                            "context": "cns",
+                                            "contextType": "variable",
+                                            "element": "patient",
+                                            "transform": "reference",
+                                            "parameter": [
+                                                {
+                                                    "valueId": "patient"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "r_cns_performer",
+                                    "source": [
+                                        {
+                                            "context": "src"
+                                        }
+                                    ],
+                                    "target": [
+                                        {
+                                            "context": "cns",
+                                            "contextType": "variable",
+                                            "element": "performer",
+                                            "transform": "evaluate",
+                                            "parameter": [
+                                                {
+                                                    "valueId": "src"
+                                                },
+                                                {
+                                                    "valueString": "$this.generalPractitioner.first()"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "r_cns_org",
+                                    "source": [
+                                        {
+                                            "context": "src"
+                                        }
+                                    ],
+                                    "target": [
+                                        {
+                                            "context": "cns",
+                                            "contextType": "variable",
+                                            "element": "organization",
+                                            "variable": "orgRef",
+                                            "transform": "create",
+                                            "parameter": [
+                                                {
+                                                    "valueString": "Reference"
+                                                }
+                                            ]
+                                        }
+                                    ],
+                                    "rule": [
+                                        {
+                                            "name": "org",
+                                            "source": [
+                                                {
+                                                    "context": "src"
+                                                }
+                                            ],
+                                            "target": [
+                                                {
+                                                    "context": "orgRef",
+                                                    "contextType": "variable",
+                                                    "element": "reference",
+                                                    "transform": "evaluate",
+                                                    "parameter": [
+                                                        {
+                                                            "valueId": "src"
+                                                        },
+                                                        {
+                                                            "valueString": "'Organization/' + $this.managingOrganization"
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "r_cns_source",
+                                    "source": [
+                                        {
+                                            "context": "src"
+                                        }
+                                    ],
+                                    "target": [
+                                        {
+                                            "context": "cns",
+                                            "contextType": "variable",
+                                            "element": "source",
+                                            "variable": "consentSource",
+                                            "transform": "create",
+                                            "parameter": [
+                                                {
+                                                    "valueString": "Reference"
+                                                }
+                                            ]
+                                        }
+                                    ],
+                                    "rule": [
+                                        {
+                                            "name": "source",
+                                            "source": [
+                                                {
+                                                    "context": "src"
+                                                }
+                                            ],
+                                            "target": [
+                                                {
+                                                    "context": "consentSource",
+                                                    "contextType": "variable",
+                                                    "element": "reference",
+                                                    "transform": "evaluate",
+                                                    "parameter": [
+                                                        {
+                                                            "valueId": "src"
+                                                        },
+                                                        {
+                                                            "valueString": "'QuestionnaireResponse/' + src.id"
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "ExtractCaregiverPatient",
+            "typeMode": "none",
+            "input": [
+                {
+                    "name": "src",
+                    "type": "QuestionnaireResponse",
+                    "mode": "source"
+                },
+                {
+                    "name": "caregiver",
+                    "type": "Patient",
+                    "mode": "target"
+                },
+                {
+                    "name": "bundle",
+                    "type": "Bundle",
+                    "mode": "target"
+                }
+            ],
+            "rule": [
+                {
+                    "name": "r_patient_id",
+                    "source": [
+                        {
+                            "context": "src"
+                        }
+                    ],
+                    "target": [
+                        {
+                            "context": "caregiver",
+                            "contextType": "variable",
+                            "element": "id",
+                            "transform": "uuid"
+                        }
+                    ]
+                },
+                {
+                    "name": "r_patient_identifier",
+                    "source": [
+                        {
+                            "context": "src"
+                        }
+                    ],
+                    "target": [
+                        {
+                            "context": "caregiver",
+                            "contextType": "variable",
+                            "element": "identifier",
+                            "variable": "caregiverId1",
+                            "transform": "create",
+                            "parameter": [
+                                {
+                                    "valueString": "Identifier"
+                                }
+                            ]
+                        }
+                    ],
+                    "rule": [
+                        {
+                            "name": "r_patient_identifier",
+                            "source": [
+                                {
+                                    "context": "src"
+                                }
+                            ],
+                            "target": [
+                                {
+                                    "context": "caregiverId1",
+                                    "contextType": "variable",
+                                    "element": "value",
+                                    "transform": "copy",
+                                    "parameter": [
+                                        {
+                                            "valueString": "Caregiver"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "r_patient_identifier_use",
+                            "source": [
+                                {
+                                    "context": "src"
+                                }
+                            ],
+                            "target": [
+                                {
+                                    "context": "caregiverId1",
+                                    "contextType": "variable",
+                                    "element": "use",
+                                    "transform": "copy",
+                                    "parameter": [
+                                        {
+                                            "valueString": "usual"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "r_patient_identifier_2",
+                    "source": [
+                        {
+                            "context": "src"
+                        }
+                    ],
+                    "target": [
+                        {
+                            "context": "caregiver",
+                            "contextType": "variable",
+                            "element": "identifier",
+                            "variable": "caregiverId2",
+                            "transform": "create",
+                            "parameter": [
+                                {
+                                    "valueString": "Identifier"
+                                }
+                            ]
+                        }
+                    ],
+                    "rule": [
+                        {
+                            "name": "r_patient_identifier_2",
+                            "source": [
+                                {
+                                    "context": "src"
+                                }
+                            ],
+                            "target": [
+                                {
+                                    "context": "caregiverId2",
+                                    "contextType": "variable",
+                                    "element": "value",
+                                    "transform": "evaluate",
+                                    "parameter": [
+                                        {
+                                            "valueId": "src"
+                                        },
+                                        {
+                                            "valueString": "$this.item.where(linkId = 'caregiver-id').answer.value"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "r_patient_identifier_2_use",
+                            "source": [
+                                {
+                                    "context": "src"
+                                }
+                            ],
+                            "target": [
+                                {
+                                    "context": "caregiverId2",
+                                    "contextType": "variable",
+                                    "element": "use",
+                                    "transform": "copy",
+                                    "parameter": [
+                                        {
+                                            "valueString": "official"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "r_patient_active",
+                    "source": [
+                        {
+                            "context": "src"
+                        }
+                    ],
+                    "target": [
+                        {
+                            "context": "caregiver",
+                            "contextType": "variable",
+                            "element": "active",
+                            "transform": "copy",
+                            "parameter": [
+                                {
+                                    "valueBoolean": true
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "rule_patient_gender",
+                    "source": [
+                        {
+                            "context": "src"
+                        }
+                    ],
+                    "target": [
+                        {
+                            "context": "caregiver",
+                            "contextType": "variable",
+                            "element": "gender",
+                            "transform": "evaluate",
+                            "parameter": [
+                                {
+                                    "valueId": "src"
+                                },
+                                {
+                                    "valueString": "$this.item.where(linkId = 'sex').answer.value.code"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "rule_patient_dob",
+                    "source": [
+                        {
+                            "context": "src",
+                            "element": "item",
+                            "variable": "caregiver_dob",
+                            "condition": "(linkId = 'date-of-birth')"
+                        }
+                    ],
+                    "rule": [
+                        {
+                            "name": "rule__first_patient_dob",
+                            "source": [
+                                {
+                                    "context": "caregiver_dob",
+                                    "element": "answer",
+                                    "listMode": "first",
+                                    "variable": "caregiverBirthDateAnswer"
+                                }
+                            ],
+                            "rule": [
+                                {
+                                    "name": "rule_patient_dob_answer",
+                                    "source": [
+                                        {
+                                            "context": "caregiverBirthDateAnswer",
+                                            "element": "value",
+                                            "variable": "val"
+                                        }
+                                    ],
+                                    "target": [
+                                        {
+                                            "context": "caregiver",
+                                            "contextType": "variable",
+                                            "element": "birthDate",
+                                            "transform": "copy",
+                                            "parameter": [
+                                                {
+                                                    "valueId": "val"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "rule_patient_age",
+                    "source": [
+                        {
+                            "context": "src",
+                            "element": "item",
+                            "variable": "caregiver_age",
+                            "condition": "((linkId = 'patient-age-years') and (answer.value > 0))"
+                        }
+                    ],
+                    "target": [
+                        {
+                            "context": "caregiver",
+                            "contextType": "variable",
+                            "element": "birthDate",
+                            "transform": "evaluate",
+                            "parameter": [
+                                {
+                                    "valueId": "caregiver_age"
+                                },
+                                {
+                                    "valueString": "today() - (($this.answer.value * 365.5).toString() + ' days').toQuantity()"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "r_patient_human_name",
+                    "source": [
+                        {
+                            "context": "src"
+                        }
+                    ],
+                    "target": [
+                        {
+                            "context": "caregiver",
+                            "contextType": "variable",
+                            "element": "name",
+                            "variable": "caregiverName",
+                            "transform": "create",
+                            "parameter": [
+                                {
+                                    "valueString": "HumanName"
+                                }
+                            ]
+                        }
+                    ],
+                    "rule": [
+                        {
+                            "name": "r_patient_name",
+                            "source": [
+                                {
+                                    "context": "src"
+                                }
+                            ],
+                            "target": [
+                                {
+                                    "context": "caregiverName",
+                                    "contextType": "variable",
+                                    "element": "given",
+                                    "transform": "evaluate",
+                                    "parameter": [
+                                        {
+                                            "valueId": "src"
+                                        },
+                                        {
+                                            "valueString": "$this.item.where(linkId = 'caregiver-name').answer.value"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "r_patient_name_use",
+                            "source": [
+                                {
+                                    "context": "src"
+                                }
+                            ],
+                            "target": [
+                                {
+                                    "context": "caregiverName",
+                                    "contextType": "variable",
+                                    "element": "use",
+                                    "transform": "copy",
+                                    "parameter": [
+                                        {
+                                            "valueString": "official"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "name": "rule_nationality_details",
+                    "source": [
+                        {
+                            "context": "src",
+                            "element": "item",
+                            "variable": "nationality_details",
+                            "condition": "(linkId = 'nationality-details')"
+                        }
+                    ],
+                    "rule": [
+                        {
+                            "name": "rule_address",
+                            "source": [
+                                {
+                                    "context": "src"
+                                }
+                            ],
+                            "target": [
+                                {
+                                    "context": "caregiver",
+                                    "contextType": "variable",
+                                    "element": "address",
+                                    "variable": "caregiverAddress",
+                                    "transform": "create",
+                                    "parameter": [
+                                        {
+                                            "valueString": "Address"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "rule": [
+                                {
+                                    "name": "rule_patient_address_country",
+                                    "source": [
+                                        {
+                                            "context": "src"
+                                        }
+                                    ],
+                                    "target": [
+                                        {
+                                            "context": "caregiverAddress",
+                                            "contextType": "variable",
+                                            "element": "country",
+                                            "transform": "evaluate",
+                                            "parameter": [
+                                                {
+                                                    "valueId": "nationality_details"
+                                                },
+                                                {
+                                                    "valueString": "$this.item.where(linkId = 'nationality').answer.value.display"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "rule_patient_address_specific",
+                                    "source": [
+                                        {
+                                            "context": "src"
+                                        }
+                                    ],
+                                    "target": [
+                                        {
+                                            "context": "caregiverAddress",
+                                            "contextType": "variable",
+                                            "element": "country",
+                                            "transform": "evaluate",
+                                            "parameter": [
+                                                {
+                                                    "valueId": "nationality_details"
+                                                },
+                                                {
+                                                    "valueString": "$this.item.where(linkId = 'specific-nationality').answer.value.display"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "rule_patient_address_state",
+                                    "source": [
+                                        {
+                                            "context": "src"
+                                        }
+                                    ],
+                                    "target": [
+                                        {
+                                            "context": "caregiverAddress",
+                                            "contextType": "variable",
+                                            "element": "state",
+                                            "transform": "evaluate",
+                                            "parameter": [
+                                                {
+                                                    "valueId": "nationality_details"
+                                                },
+                                                {
+                                                    "valueString": "$this.item.where(linkId = 'state').answer.value.display"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "r_patient_address_use",
+                                    "source": [
+                                        {
+                                            "context": "src"
+                                        }
+                                    ],
+                                    "target": [
+                                        {
+                                            "context": "caregiverAddress",
+                                            "contextType": "variable",
+                                            "element": "use",
+                                            "transform": "copy",
+                                            "parameter": [
+                                                {
+                                                    "valueString": "home"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "r_patient_address_type",
+                                    "source": [
+                                        {
+                                            "context": "src"
+                                        }
+                                    ],
+                                    "target": [
+                                        {
+                                            "context": "caregiverAddress",
+                                            "contextType": "variable",
+                                            "element": "type",
+                                            "transform": "copy",
+                                            "parameter": [
+                                                {
+                                                    "valueString": "physical"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "ExtractEncounter",
+            "typeMode": "none",
+            "input": [
+                {
+                    "name": "src",
+                    "type": "QuestionnaireResponse",
+                    "mode": "source"
+                },
+                {
+                    "name": "patient",
+                    "type": "Patient",
+                    "mode": "source"
+                },
+                {
+                    "name": "bundle",
+                    "type": "Bundle",
+                    "mode": "target"
+                }
+            ],
+            "rule": [
+                {
+                    "name": "r_enc_item",
+                    "source": [
+                        {
+                            "context": "src"
+                        }
+                    ],
+                    "target": [
+                        {
+                            "context": "bundle",
+                            "contextType": "variable",
+                            "element": "entry",
+                            "variable": "entry"
+                        },
+                        {
+                            "context": "entry",
+                            "contextType": "variable",
+                            "element": "resource",
+                            "variable": "encounter",
+                            "transform": "create",
+                            "parameter": [
+                                {
+                                    "valueString": "Encounter"
+                                }
+                            ]
+                        }
+                    ],
+                    "rule": [
+                        {
+                            "name": "r_en_id",
+                            "source": [
+                                {
+                                    "context": "src"
+                                }
+                            ],
+                            "target": [
+                                {
+                                    "context": "encounter",
+                                    "contextType": "variable",
+                                    "element": "id",
+                                    "transform": "uuid"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "r_en_st",
+                            "source": [
+                                {
+                                    "context": "src"
+                                }
+                            ],
+                            "target": [
+                                {
+                                    "context": "encounter",
+                                    "contextType": "variable",
+                                    "element": "status",
+                                    "transform": "copy",
+                                    "parameter": [
+                                        {
+                                            "valueString": "finished"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "r_en_cls",
+                            "source": [
+                                {
+                                    "context": "src"
+                                }
+                            ],
+                            "target": [
+                                {
+                                    "context": "encounter",
+                                    "contextType": "variable",
+                                    "element": "class",
+                                    "transform": "c",
+                                    "parameter": [
+                                        {
+                                            "valueString": "http://terminology.hl7.org/CodeSystem/v3-ActCode"
+                                        },
+                                        {
+                                            "valueString": "HH"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "r_en_sub",
+                            "source": [
+                                {
+                                    "context": "src"
+                                }
+                            ],
+                            "target": [
+                                {
+                                    "context": "encounter",
+                                    "contextType": "variable",
+                                    "element": "subject",
+                                    "transform": "reference",
+                                    "parameter": [
+                                        {
+                                            "valueId": "patient"
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "r_en_typ",
+                            "source": [
+                                {
+                                    "context": "src"
+                                }
+                            ],
+                            "target": [
+                                {
+                                    "context": "encounter",
+                                    "contextType": "variable",
+                                    "element": "type",
+                                    "variable": "concept",
+                                    "transform": "create",
+                                    "parameter": [
+                                        {
+                                            "valueString": "CodeableConcept"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "rule": [
+                                {
+                                    "name": "r_p_meta_coding",
+                                    "source": [
+                                        {
+                                            "context": "src"
+                                        }
+                                    ],
+                                    "target": [
+                                        {
+                                            "context": "concept",
+                                            "contextType": "variable",
+                                            "element": "coding",
+                                            "variable": "coding",
+                                            "transform": "create",
+                                            "parameter": [
+                                                {
+                                                    "valueString": "Coding"
+                                                }
+                                            ]
+                                        }
+                                    ],
+                                    "rule": [
+                                        {
+                                            "name": "r_p_coding_system",
+                                            "source": [
+                                                {
+                                                    "context": "src"
+                                                }
+                                            ],
+                                            "target": [
+                                                {
+                                                    "context": "coding",
+                                                    "contextType": "variable",
+                                                    "element": "system",
+                                                    "transform": "copy",
+                                                    "parameter": [
+                                                        {
+                                                            "valueString": "http://snomed.info/sct"
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "name": "r_p_coding_code",
+                                            "source": [
+                                                {
+                                                    "context": "src"
+                                                }
+                                            ],
+                                            "target": [
+                                                {
+                                                    "context": "coding",
+                                                    "contextType": "variable",
+                                                    "element": "code",
+                                                    "transform": "copy",
+                                                    "parameter": [
+                                                        {
+                                                            "valueString": "307782001"
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "name": "r_p_coding_display",
+                                            "source": [
+                                                {
+                                                    "context": "src"
+                                                }
+                                            ],
+                                            "target": [
+                                                {
+                                                    "context": "coding",
+                                                    "contextType": "variable",
+                                                    "element": "display",
+                                                    "transform": "copy",
+                                                    "parameter": [
+                                                        {
+                                                            "valueString": "Caregiver Patient Registration"
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "r_en_typ_text",
+                                    "source": [
+                                        {
+                                            "context": "src"
+                                        }
+                                    ],
+                                    "target": [
+                                        {
+                                            "context": "concept",
+                                            "contextType": "variable",
+                                            "element": "text",
+                                            "transform": "copy",
+                                            "parameter": [
+                                                {
+                                                    "valueString": "Caregiver Patient Registration"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "r_en_prio",
+                            "source": [
+                                {
+                                    "context": "src"
+                                }
+                            ],
+                            "target": [
+                                {
+                                    "context": "encounter",
+                                    "contextType": "variable",
+                                    "element": "priority",
+                                    "variable": "concept",
+                                    "transform": "create",
+                                    "parameter": [
+                                        {
+                                            "valueString": "CodeableConcept"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "rule": [
+                                {
+                                    "name": "r_p_meta_coding",
+                                    "source": [
+                                        {
+                                            "context": "src"
+                                        }
+                                    ],
+                                    "target": [
+                                        {
+                                            "context": "concept",
+                                            "contextType": "variable",
+                                            "element": "coding",
+                                            "variable": "coding",
+                                            "transform": "create",
+                                            "parameter": [
+                                                {
+                                                    "valueString": "Coding"
+                                                }
+                                            ]
+                                        }
+                                    ],
+                                    "rule": [
+                                        {
+                                            "name": "r_p_coding_system",
+                                            "source": [
+                                                {
+                                                    "context": "src"
+                                                }
+                                            ],
+                                            "target": [
+                                                {
+                                                    "context": "coding",
+                                                    "contextType": "variable",
+                                                    "element": "system",
+                                                    "transform": "copy",
+                                                    "parameter": [
+                                                        {
+                                                            "valueString": "http://terminology.hl7.org/ValueSet/v3-ActPriority"
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "name": "r_p_coding_code",
+                                            "source": [
+                                                {
+                                                    "context": "src"
+                                                }
+                                            ],
+                                            "target": [
+                                                {
+                                                    "context": "coding",
+                                                    "contextType": "variable",
+                                                    "element": "code",
+                                                    "transform": "copy",
+                                                    "parameter": [
+                                                        {
+                                                            "valueString": "EL"
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "name": "r_p_coding_display",
+                                            "source": [
+                                                {
+                                                    "context": "src"
+                                                }
+                                            ],
+                                            "target": [
+                                                {
+                                                    "context": "coding",
+                                                    "contextType": "variable",
+                                                    "element": "display",
+                                                    "transform": "copy",
+                                                    "parameter": [
+                                                        {
+                                                            "valueString": "elective"
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "r_en_prio_text",
+                                    "source": [
+                                        {
+                                            "context": "src"
+                                        }
+                                    ],
+                                    "target": [
+                                        {
+                                            "context": "concept",
+                                            "contextType": "variable",
+                                            "element": "text",
+                                            "transform": "copy",
+                                            "parameter": [
+                                                {
+                                                    "valueString": "elective"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "r_en_per",
+                            "source": [
+                                {
+                                    "context": "src"
+                                }
+                            ],
+                            "target": [
+                                {
+                                    "context": "encounter",
+                                    "contextType": "variable",
+                                    "element": "period",
+                                    "variable": "enPeriod",
+                                    "transform": "create",
+                                    "parameter": [
+                                        {
+                                            "valueString": "Period"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "rule": [
+                                {
+                                    "name": "r_en_per_start",
+                                    "source": [
+                                        {
+                                            "context": "src"
+                                        }
+                                    ],
+                                    "target": [
+                                        {
+                                            "context": "enPeriod",
+                                            "contextType": "variable",
+                                            "element": "start",
+                                            "transform": "evaluate",
+                                            "parameter": [
+                                                {
+                                                    "valueId": "src"
+                                                },
+                                                {
+                                                    "valueString": "now()"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "r_en_per_end",
+                                    "source": [
+                                        {
+                                            "context": "src"
+                                        }
+                                    ],
+                                    "target": [
+                                        {
+                                            "context": "enPeriod",
+                                            "contextType": "variable",
+                                            "element": "end",
+                                            "transform": "evaluate",
+                                            "parameter": [
+                                                {
+                                                    "valueId": "src"
+                                                },
+                                                {
+                                                    "valueString": "now()"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "r_en_reason",
+                            "source": [
+                                {
+                                    "context": "src"
+                                }
+                            ],
+                            "target": [
+                                {
+                                    "context": "encounter",
+                                    "contextType": "variable",
+                                    "element": "reasonCode",
+                                    "variable": "concept",
+                                    "transform": "create",
+                                    "parameter": [
+                                        {
+                                            "valueString": "CodeableConcept"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "rule": [
+                                {
+                                    "name": "r_p_meta_coding",
+                                    "source": [
+                                        {
+                                            "context": "src"
+                                        }
+                                    ],
+                                    "target": [
+                                        {
+                                            "context": "concept",
+                                            "contextType": "variable",
+                                            "element": "coding",
+                                            "variable": "coding",
+                                            "transform": "create",
+                                            "parameter": [
+                                                {
+                                                    "valueString": "Coding"
+                                                }
+                                            ]
+                                        }
+                                    ],
+                                    "rule": [
+                                        {
+                                            "name": "r_p_coding_system",
+                                            "source": [
+                                                {
+                                                    "context": "src"
+                                                }
+                                            ],
+                                            "target": [
+                                                {
+                                                    "context": "coding",
+                                                    "contextType": "variable",
+                                                    "element": "system",
+                                                    "transform": "copy",
+                                                    "parameter": [
+                                                        {
+                                                            "valueString": "http://smartregsiter.org/"
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "name": "r_p_coding_code",
+                                            "source": [
+                                                {
+                                                    "context": "src"
+                                                }
+                                            ],
+                                            "target": [
+                                                {
+                                                    "context": "coding",
+                                                    "contextType": "variable",
+                                                    "element": "code",
+                                                    "transform": "copy",
+                                                    "parameter": [
+                                                        {
+                                                            "valueString": "patient_registration"
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "name": "r_p_coding_display",
+                                            "source": [
+                                                {
+                                                    "context": "src"
+                                                }
+                                            ],
+                                            "target": [
+                                                {
+                                                    "context": "coding",
+                                                    "contextType": "variable",
+                                                    "element": "display",
+                                                    "transform": "copy",
+                                                    "parameter": [
+                                                        {
+                                                            "valueString": "Patient Registration"
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "r_en_text",
+                                    "source": [
+                                        {
+                                            "context": "src"
+                                        }
+                                    ],
+                                    "target": [
+                                        {
+                                            "context": "concept",
+                                            "contextType": "variable",
+                                            "element": "text",
+                                            "transform": "copy",
+                                            "parameter": [
+                                                {
+                                                    "valueString": "Caregiver Patient Registration"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        },
+                        {
+                            "name": "r_extract_leave_origin_obs",
+                            "source": [
+                                {
+                                    "context": "src"
+                                }
+                            ],
+                            "dependent": [
+                                {
+                                    "name": "ExtractLeaveOriginObservation",
+                                    "variable": [
+                                        "src",
+                                        "encounter",
+                                        "patient",
+                                        "bundle"
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "ExtractLeaveOriginObservation",
+            "typeMode": "none",
+            "input": [
+                {
+                    "name": "src",
+                    "type": "QuestionnaireResponse",
+                    "mode": "source"
+                },
+                {
+                    "name": "encounter",
+                    "type": "Encounter",
+                    "mode": "target"
+                },
+                {
+                    "name": "patient",
+                    "type": "Patient",
+                    "mode": "source"
+                },
+                {
+                    "name": "bundle",
+                    "type": "Bundle",
+                    "mode": "target"
+                }
+            ],
+            "rule": [
+                {
+                    "name": "r_leave_origin",
+                    "source": [
+                        {
+                            "context": "src",
+                            "element": "item",
+                            "variable": "item",
+                            "condition": "($this.linkId.where(contains('months-since-leaving-place-of-origin')).exists() and answer.value.exists())"
+                        }
+                    ],
+                    "rule": [
+                        {
+                            "name": "r_leave_origin_obs",
+                            "source": [
+                                {
+                                    "context": "src"
+                                }
+                            ],
+                            "target": [
+                                {
+                                    "context": "bundle",
+                                    "contextType": "variable",
+                                    "element": "entry",
+                                    "variable": "entry"
+                                },
+                                {
+                                    "context": "entry",
+                                    "contextType": "variable",
+                                    "element": "resource",
+                                    "variable": "leaveOriginObservation",
+                                    "transform": "create",
+                                    "parameter": [
+                                        {
+                                            "valueString": "Observation"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "rule": [
+                                {
+                                    "name": "rule_observation_id",
+                                    "source": [
+                                        {
+                                            "context": "src"
+                                        }
+                                    ],
+                                    "target": [
+                                        {
+                                            "context": "leaveOriginObservation",
+                                            "contextType": "variable",
+                                            "element": "id",
+                                            "transform": "uuid"
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "rule_observation_subject",
+                                    "source": [
+                                        {
+                                            "context": "src"
+                                        }
+                                    ],
+                                    "target": [
+                                        {
+                                            "context": "leaveOriginObservation",
+                                            "contextType": "variable",
+                                            "element": "subject",
+                                            "transform": "reference",
+                                            "parameter": [
+                                                {
+                                                    "valueId": "patient"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "rule_observation_encounter",
+                                    "source": [
+                                        {
+                                            "context": "src"
+                                        }
+                                    ],
+                                    "target": [
+                                        {
+                                            "context": "leaveOriginObservation",
+                                            "contextType": "variable",
+                                            "element": "encounter",
+                                            "transform": "reference",
+                                            "parameter": [
+                                                {
+                                                    "valueId": "encounter"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "rule_observation_status",
+                                    "source": [
+                                        {
+                                            "context": "src"
+                                        }
+                                    ],
+                                    "target": [
+                                        {
+                                            "context": "leaveOriginObservation",
+                                            "contextType": "variable",
+                                            "element": "status",
+                                            "transform": "copy",
+                                            "parameter": [
+                                                {
+                                                    "valueString": "final"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "rule_observation_effective",
+                                    "source": [
+                                        {
+                                            "context": "src"
+                                        }
+                                    ],
+                                    "target": [
+                                        {
+                                            "context": "leaveOriginObservation",
+                                            "contextType": "variable",
+                                            "element": "effective",
+                                            "transform": "evaluate",
+                                            "parameter": [
+                                                {
+                                                    "valueId": "src"
+                                                },
+                                                {
+                                                    "valueString": "now()"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "r_leave_origin_obs_code",
+                                    "source": [
+                                        {
+                                            "context": "src"
+                                        }
+                                    ],
+                                    "target": [
+                                        {
+                                            "context": "leaveOriginObservation",
+                                            "contextType": "variable",
+                                            "element": "category",
+                                            "variable": "code",
+                                            "transform": "create",
+                                            "parameter": [
+                                                {
+                                                    "valueString": "CodeableConcept"
+                                                }
+                                            ]
+                                        }
+                                    ],
+                                    "rule": [
+                                        {
+                                            "name": "r_leave_origin_obs_coding",
+                                            "source": [
+                                                {
+                                                    "context": "src"
+                                                }
+                                            ],
+                                            "target": [
+                                                {
+                                                    "context": "code",
+                                                    "contextType": "variable",
+                                                    "element": "coding",
+                                                    "variable": "coding",
+                                                    "transform": "create",
+                                                    "parameter": [
+                                                        {
+                                                            "valueString": "Coding"
+                                                        }
+                                                    ]
+                                                }
+                                            ],
+                                            "rule": [
+                                                {
+                                                    "name": "r_leave_origin_obs_coding_system",
+                                                    "source": [
+                                                        {
+                                                            "context": "src"
+                                                        }
+                                                    ],
+                                                    "target": [
+                                                        {
+                                                            "context": "coding",
+                                                            "contextType": "variable",
+                                                            "element": "system",
+                                                            "transform": "copy",
+                                                            "parameter": [
+                                                                {
+                                                                    "valueString": "http://snomed.info/sct"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "r_leave_origin_obs_coding_code",
+                                                    "source": [
+                                                        {
+                                                            "context": "src"
+                                                        }
+                                                    ],
+                                                    "target": [
+                                                        {
+                                                            "context": "coding",
+                                                            "contextType": "variable",
+                                                            "element": "code",
+                                                            "transform": "copy",
+                                                            "parameter": [
+                                                                {
+                                                                    "valueString": "360885002"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "name": "r_leave_origin_obs_coding_display",
+                                                    "source": [
+                                                        {
+                                                            "context": "src"
+                                                        }
+                                                    ],
+                                                    "target": [
+                                                        {
+                                                            "context": "coding",
+                                                            "contextType": "variable",
+                                                            "element": "display",
+                                                            "transform": "copy",
+                                                            "parameter": [
+                                                                {
+                                                                    "valueString": "Change of residence status"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "r_leave_obs",
+                                    "source": [
+                                        {
+                                            "context": "src"
+                                        }
+                                    ],
+                                    "target": [
+                                        {
+                                            "context": "leaveOriginObservation",
+                                            "contextType": "variable",
+                                            "element": "value",
+                                            "transform": "evaluate",
+                                            "parameter": [
+                                                {
+                                                    "valueId": "item"
+                                                },
+                                                {
+                                                    "valueString": "$this.answer.value.toInteger()"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    "name": "r_enc_reason",
+                                    "source": [
+                                        {
+                                            "context": "src"
+                                        }
+                                    ],
+                                    "target": [
+                                        {
+                                            "context": "encounter",
+                                            "contextType": "variable",
+                                            "element": "reasonReference",
+                                            "variable": "encRef",
+                                            "transform": "create",
+                                            "parameter": [
+                                                {
+                                                    "valueString": "Reference"
+                                                }
+                                            ]
+                                        }
+                                    ],
+                                    "rule": [
+                                        {
+                                            "name": "r_enc_reason_ref",
+                                            "source": [
+                                                {
+                                                    "context": "src"
+                                                }
+                                            ],
+                                            "target": [
+                                                {
+                                                    "context": "encRef",
+                                                    "contextType": "variable",
+                                                    "element": "reference",
+                                                    "transform": "evaluate",
+                                                    "parameter": [
+                                                        {
+                                                            "valueId": "leaveOriginObservation"
+                                                        },
+                                                        {
+                                                            "valueString": "'Observation/' + $this.id"
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "name": "r_enc_reason_ref_type",
+                                            "source": [
+                                                {
+                                                    "context": "src"
+                                                }
+                                            ],
+                                            "target": [
+                                                {
+                                                    "context": "encRef",
+                                                    "contextType": "variable",
+                                                    "element": "type",
+                                                    "transform": "copy",
+                                                    "parameter": [
+                                                        {
+                                                            "valueString": "Observation"
+                                                        }
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

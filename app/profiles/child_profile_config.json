@@ -1,0 +1,2548 @@
+{
+  "appId": "contigo",
+  "configType": "profile",
+  "id": "childProfile",
+  "contentBackgroundColor": "#F2F4F7",
+  "fhirResource": {
+    "baseResource": {
+      "resource": "Patient"
+    },
+    "relatedResources": [
+      {
+        "id": "availableEncounters",
+        "resource": "Encounter",
+        "searchParameter": "subject",
+        "sortConfigs": [
+          {
+            "paramName": "_lastUpdated",
+            "dataType": "DATE",
+            "order": "DESCENDING"
+          }
+        ],
+        "relatedResources": [
+          {
+            "id": "availableQuestionnaireResponses",
+            "resource": "QuestionnaireResponse",
+            "searchParameter": "encounter",
+            "sortConfigs": [
+              {
+                "paramName": "authored",
+                "dataType": "DATE",
+                "order": "DESCENDING"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "availableCaregivers",
+        "resource": "RelatedPerson",
+        "searchParameter": "link",
+        "isRevInclude": false
+      },
+      {
+        "id": "availableConditions",
+        "resource": "Condition",
+        "searchParameter": "subject",
+        "sortConfigs": [
+          {
+            "paramName": "recorded-date",
+            "dataType": "DATE",
+            "order": "DESCENDING"
+          }
+        ]
+      },
+      {
+        "id": "availableCarePlans",
+        "resource": "CarePlan",
+        "searchParameter": "subject"
+      },
+      {
+        "id": "availableTasks",
+        "resource": "Task",
+        "searchParameter": "subject",
+        "sortConfigs": [
+          {
+            "paramName": "period",
+            "dataType": "DATE"
+          }
+        ]
+      },
+      {
+        "id": "availableObservations",
+        "resource": "Observation",
+        "searchParameter": "subject",
+        "sortConfigs": [
+          {
+            "paramName": "date",
+            "dataType": "DATE",
+            "order": "DESCENDING"
+          }
+        ]
+      },
+      {
+        "id": "availableAllergies",
+        "resource": "AllergyIntolerance",
+        "searchParameter": "patient",
+        "sortConfigs": [
+          {
+            "paramName": "date",
+            "dataType": "DATE",
+            "order": "DESCENDING"
+          }
+        ]
+      },
+      {
+        "id": "availableImmunizations",
+        "resource": "Immunization",
+        "searchParameter": "patient"
+      }
+    ]
+  },
+  "secondaryResources": [],
+  "topAppBar": {
+    "title": {
+      "viewType": "COMPOUND_TEXT",
+      "primaryText": "{{ c1f4b29805551d2fe98dc4e8b8051eb0 }}",
+      "primaryTextColor": "#FFFFFF",
+      "fontSize": 16.0,
+      "maxLines": 1,
+      "primaryTextFontWeight": "BOLD"
+    },
+    "collapsible": false
+  },
+  "rules": [
+    {
+      "name": "patientName",
+      "condition": "true",
+      "actions": [
+        "data.put('patientName', fhirPath.extractValue(Patient, \"Patient.name.given\"))"
+      ]
+    },
+    {
+      "name": "patientActive",
+      "condition": "true",
+      "actions": [
+        "data.put('patientActive', fhirPath.extractValue(Patient, 'Patient.active'))"
+      ]
+    },
+    {
+      "name": "inactivePatient",
+      "condition": "true",
+      "actions": [
+        "data.put('inactivePatient', !data.get('patientActive'))"
+      ]
+    },
+    {
+      "name": "patientDod",
+      "condition": "true",
+      "priority": 1,
+      "actions": [
+        "data.put('patientDod', fhirPath.extractValue(Patient, 'Patient.deceased'))"
+      ]
+    },
+    {
+      "name": "patientDodFormatted",
+      "condition": "true",
+      "priority": 2,
+      "actions": [
+        "data.put('patientDodFormatted', service.formatDate(data.get('patientDod'), \"yyyy-MM-dd'T'HH:mm:ss\", \"dd MMM, yyyy\"))"
+      ]
+    },
+    {
+      "name": "patientDeceased",
+      "condition": "true",
+      "priority": 2,
+      "actions": [
+        "data.put('patientDeceased', data.get('patientDod').empty().not())"
+      ]
+    },
+    {
+      "name": "patientMuted",
+      "condition": "true",
+      "priority": 3,
+      "actions": [
+        "data.put('patientMuted', (!data.get('patientActive')) && data.get('patientDod').empty())"
+      ]
+    },
+    {
+      "name": "patientTextColor",
+      "condition": "true",
+      "priority": 4,
+      "actions": [
+        "data.put('patientTextColor', (data.get('patientMuted') == 'true' || data.get('patientDeceased') == 'true') ? '#6F7274' : '#000000')"
+      ]
+    },
+    {
+      "name": "patientId",
+      "condition": "true",
+      "actions": [
+        "data.put('patientId', fhirPath.extractValue(Patient, 'Patient.id'))"
+      ]
+    },
+    {
+      "name": "patientIdentifier",
+      "condition": "true",
+      "actions": [
+        "data.put('patientIdentifier', fhirPath.extractValue(Patient, 'Patient.identifier[1].value'))"
+      ]
+    },
+    {
+      "name": "patientAge",
+      "condition": "true",
+      "actions": [
+        "data.put('patientAge', service.extractAge(Patient))"
+      ]
+    },
+    {
+      "name": "patientAgeInYears",
+      "condition": "true",
+      "actions": [
+        "data.put('patientAgeInYears', fhirPath.extractValue(Patient, \"(today().toString().substring(0, 4).toInteger() - Patient.birthDate.toString().substring(0, 4).toInteger())\"))"
+      ]
+    },
+    {
+      "name": "patientNationality",
+      "condition": "true",
+      "actions": [
+        "data.put('patientNationality', fhirPath.extractValue(Patient, 'Patient.address.country'))"
+      ]
+    },
+    {
+      "name": "displayPatientNationality",
+      "condition": "true",
+      "priority": 3,
+      "actions": [
+        "data.put('displayPatientNationality', data.get('patientNationality') != null)"
+      ]
+    },
+    {
+      "name": "childCardVisible",
+      "condition": "true",
+      "actions": [
+        "data.put('childCardVisible', (data.get('patientAge') == 'true') && (data.get('patientAge') <= 5))"
+      ]
+    },
+    {
+      "name": "patientGender",
+      "condition": "true",
+      "actions": [
+        "data.put('patientGender', service.extractGender(Patient))"
+      ]
+    },
+    {
+      "name": "patientDOB",
+      "condition": "true",
+      "actions": [
+        "data.put('patientDOB', service.extractDOB(Patient, 'd MMM, yyyy'))"
+      ]
+    },
+    {
+      "name": "birthDate",
+      "condition": "true",
+      "actions": [
+        "data.put('birthDate', fhirPath.extractValue(Patient, 'Patient.birthDate'))"
+      ]
+    },
+    {
+      "name": "isChild",
+      "condition": "true",
+      "actions": [
+        "data.put('isChild', fhirPath.extractValue(Patient, \"Patient.active and (Patient.birthDate >= today() - 5 'years')\"))"
+      ]
+    },
+    {
+      "name": "caregiverId",
+      "condition": "true",
+      "actions": [
+        "data.put('caregiverId', fhirPath.extractValue(availableCaregivers.get(0), \"RelatedPerson.patient.reference.substring(8)\"))"
+      ]
+    },
+    {
+      "name": "hasCaregiver",
+      "condition": "true",
+      "actions": [
+        "data.put('hasCaregiver', size(availableCaregivers) > 0)"
+      ]
+    },
+    {
+      "name": "isTaskMoreThanOne",
+      "condition": "true",
+      "actions": [
+        "data.put('atBirthTasksMoreThan1', service.filterResources(availableTasks, \"(Task.status = 'ready' or Task.status = 'failed' or Task.status = 'cancelled' or Task.status = 'requested' or Task.status = 'completed') and Task.groupIdentifier.value = '0_d'\").size() > 1)",
+        "data.put('atElevenMonthsTasksMoreThan1', service.filterResources(availableTasks, \"(Task.status = 'ready' or Task.status = 'failed' or Task.status = 'cancelled' or Task.status = 'requested' or Task.status = 'completed') and Task.groupIdentifier.value = '11_mo'\").size() > 1)",
+        "data.put('atTwentyThreeMonthsTasksMoreThan1', service.filterResources(availableTasks, \"(Task.status = 'ready' or Task.status = 'failed' or Task.status = 'cancelled' or Task.status = 'requested' or Task.status = 'completed') and Task.groupIdentifier.value = '23_mo'\").size() > 1)",
+        "data.put('atTwentyFourMonthsTasksMoreThan1', service.filterResources(availableTasks, \"(Task.status = 'ready' or Task.status = 'failed' or Task.status = 'cancelled' or Task.status = 'requested' or Task.status = 'completed') and Task.groupIdentifier.value = '24_mo'\").size() > 1)"
+      ]
+    },
+    {
+      "name": "showAtBirthTasks",
+      "condition": "true",
+      "actions": [
+        "data.put('showAtBirthTasks', service.filterResources(availableTasks, \"(Task.status = 'ready' or Task.status = 'failed' or Task.status = 'cancelled' or Task.status = 'completed' or Task.status = 'requested') and Task.groupIdentifier.value = '0_d'\").size() > 0)"
+      ]
+    },
+    {
+      "name": "showAtElevenMonthsTasks",
+      "condition": "true",
+      "actions": [
+        "data.put('showAtElevenMonthsTasks', service.filterResources(availableTasks, \"(Task.status = 'ready' or Task.status = 'cancelled' or Task.status = 'requested' or Task.status = 'failed' or Task.status = 'completed') and Task.groupIdentifier.value = '11_mo'\").size() > 0)"
+      ]
+    },
+    {
+      "name": "showAtTwentyThreeMonthsTasks",
+      "condition": "true",
+      "actions": [
+        "data.put('showAtTwentyThreeMonthsTasks', service.filterResources(availableTasks, \"(Task.status = 'ready' or Task.status = 'cancelled' or Task.status = 'failed' or Task.status = 'completed' or Task.status = 'requested') and Task.groupIdentifier.value = '23_mo'\").size() > 0)"
+      ]
+    },
+    {
+      "name": "showAtTwentyFourMonthsTasks",
+      "condition": "true",
+      "actions": [
+        "data.put('showAtTwentyFourMonthsTasks', service.filterResources(availableTasks, \"(Task.status = 'ready' or Task.status = 'cancelled' or Task.status = 'failed' or Task.status = 'completed' or Task.status = 'requested') and Task.groupIdentifier.value = '24_mo'\").size() > 0)"
+      ]
+    },
+    {
+      "name": "hasChildFollowUpEncounter",
+      "condition": "true",
+      "priority": 2,
+      "actions": [
+        "data.put('hasChildFollowUpEncounter', service.evaluateToBoolean(availableEncounters, \"Encounter.type.coding.code = 'CHILD_FOLLOW_UP_VISIT'\", false))"
+      ]
+    },
+    {
+      "name": "availableImmunizationVisitEncounters",
+      "condition": "true",
+      "priority": 2,
+      "actions": [
+        "data.put('availableImmunizationVisitEncounters', service.evaluateToBoolean(availableEncounters, \"Encounter.type.coding.code = '41000179103'\", false))"
+      ]
+    },
+    {
+      "name": "patientBloodGroup",
+      "condition": "true",
+      "priority": 2,
+      "actions": [
+        "data.put('patientBloodGroup', fhirPath.extractValue(service.filterResources(availableObservations, \"Observation.code.coding.code = '365642005'\").get(0), 'Observation.value.coding.display'))"
+      ]
+    },
+    {
+      "name": "displayPatientBloodGroup",
+      "condition": "true",
+      "priority": 3,
+      "actions": [
+        "data.put('displayPatientBloodGroup', data.get('patientBloodGroup') != null)"
+      ]
+    },
+    {
+      "name": "latestEncounterQRWithPathologicalHistory",
+      "condition": "true",
+      "priority": 2,
+      "actions": [
+        "data.put('latestEncounterQRWithPathologicalHistory', service.filterResources(availableQuestionnaireResponses, \"QuestionnaireResponse.descendants().where(linkId = 'medical-history' and answer.value.exists()).answer.value.code contains 'pathological-history'\").get(0))"
+      ]
+    },
+    {
+      "name": "latestQREncounter",
+      "condition": "true",
+      "priority": 3,
+      "actions": [
+        "data.put('latestQREncounter', fhirPath.extractValue(data.get('latestEncounterQRWithPathologicalHistory'), 'QuestionnaireResponse.encounter.reference.substring(10)'))"
+      ]
+    },
+    {
+      "name": "displayPathologicalPersonalHistory",
+      "condition": "true",
+      "priority": 3,
+      "actions": [
+        "data.put('displayPathologicalPersonalHistory', data.get('latestEncounterQRWithPathologicalHistory') != null)"
+      ]
+    },
+    {
+      "name": "displayHistorySection",
+      "condition": "true",
+      "priority": 4,
+      "actions": [
+        "data.put('displayHistorySection', data.get('displayPathologicalPersonalHistory'))"
+      ]
+    },
+    {
+      "name": "chronicDegenerativeDiseases",
+      "condition": "true",
+      "priority": 2,
+      "actions": [
+        "data.put('chronicDegenerativeDiseases', service.filterResources(availableConditions, \"Condition.category.coding.code = 'chronic-problem-list-item'\"))"
+      ]
+    },
+    {
+      "name": "latestChronicDegenerativeDiseases",
+      "condition": "true",
+      "priority": 3,
+      "actions": [
+        "data.put('latestChronicDegenerativeDiseases', fhirPath.extractValue(data.get('chronicDegenerativeDiseases').get(0), 'Condition.code.coding.display'))"
+      ]
+    },
+    {
+      "name": "displayChronicDegenerativeDiseases",
+      "condition": "true",
+      "priority": 4,
+      "actions": [
+        "data.put('displayChronicDegenerativeDiseases', (data.get('latestChronicDegenerativeDiseases') != null) && (data.get('latestChronicDegenerativeDiseases') != ''))"
+      ]
+    },
+    {
+      "name": "illnessesInTheLastYear",
+      "condition": "true",
+      "priority": 2,
+      "actions": [
+        "data.put('illnessesInTheLastYear', service.filterResources(availableConditions, \"Condition.category.coding.code = 'illness-problem-list-item'\"))"
+      ]
+    },
+    {
+      "name": "latestIllnessesInTheLastYear",
+      "condition": "true",
+      "priority": 3,
+      "actions": [
+        "data.put('latestIllnessesInTheLastYear', fhirPath.extractValue(data.get('illnessesInTheLastYear').get(0), 'Condition.code.coding.display'))"
+      ]
+    },
+    {
+      "name": "displayLatestIllnessesInTheLastYear",
+      "condition": "true",
+      "priority": 4,
+      "actions": [
+        "data.put('displayLatestIllnessesInTheLastYear', (data.get('latestIllnessesInTheLastYear') != null) && (data.get('latestIllnessesInTheLastYear') != ''))"
+      ]
+    },
+    {
+      "name": "drugAllergies",
+      "condition": "true",
+      "priority": 2,
+      "actions": [
+        "data.put('drugAllergies', service.filterResources(availableAllergies, \"AllergyIntolerance.category = 'medication'\"))"
+      ]
+    },
+    {
+      "name": "latestDrugAllergies",
+      "condition": "true",
+      "priority": 3,
+      "actions": [
+        "data.put('latestDrugAllergies', fhirPath.extractValue(data.get('drugAllergies').get(0), 'AllergyIntolerance.code.coding.display'))"
+      ]
+    },
+    {
+      "name": "displayLatestDrugAllergies",
+      "condition": "true",
+      "priority": 4,
+      "actions": [
+        "data.put('displayLatestDrugAllergies', (data.get('latestDrugAllergies') != null) && (data.get('latestDrugAllergies') != ''))"
+      ]
+    },
+    {
+      "name": "wasReferredObsValue",
+      "condition": "true",
+      "priority": 3,
+      "actions": [
+        "data.put('wasReferredObsValue', fhirPath.extractValue(service.filterResources(availableObservations, \"Observation.code.coding.code = '440377005'\").get(0), 'Observation.value'))"
+      ]
+    },
+    {
+      "name": "wasReferred",
+      "condition": "true",
+      "priority": 4,
+      "actions": [
+        "data.put('wasReferred', data.get('wasReferredObsValue') == 'true' ? 'Yes' : 'No')"
+      ]
+    },
+    {
+      "name": "displayWasReferred",
+      "condition": "true",
+      "priority": 5,
+      "actions": [
+        "data.put('displayWasReferred', data.get('wasReferred') != null)"
+      ]
+    },
+    {
+      "name": "reasonForReferralObservation",
+      "condition": "true",
+      "priority": 3,
+      "actions": [
+        "data.put('reasonForReferralObservation', service.filterResources(availableObservations, \"Observation.code.coding.code = '440378000'\").get(0))"
+      ]
+    },
+    {
+      "name": "reasonForReferral",
+      "condition": "true",
+      "priority": 4,
+      "actions": [
+        "data.put('reasonForReferral', fhirPath.extractValue(data.get('reasonForReferralObservation'), 'Observation.value.coding.display') != '' ? fhirPath.extractValue(data.get('reasonForReferralObservation'), 'Observation.value.coding.display') : fhirPath.extractValue(data.get('reasonForReferralObservation'), 'Observation.value'))"
+      ]
+    },
+    {
+      "name": "displayReasonForReferral",
+      "condition": "true",
+      "priority": 5,
+      "actions": [
+        "data.put('displayReasonForReferral', (data.get('reasonForReferral') != null) && (data.get('reasonForReferral') != '') && (data.get('wasReferred') != 'No'))"
+      ]
+    },
+    {
+      "name": "dateOfLastConsultation",
+      "condition": "true",
+      "priority": 3,
+      "actions": [
+        "data.put('dateOfLastConsultation', fhirPath.extractValue(service.filterResources(availableEncounters, \"Encounter.reasonCode.coding.code = '185389009'\").get(0), 'Encounter.period.start').substring(0, 10))"
+      ]
+    },
+    {
+      "name": "displayDateOfLastConsultation",
+      "condition": "true",
+      "priority": 4,
+      "actions": [
+        "data.put('displayDateOfLastConsultation', data.get('dateOfLastConsultation') != null)"
+      ]
+    },
+    {
+      "name": "reasonForConsultation",
+      "condition": "true",
+      "priority": 3,
+      "actions": [
+        "data.put('reasonForConsultation', fhirPath.extractValue(service.filterResources(availableObservations, \"Observation.code.coding.code = '44383000'\").get(0), 'Observation.value'))"
+      ]
+    },
+    {
+      "name": "displayReasonForConsultation",
+      "condition": "true",
+      "priority": 4,
+      "actions": [
+        "data.put('displayReasonForConsultation', (data.get('reasonForConsultation') != null) && (data.get('reasonForConsultation') != ''))"
+      ]
+    },
+    {
+      "name": "diagnoses",
+      "condition": "true",
+      "priority": 3,
+      "actions": [
+        "data.put('diagnoses', service.filterResources(availableConditions, \"Condition.category.coding.code = 'medical-diagnosis'\"))"
+      ]
+    },
+    {
+      "name": "diagnosisOfLastConsultation",
+      "condition": "true",
+      "priority": 4,
+      "actions": [
+        "var allDiagnoses = ''; for (var condition: data.get('diagnoses')) { if((data.get('latestQREncounter')).equals(fhirPath.extractValue(condition, 'Condition.encounter.reference.substring(10)'))){ allDiagnoses = allDiagnoses + fhirPath.extractValue(condition, 'Condition.code.coding.display') + ', '; }}; data.put('diagnosisOfLastConsultation', allDiagnoses.replaceAll(',\\\\s*$', ''));"
+      ]
+    },
+    {
+      "name": "displayDiagnosisOfLastConsultation",
+      "condition": "true",
+      "priority": 5,
+      "actions": [
+        "data.put('displayDiagnosisOfLastConsultation', (data.get('diagnosisOfLastConsultation') != null) && (data.get('diagnosisOfLastConsultation') != ''))"
+      ]
+    },
+    {
+      "name": "clinicalNutritionalDiagnosis",
+      "condition": "true",
+      "priority": 3,
+      "actions": [
+        "data.put('clinicalNutritionalDiagnosis', service.filterResources(availableConditions, \"Condition.category.coding.code = 'clinical-nutrition-diagnosis'\"))"
+      ]
+    },
+    {
+      "name": "clinicalDiagnosisOfLastConsultation",
+      "condition": "true",
+      "priority": 4,
+      "actions": [
+        "data.put('clinicalDiagnosisOfLastConsultation', fhirPath.extractValue(data.get('clinicalNutritionalDiagnosis').get(0), 'Condition.note.text'))"
+      ]
+    },
+    {
+      "name": "displayClinicalDiagnosisOfLastConsultation",
+      "condition": "true",
+      "priority": 5,
+      "actions": [
+        "data.put('displayClinicalDiagnosisOfLastConsultation', (data.get('clinicalDiagnosisOfLastConsultation') != null) && (data.get('clinicalDiagnosisOfLastConsultation') != ''))"
+      ]
+    },
+    {
+      "name": "nutritionTreatmentProvidedObsCode",
+      "condition": "true",
+      "priority": 3,
+      "actions": [
+        "data.put('nutritionTreatmentProvidedObsCode', fhirPath.extractValue(service.filterResources(availableObservations, \"Observation.code.coding.code = 'nutrition-treatment-provided'\").get(0), 'Observation.value'))"
+      ]
+    },
+    {
+      "name": "nutritionTreatmentProvided",
+      "condition": "true",
+      "priority": 4,
+      "actions": [
+        "data.put('nutritionTreatmentProvided', data.get('nutritionTreatmentProvidedObsCode') == '373066001' ? 'Yes' : 'No')"
+      ]
+    },
+    {
+      "name": "displayNutritionTreatmentProvided",
+      "condition": "true",
+      "priority": 5,
+      "actions": [
+        "data.put('displayNutritionTreatmentProvided', data.get('nutritionTreatmentProvided') != null && data.get('nutritionTreatmentProvided') != '' && data.get('nutritionTreatmentProvided') != 'No')"
+      ]
+    },
+    {
+      "name": "reasonForLastConsultation",
+      "condition": "true",
+      "priority": 3,
+      "actions": [
+        "data.put('reasonForLastConsultation', fhirPath.extractValue(service.filterResources(availableObservations, \"Observation.code.coding.code = '44383000'\").get(0), 'Observation.value'))"
+      ]
+    },
+    {
+      "name": "displayReasonForLastConsultation",
+      "condition": "true",
+      "priority": 4,
+      "actions": [
+        "data.put('displayReasonForLastConsultation', (data.get('reasonForLastConsultation') != null) && (data.get('reasonForLastConsultation') != ''))"
+      ]
+    },
+    {
+      "name": "reasonForPsychologicalConsultationObservation",
+      "condition": "true",
+      "priority": 3,
+      "actions": [
+        "data.put('reasonForPsychologicalConsultationObservation', service.filterResources(availableObservations, \"Observation.code.coding.code = '25618008'\").get(0))"
+      ]
+    },
+    {
+      "name": "reasonForPsychologicalConsultation",
+      "condition": "true",
+      "priority": 4,
+      "actions": [
+        "data.put('reasonForPsychologicalConsultation', fhirPath.extractValue(data.get('reasonForPsychologicalConsultationObservation'), 'Observation.value.coding.display') != '' ? fhirPath.extractValue(data.get('reasonForPsychologicalConsultationObservation'), 'Observation.value.coding.display') : fhirPath.extractValue(data.get('reasonForPsychologicalConsultationObservation'), 'Observation.value'))"
+      ]
+    },
+    {
+      "name": "displayReasonForPsychologicalConsultation",
+      "condition": "true",
+      "priority": 5,
+      "actions": [
+        "data.put('displayReasonForPsychologicalConsultation', (data.get('reasonForPsychologicalConsultation') != null) && (data.get('reasonForPsychologicalConsultation') != ''))"
+      ]
+    },
+    {
+      "name": "psychologicalObservations",
+      "condition": "true",
+      "priority": 3,
+      "actions": [
+        "data.put('psychologicalObservations', fhirPath.extractValue(service.filterResources(availableObservations, \"Observation.code.coding.code = '116367006'\").get(0), 'Observation.value'))"
+      ]
+    },
+    {
+      "name": "displayPsychologicalObservations",
+      "condition": "true",
+      "priority": 4,
+      "actions": [
+        "data.put('displayPsychologicalObservations', data.get('psychologicalObservations') != null)"
+      ]
+    },
+    {
+      "name": "additionalComments",
+      "condition": "true",
+      "priority": 3,
+      "actions": [
+        "data.put('additionalComments', fhirPath.extractValue(service.filterResources(availableObservations, \"Observation.code.coding.code = '225414002'\").get(0), 'Observation.value'))"
+      ]
+    },
+    {
+      "name": "displayAdditionalComments",
+      "condition": "true",
+      "priority": 4,
+      "actions": [
+        "data.put('displayAdditionalComments', data.get('additionalComments') != null)"
+      ]
+    }
+  ],
+  "views": [
+    {
+      "viewType": "COLUMN",
+      "children": [
+        {
+          "viewType": "CARD",
+          "padding": 0,
+          "content": [
+            {
+              "viewType": "COLUMN",
+              "children": [
+                {
+                  "viewType": "COMPOUND_TEXT",
+                  "primaryText": "{{ patient.name }}",
+                  "primaryTextColor": "@{patientTextColor}",
+                  "fontSize": 20.0,
+                  "fontWeight": "BOLD"
+                },
+                {
+                  "viewType": "SPACER",
+                  "height": 10
+                },
+                {
+                  "viewType": "COMPOUND_TEXT",
+                  "primaryText": "{{ patient.id }}",
+                  "primaryTextColor": "#717171",
+                  "fontSize": 15.0,
+                  "fontWeight": 400
+                },
+                {
+                  "viewType": "SPACER",
+                  "visible": "@{displayPatientNationality}",
+                  "height": 10
+                },
+                {
+                  "viewType": "COMPOUND_TEXT",
+                  "visible": "@{displayPatientNationality}",
+                  "primaryText": "{{ patient.nationality }}",
+                  "primaryTextColor": "#717171",
+                  "fontSize": 15.0,
+                  "fontWeight": 400
+                },
+                {
+                  "viewType": "SPACER",
+                  "visible": "@{displayPatientBloodGroup}",
+                  "height": 10
+                },
+                {
+                  "viewType": "COMPOUND_TEXT",
+                  "visible": "@{displayPatientBloodGroup}",
+                  "primaryText": "{{ patient.blood.group }}",
+                  "primaryTextColor": "#717171",
+                  "fontSize": 15.0,
+                  "fontWeight": 400
+                },
+                {
+                  "viewType": "SPACER",
+                  "height": 10
+                },
+                {
+                  "viewType": "PERSONAL_DATA",
+                  "personalDataItems": [
+                    {
+                      "label": {
+                        "viewType": "COMPOUND_TEXT",
+                        "primaryText": "{{ sex }}",
+                        "fontSize": 13,
+                        "primaryTextColor": "#717171",
+                        "fontWeight": 400
+                      },
+                      "displayValue": {
+                        "viewType": "COMPOUND_TEXT",
+                        "primaryText": "{{ patient.gender }}",
+                        "fontSize": 14,
+                        "primaryTextColor": "@{patientTextColor}",
+                        "fontWeight": 400
+                      }
+                    },
+                    {
+                      "label": {
+                        "viewType": "COMPOUND_TEXT",
+                        "primaryText": "{{ age }}",
+                        "fontSize": 13,
+                        "primaryTextColor": "#717171",
+                        "fontWeight": 400
+                      },
+                      "displayValue": {
+                        "viewType": "COMPOUND_TEXT",
+                        "primaryText": "{{ patient.age }}",
+                        "fontSize": 14,
+                        "primaryTextColor": "@{patientTextColor}",
+                        "fontWeight": 400
+                      }
+                    },
+                    {
+                      "label": {
+                        "viewType": "COMPOUND_TEXT",
+                        "primaryText": "{{ dob }}",
+                        "fontSize": 13,
+                        "primaryTextColor": "#717171",
+                        "fontWeight": 400
+                      },
+                      "displayValue": {
+                        "viewType": "COMPOUND_TEXT",
+                        "primaryText": "{{ patient.dob }}",
+                        "fontSize": 14,
+                        "primaryTextColor": "@{patientTextColor}",
+                        "fontWeight": 400
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "viewType": "SPACER",
+          "height": 8
+        },
+        {
+          "viewType": "CARD",
+          "padding": 0,
+          "header": {
+            "viewType": "COMPOUND_TEXT",
+            "primaryText": "{{ 0804420727423b8bb55e8b5ab54d5aab }}",
+            "primaryTextColor": "#717171",
+            "fontSize": 14.0,
+            "padding": 16
+          },
+          "content": [
+            {
+              "viewType": "BUTTON",
+              "smallSized": true,
+              "text": "{{ follow.up }}",
+              "status": "DUE",
+              "buttonType": "MEDIUM",
+              "visible": true,
+              "clickable": true,
+              "enabled": true,
+              "actions": [
+                {
+                  "trigger": "ON_CLICK",
+                  "workflow": "LAUNCH_QUESTIONNAIRE",
+                  "questionnaire": {
+                    "id": "unicef-mexico-child-follow-up-visit",
+                    "title": "{{ 7e6671cf5ccf66222feaecccafaf9199 }}",
+                    "saveButtonText": "{{ save.button.text }}",
+                    "resourceIdentifier": "@{patientId}"
+                  },
+                  "params": [
+                    {
+                      "paramType": "PREPOPULATE",
+                      "linkId": "patientGender",
+                      "dataType": "STRING",
+                      "key": "patientGender",
+                      "value": "@{patientGender}"
+                    },
+                    {
+                      "paramType": "PREPOPULATE",
+                      "linkId": "has-caregiver",
+                      "dataType": "BOOLEAN",
+                      "key": "hasCaregiver",
+                      "value": "@{hasCaregiver}"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "viewType": "CARD",
+          "visible": "@{displayHistorySection}",
+          "padding": 0,
+          "header": {
+            "viewType": "COMPOUND_TEXT",
+            "primaryText": "{{ history }}",
+            "primaryTextColor": "#323232",
+            "fontSize": 14.0,
+            "padding": 17
+          },
+          "headerAction": {
+            "viewType": "COMPOUND_TEXT",
+            "visible": "@{displayPathologicalPersonalHistory}",
+            "primaryText": "{{ view.all }} > ",
+            "primaryTextColor": "infoColor",
+            "fontSize": 14.0,
+            "primaryTextFontWeight": "MEDIUM",
+            "padding": 16,
+            "clickable": true,
+            "maxLines": 1,
+            "textOverflow": "ELLIPSIS",
+            "primaryTextActions": [
+              {
+                "trigger": "ON_CLICK",
+                "workflow": "LAUNCH_PROFILE",
+                "id": "pathologicalHistoryProfile"
+              }
+            ]
+          },
+          "content": [
+            {
+              "viewType": "COLUMN",
+              "visible": "@{displayPathologicalPersonalHistory}",
+              "children": [
+                {
+                  "viewType": "COMPOUND_TEXT",
+                  "primaryText": "{{ personal.pathological.history }}",
+                  "primaryTextColor": "#323232",
+                  "fontSize": 16.0
+                },
+                {
+                  "viewType": "SPACER",
+                  "height": 8
+                },
+                {
+                  "viewType": "ROW",
+                  "visible": "@{displayChronicDegenerativeDiseases}",
+                  "children": [
+                    {
+                      "viewType": "COMPOUND_TEXT",
+                      "primaryText": "{{ chronic.degenerative.diseases }}: ",
+                      "primaryTextColor": "#717171",
+                      "fontSize": 14.0
+                    },
+                    {
+                      "viewType": "SPACER",
+                      "width": 2
+                    },
+                    {
+                      "viewType": "COMPOUND_TEXT",
+                      "primaryText": "@{latestChronicDegenerativeDiseases}",
+                      "primaryTextColor": "#717171",
+                      "fontSize": 14.0
+                    }
+                  ]
+                },
+                {
+                  "viewType": "ROW",
+                  "visible": "@{displayLatestIllnessesInTheLastYear}",
+                  "children": [
+                    {
+                      "viewType": "COMPOUND_TEXT",
+                      "primaryText": "{{ illnesses.in.the.last.year }}: ",
+                      "primaryTextColor": "#717171",
+                      "fontSize": 14.0
+                    },
+                    {
+                      "viewType": "SPACER",
+                      "width": 2
+                    },
+                    {
+                      "viewType": "COMPOUND_TEXT",
+                      "primaryText": "@{latestIllnessesInTheLastYear}",
+                      "primaryTextColor": "#717171",
+                      "fontSize": 14.0
+                    }
+                  ]
+                },
+                {
+                  "viewType": "ROW",
+                  "visible": "@{displayLatestDrugAllergies}",
+                  "children": [
+                    {
+                      "viewType": "COMPOUND_TEXT",
+                      "primaryText": "{{ drug.allergies }}: ",
+                      "primaryTextColor": "#717171",
+                      "fontSize": 14.0
+                    },
+                    {
+                      "viewType": "SPACER",
+                      "width": 2
+                    },
+                    {
+                      "viewType": "COMPOUND_TEXT",
+                      "primaryText": "@{latestDrugAllergies}",
+                      "primaryTextColor": "#717171",
+                      "fontSize": 14.0
+                    }
+                  ]
+                },
+                {
+                  "viewType": "SPACER",
+                  "height": 16
+                },
+                {
+                  "viewType": "ROW",
+                  "visible": "@{displayAdditionalComments}",
+                  "children": [
+                    {
+                      "viewType": "COMPOUND_TEXT",
+                      "primaryText": "{{ additional.comments }}: ",
+                      "primaryTextColor": "#717171",
+                      "fontSize": 14.0
+                    },
+                    {
+                      "viewType": "SPACER",
+                      "width": 2
+                    },
+                    {
+                      "viewType": "COMPOUND_TEXT",
+                      "primaryText": "@{additionalComments}",
+                      "primaryTextColor": "#717171",
+                      "fontSize": 14.0
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "viewType": "SPACER",
+          "visible": "@{displayWasReferred}",
+          "height": 8
+        },
+        {
+          "viewType": "CARD",
+          "visible": "@{displayWasReferred}",
+          "padding": 0,
+          "header": {
+            "viewType": "COMPOUND_TEXT",
+            "primaryText": "{{ reason.for.referral }}",
+            "primaryTextColor": "#323232",
+            "fontSize": 14.0,
+            "padding": 16
+          },
+          "content": [
+            {
+              "viewType": "COLUMN",
+              "visible": "@{displayWasReferred}",
+              "children": [
+                {
+                  "viewType": "SPACER",
+                  "height": 8
+                },
+                {
+                  "viewType": "ROW",
+                  "visible": "@{displayWasReferred}",
+                  "children": [
+                    {
+                      "viewType": "COMPOUND_TEXT",
+                      "primaryText": "{{ was.the.case.referred }}: ",
+                      "primaryTextColor": "#717171",
+                      "fontSize": 14.0
+                    },
+                    {
+                      "viewType": "SPACER",
+                      "width": 2
+                    },
+                    {
+                      "viewType": "COMPOUND_TEXT",
+                      "primaryText": "@{wasReferred}",
+                      "primaryTextColor": "#717171",
+                      "fontSize": 14.0
+                    }
+                  ]
+                },
+                {
+                  "viewType": "ROW",
+                  "visible": "@{displayReasonForReferral}",
+                  "children": [
+                    {
+                      "viewType": "COMPOUND_TEXT",
+                      "primaryText": "{{ reason.referred }}: ",
+                      "primaryTextColor": "#717171",
+                      "fontSize": 14.0
+                    },
+                    {
+                      "viewType": "SPACER",
+                      "width": 2
+                    },
+                    {
+                      "viewType": "COMPOUND_TEXT",
+                      "primaryText": "@{reasonForReferral}",
+                      "primaryTextColor": "#717171",
+                      "fontSize": 14.0
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "viewType": "CARD",
+          "visible": "@{displayDateOfLastConsultation}",
+          "padding": 0,
+          "header": {
+            "viewType": "COMPOUND_TEXT",
+            "primaryText": "{{ last.consultation }}",
+            "primaryTextColor": "#323232",
+            "fontSize": 14.0,
+            "padding": 16
+          },
+          "content": [
+            {
+              "viewType": "COLUMN",
+              "visible": "@{displayDateOfLastConsultation}",
+              "children": [
+                {
+                  "viewType": "COMPOUND_TEXT",
+                  "primaryText": "{{ date.of.last.consultation }}",
+                  "primaryTextColor": "#323232",
+                  "fontSize": 16.0
+                },
+                {
+                  "viewType": "SPACER",
+                  "height": 8
+                },
+                {
+                  "viewType": "ROW",
+                  "visible": "@{displayDateOfLastConsultation}",
+                  "children": [
+                    {
+                      "viewType": "COMPOUND_TEXT",
+                      "primaryText": "{{ date.of.last.consultation }}: ",
+                      "primaryTextColor": "#717171",
+                      "fontSize": 14.0
+                    },
+                    {
+                      "viewType": "SPACER",
+                      "width": 2
+                    },
+                    {
+                      "viewType": "COMPOUND_TEXT",
+                      "primaryText": "@{dateOfLastConsultation}",
+                      "primaryTextColor": "#717171",
+                      "fontSize": 14.0
+                    }
+                  ]
+                },
+                {
+                  "viewType": "SPACER",
+                  "visible": "@{displayReasonForConsultation}",
+                  "height": 16
+                },
+                {
+                  "viewType": "BORDER",
+                  "visible": "@{displayReasonForConsultation}",
+                  "thickness": 0.8
+                },
+                {
+                  "viewType": "SPACER",
+                  "height": 8,
+                  "visible": "@{displayReasonForConsultation}"
+                },
+                {
+                  "viewType": "COMPOUND_TEXT",
+                  "visible": "@{displayReasonForConsultation}",
+                  "primaryText": "{{ reason.for.consultation }}",
+                  "primaryTextColor": "#323232",
+                  "fontSize": 16.0
+                },
+                {
+                  "visible": "@{displayReasonForConsultation}",
+                  "viewType": "SPACER",
+                  "height": 8
+                },
+                {
+                  "viewType": "ROW",
+                  "visible": "@{displayReasonForConsultation}",
+                  "children": [
+                    {
+                      "viewType": "COMPOUND_TEXT",
+                      "primaryText": "{{ reason.for.consultation }}: ",
+                      "primaryTextColor": "#717171",
+                      "fontSize": 14.0
+                    },
+                    {
+                      "viewType": "SPACER",
+                      "width": 2
+                    },
+                    {
+                      "viewType": "COMPOUND_TEXT",
+                      "primaryText": "@{reasonForConsultation}",
+                      "primaryTextColor": "#717171",
+                      "fontSize": 14.0
+                    }
+                  ]
+                },
+                {
+                  "viewType": "SPACER",
+                  "visible": "@{displayDiagnosisOfLastConsultation}",
+                  "height": 16
+                },
+                {
+                  "viewType": "BORDER",
+                  "visible": "@{displayDiagnosisOfLastConsultation}",
+                  "thickness": 0.8
+                },
+                {
+                  "viewType": "SPACER",
+                  "height": 8,
+                  "visible": "@{displayDiagnosisOfLastConsultation}"
+                },
+                {
+                  "viewType": "COMPOUND_TEXT",
+                  "visible": "@{displayDiagnosisOfLastConsultation}",
+                  "primaryText": "{{ diagnosis.of.last.consultation }}",
+                  "primaryTextColor": "#323232",
+                  "fontSize": 16.0
+                },
+                {
+                  "viewType": "ROW",
+                  "visible": "@{displayDiagnosisOfLastConsultation}",
+                  "children": [
+                    {
+                      "viewType": "COMPOUND_TEXT",
+                      "primaryText": "{{ diagnosis }}: ",
+                      "primaryTextColor": "#717171",
+                      "fontSize": 14.0
+                    },
+                    {
+                      "viewType": "SPACER",
+                      "width": 2
+                    },
+                    {
+                      "viewType": "COMPOUND_TEXT",
+                      "primaryText": "@{diagnosisOfLastConsultation}",
+                      "primaryTextColor": "#717171",
+                      "fontSize": 14.0
+                    }
+                  ]
+                },
+                {
+                  "viewType": "SPACER",
+                  "visible": "@{displayClinicalDiagnosisOfLastConsultation}",
+                  "height": 16
+                },
+                {
+                  "viewType": "BORDER",
+                  "visible": "@{displayClinicalDiagnosisOfLastConsultation}",
+                  "thickness": 0.8
+                },
+                {
+                  "viewType": "SPACER",
+                  "height": 8,
+                  "visible": "@{displayClinicalDiagnosisOfLastConsultation}"
+                },
+                {
+                  "viewType": "COMPOUND_TEXT",
+                  "visible": "@{displayClinicalDiagnosisOfLastConsultation}",
+                  "primaryText": "{{ clinical.nutritional.diagnosis.of.last.consultation }}",
+                  "primaryTextColor": "#323232",
+                  "fontSize": 16.0
+                },
+                {
+                  "viewType": "ROW",
+                  "visible": "@{displayClinicalDiagnosisOfLastConsultation}",
+                  "children": [
+                    {
+                      "viewType": "COMPOUND_TEXT",
+                      "primaryText": "{{ diagnosis }}: ",
+                      "primaryTextColor": "#717171",
+                      "fontSize": 14.0
+                    },
+                    {
+                      "viewType": "SPACER",
+                      "width": 2
+                    },
+                    {
+                      "viewType": "COMPOUND_TEXT",
+                      "primaryText": "@{clinicalDiagnosisOfLastConsultation}",
+                      "primaryTextColor": "#717171",
+                      "fontSize": 14.0
+                    }
+                  ]
+                },
+                {
+                  "viewType": "SPACER",
+                  "visible": "@{displayNutritionTreatmentProvided}",
+                  "height": 16
+                },
+                {
+                  "viewType": "BORDER",
+                  "visible": "@{displayNutritionTreatmentProvided}",
+                  "thickness": 0.8
+                },
+                {
+                  "viewType": "SPACER",
+                  "height": 8,
+                  "visible": "@{displayNutritionTreatmentProvided}"
+                },
+                {
+                  "viewType": "COMPOUND_TEXT",
+                  "visible": "@{displayNutritionTreatmentProvided}",
+                  "primaryText": "{{ nutrition.treatment.provided }}",
+                  "primaryTextColor": "#323232",
+                  "fontSize": 16.0
+                },
+                {
+                  "viewType": "ROW",
+                  "visible": "@{displayNutritionTreatmentProvided}",
+                  "children": [
+                    {
+                      "viewType": "COMPOUND_TEXT",
+                      "primaryText": "{{ was.nutrition.treatment.provided }}: ",
+                      "primaryTextColor": "#717171",
+                      "fontSize": 14.0
+                    },
+                    {
+                      "viewType": "SPACER",
+                      "width": 2
+                    },
+                    {
+                      "viewType": "COMPOUND_TEXT",
+                      "primaryText": "@{nutritionTreatmentProvided}",
+                      "primaryTextColor": "#717171",
+                      "fontSize": 14.0
+                    }
+                  ]
+                },
+                {
+                  "viewType": "SPACER",
+                  "visible": "@{displayReasonForLastConsultation}",
+                  "height": 16
+                },
+                {
+                  "viewType": "BORDER",
+                  "visible": "@{displayReasonForLastConsultation}",
+                  "thickness": 0.8
+                },
+                {
+                  "viewType": "SPACER",
+                  "height": 8,
+                  "visible": "@{displayReasonForLastConsultation}"
+                },
+                {
+                  "viewType": "COMPOUND_TEXT",
+                  "visible": "@{displayReasonForLastConsultation}",
+                  "primaryText": "{{ reason.for.last.consultation }}",
+                  "primaryTextColor": "#323232",
+                  "fontSize": 16.0
+                },
+                {
+                  "viewType": "ROW",
+                  "visible": "@{displayReasonForLastConsultation}",
+                  "children": [
+                    {
+                      "viewType": "COMPOUND_TEXT",
+                      "primaryText": "{{ reason.for.last.consultation }}: ",
+                      "primaryTextColor": "#717171",
+                      "fontSize": 14.0
+                    },
+                    {
+                      "viewType": "SPACER",
+                      "width": 2
+                    },
+                    {
+                      "viewType": "COMPOUND_TEXT",
+                      "primaryText": "@{reasonForLastConsultation}",
+                      "primaryTextColor": "#717171",
+                      "fontSize": 14.0
+                    }
+                  ]
+                },
+                {
+                  "viewType": "SPACER",
+                  "visible": "@{displayReasonForPsychologicalConsultation}",
+                  "height": 16
+                },
+                {
+                  "viewType": "BORDER",
+                  "visible": "@{displayReasonForPsychologicalConsultation}",
+                  "thickness": 0.8
+                },
+                {
+                  "viewType": "SPACER",
+                  "height": 8,
+                  "visible": "@{displayReasonForPsychologicalConsultation}"
+                },
+                {
+                  "viewType": "COMPOUND_TEXT",
+                  "visible": "@{displayReasonForPsychologicalConsultation}",
+                  "primaryText": "{{ reason.for.psychological.consultation }}",
+                  "primaryTextColor": "#323232",
+                  "fontSize": 16.0
+                },
+                {
+                  "visible": "@{displayReasonForPsychologicalConsultation}",
+                  "viewType": "SPACER",
+                  "height": 8
+                },
+                {
+                  "viewType": "ROW",
+                  "visible": "@{displayReasonForPsychologicalConsultation}",
+                  "children": [
+                    {
+                      "viewType": "COMPOUND_TEXT",
+                      "primaryText": "{{ reason.for.psych.consultation }}: ",
+                      "primaryTextColor": "#717171",
+                      "fontSize": 14.0
+                    },
+                    {
+                      "viewType": "SPACER",
+                      "width": 2
+                    },
+                    {
+                      "viewType": "COMPOUND_TEXT",
+                      "primaryText": "@{reasonForPsychologicalConsultation}",
+                      "primaryTextColor": "#717171",
+                      "fontSize": 14.0
+                    }
+                  ]
+                },
+                {
+                  "viewType": "SPACER",
+                  "visible": "@{displayPsychologicalObservations}",
+                  "height": 16
+                },
+                {
+                  "viewType": "BORDER",
+                  "visible": "@{displayPsychologicalObservations}",
+                  "thickness": 0.8
+                },
+                {
+                  "viewType": "SPACER",
+                  "height": 8,
+                  "visible": "@{displayPsychologicalObservations}"
+                },
+                {
+                  "viewType": "COMPOUND_TEXT",
+                  "visible": "@{displayPsychologicalObservations}",
+                  "primaryText": "{{ psychological.observations }}",
+                  "primaryTextColor": "#323232",
+                  "fontSize": 16.0
+                },
+                {
+                  "visible": "@{displayPsychologicalObservations}",
+                  "viewType": "SPACER",
+                  "height": 8
+                },
+                {
+                  "viewType": "ROW",
+                  "visible": "@{displayPsychologicalObservations}",
+                  "children": [
+                    {
+                      "viewType": "COMPOUND_TEXT",
+                      "primaryText": "{{ psych.obs }}: ",
+                      "primaryTextColor": "#717171",
+                      "fontSize": 14.0
+                    },
+                    {
+                      "viewType": "SPACER",
+                      "width": 2
+                    },
+                    {
+                      "viewType": "COMPOUND_TEXT",
+                      "primaryText": "@{psychologicalObservations}",
+                      "primaryTextColor": "#717171",
+                      "fontSize": 14.0
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "viewType": "SPACER",
+          "height": 8
+        },
+        {
+          "viewType": "CARD",
+          "visible": "@{showAtBirthTasks}",
+          "padding": 16,
+          "header": {
+            "viewType": "COMPOUND_TEXT",
+            "primaryText": "{{ da23d9c75ea9abda2eaa7b50a49a3912 }}",
+            "primaryTextColor": "#717171",
+            "fontSize": 14.0,
+            "padding": 16
+          },
+          "headerAction": {
+            "viewType": "COMPOUND_TEXT",
+            "visible": "@{showAtBirthTasks}",
+            "primaryText": "{{ 5b22625a04693de0dfd851206bda68a5 }}",
+            "primaryTextColor": "infoColor",
+            "fontSize": 16.0,
+            "primaryTextFontWeight": "MEDIUM",
+            "padding": 16,
+            "clickable": true,
+            "maxLines": 1,
+            "textOverflow": "ELLIPSIS",
+            "primaryTextActions": [
+              {
+                "trigger": "ON_CLICK",
+                "workflow": "LAUNCH_QUESTIONNAIRE",
+                "questionnaire": {
+                  "id": "unicef-mexico-record-all-dose",
+                  "title": "{{ cd9b9693e6c22ffdd8f210336ed3b3b7 }}",
+                  "resourceIdentifier": "@{patientId}",
+                  "saveButtonText": "{{ save.button.text }}",
+                  "taskId": "@{taskId}"
+                },
+                "params": [
+                  {
+                    "paramType": "PREPOPULATE",
+                    "linkId": "group-identifier",
+                    "dataType": "STRING",
+                    "key": "groupIdentifier",
+                    "value": "0_d"
+                  }
+                ]
+              }
+            ]
+          },
+          "content": [
+            {
+              "viewType": "LIST",
+              "id": "atBirthTaskList",
+              "resources": [
+                {
+                  "id": "availableTasks",
+                  "relatedResourceId": "availableTasks",
+                  "resourceType": "Task",
+                  "conditionalFhirPathExpression": "Task.code.coding.code='33879002' and (Task.status = 'ready' or Task.status = 'failed' or Task.status = 'cancelled' or Task.status = 'completed') and Task.groupIdentifier.value = '0_d'",
+                  "sortConfig": {
+                    "dataType": "DATETIME",
+                    "fhirPathExpression": "Task.executionPeriod.start",
+                    "order": "ASCENDING"
+                  }
+                }
+              ],
+              "emptyList": {
+                "message": "{{ c7a9a028c3a0d655ce6eed569aa76a84 }}"
+              },
+              "registerCard": {
+                "rules": [
+                  {
+                    "name": "taskStatus",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskStatus', fhirPath.extractValue(availableTasks, 'Task.status'))"
+                    ]
+                  },
+                  {
+                    "name": "taskStatusColorCode",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskStatusColorCode', service.generateTaskServiceStatus(availableTasks))"
+                    ]
+                  },
+                  {
+                    "name": "taskExecutionStartDate",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskExecutionStartDate', fhirPath.extractValue(availableTasks, 'Task.executionPeriod.start'))"
+                    ]
+                  },
+                  {
+                    "name": "taskPeriodDueDate",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskPeriodDueDate', service.formatDate(data.get('taskExecutionStartDate'), \"yyyy-MM-dd'T'HH:mm:ss\", \"dd MMM yyyy\"))"
+                    ]
+                  },
+                  {
+                    "name": "taskDescription",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskDescription', fhirPath.extractValue(availableTasks, 'Task.description'))"
+                    ]
+                  },
+                  {
+                    "name": "immunizationDate",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('immunizationDate', service.formatDate(fhirPath.extractValue(availableTasks, \"Task.output.where(type.coding.select(code) = '33879002').value\"), \"yyyy-MM-dd\", \"dd MMM yyyy\"))"
+                    ]
+                  },
+                  {
+                    "name": "taskDate",
+                    "condition": "true",
+                    "priority": 2,
+                    "actions": [
+                      "data.put('taskDate', data.get('taskStatus') == 'completed' ? data.get('immunizationDate').empty().not() ? data.get('immunizationDate') : data.get('taskPeriodDueDate') : data.get('taskPeriodDueDate'))"
+                    ]
+                  },
+                  {
+                    "name": "taskDescriptionWithStartDate",
+                    "condition": "true",
+                    "priority": 3,
+                    "actions": [
+                      "data.put('taskDescriptionWithStartDate', data.get('taskDescription') + ' - ' + data.get('taskDate'))"
+                    ]
+                  },
+                  {
+                    "name": "taskId",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskId', fhirPath.extractValue(availableTasks, 'Task.id'))"
+                    ]
+                  },
+                  {
+                    "name": "logicalTaskId",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('logicalTaskId', fhirPath.extractValue(availableTasks, 'Task.id').replace(\"Task/\",\"\").split(\"/\").get(0))"
+                    ]
+                  },
+                  {
+                    "name": "taskFor",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskFor', fhirPath.extractValue(availableTasks, 'Task.for.reference'))"
+                    ]
+                  },
+                  {
+                    "name": "taskQuestionnaireId",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskQuestionnaireId', fhirPath.extractValue(availableTasks, 'Task.reasonReference.reference'))"
+                    ]
+                  },
+                  {
+                    "name": "taskName",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskName', fhirPath.extractValue(availableTasks, 'Task.reasonCode.coding.display'))"
+                    ]
+                  },
+                  {
+                    "name": "taskCode",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskCode', fhirPath.extractValue(availableTasks, 'Task.reasonCode.coding.code'))"
+                    ]
+                  },
+                  {
+                    "name": "vaccineDoseNumber",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('vaccineDoseNumber', fhirPath.extractValue(availableTasks, \"Task.input.where(type.coding.select(code) = '260911001').value\"))"
+                    ]
+                  }
+                ],
+                "views": [
+                  {
+                    "viewType": "BUTTON",
+                    "buttonType": "MEDIUM",
+                    "text": "@{taskDescription}",
+                    "status": "@{taskStatusColorCode}",
+                    "visible": true,
+                    "clickable": true,
+                    "enabled": true,
+                    "actions": [
+                      {
+                        "trigger": "ON_CLICK",
+                        "workflow": "LAUNCH_QUESTIONNAIRE",
+                        "questionnaire": {
+                          "id": "@{taskQuestionnaireId}",
+                          "title": "{{ b5b2dad2eda089b9695c3fa8f648beeb }}",
+                          "saveButtonText": "{{ save.button.text }}",
+                          "taskId": "@{taskId}",
+                          "resourceIdentifier": "@{taskFor}"
+                        },
+                        "params": [
+                          {
+                            "paramType": "PREPOPULATE",
+                            "linkId": "patient-dob",
+                            "dataType": "STRING",
+                            "key": "birthDate",
+                            "value": "@{birthDate}"
+                          },
+                          {
+                            "paramType": "PREPOPULATE",
+                            "linkId": "task-name",
+                            "dataType": "STRING",
+                            "key": "taskName",
+                            "value": "@{taskName}"
+                          },
+                          {
+                            "paramType": "PREPOPULATE",
+                            "linkId": "task-code",
+                            "dataType": "STRING",
+                            "key": "taskCode",
+                            "value": "@{taskCode}"
+                          },
+                          {
+                            "paramType": "PREPOPULATE",
+                            "linkId": "patient-id",
+                            "dataType": "STRING",
+                            "key": "patientId",
+                            "value": "@{patientId}"
+                          },
+                          {
+                            "paramType": "PREPOPULATE",
+                            "linkId": "task-description",
+                            "dataType": "STRING",
+                            "key": "taskDesc",
+                            "value": "@{taskDescription}"
+                          },
+                          {
+                            "paramType": "PREPOPULATE",
+                            "linkId": "logical-task-id",
+                            "dataType": "STRING",
+                            "key": "logicalTaskId",
+                            "value": "@{logicalTaskId}"
+                          },
+                          {
+                            "paramType": "PREPOPULATE",
+                            "linkId": "vaccine-dose-number",
+                            "dataType": "STRING",
+                            "key": "vaccineDoseNumber",
+                            "value": "@{vaccineDoseNumber}"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "viewType": "CARD",
+          "visible": "@{showAtElevenMonthsTasks}",
+          "padding": 16,
+          "header": {
+            "viewType": "COMPOUND_TEXT",
+            "primaryText": "{{ ac8157c3cab48f443c992bdaddb8278a }}",
+            "primaryTextColor": "#717171",
+            "fontSize": 14.0,
+            "padding": 16
+          },
+          "headerAction": {
+            "viewType": "COMPOUND_TEXT",
+            "visible": "@{showAtElevenMonthsTasks}",
+            "primaryText": "{{ 5b22625a04693de0dfd851206bda68a5 }}",
+            "primaryTextColor": "infoColor",
+            "fontSize": 16.0,
+            "primaryTextFontWeight": "MEDIUM",
+            "padding": 16,
+            "clickable": true,
+            "maxLines": 1,
+            "textOverflow": "ELLIPSIS",
+            "primaryTextActions": [
+              {
+                "trigger": "ON_CLICK",
+                "workflow": "LAUNCH_QUESTIONNAIRE",
+                "questionnaire": {
+                  "id": "unicef-mexico-record-all-dose",
+                  "title": "{{ cd9b9693e6c22ffdd8f210336ed3b3b7 }}",
+                  "resourceIdentifier": "@{patientId}",
+                  "saveButtonText": "{{ save.button.text }}",
+                  "taskId": "@{taskId}"
+                },
+                "params": [
+                  {
+                    "paramType": "PREPOPULATE",
+                    "linkId": "group-identifier",
+                    "dataType": "STRING",
+                    "key": "groupIdentifier",
+                    "value": "11_mo"
+                  }
+                ]
+              }
+            ]
+          },
+          "content": [
+            {
+              "viewType": "LIST",
+              "id": "first11monthsTaskList",
+              "resources": [
+                {
+                  "id": "availableTasks",
+                  "relatedResourceId": "availableTasks",
+                  "resourceType": "Task",
+                  "conditionalFhirPathExpression": "Task.code.coding.code='33879002' and (Task.status = 'ready' or Task.status = 'requested'  or Task.status = 'failed' or Task.status = 'cancelled' or Task.status = 'completed') and Task.groupIdentifier.value = '11_mo'",
+                  "sortConfig": {
+                    "dataType": "DATETIME",
+                    "fhirPathExpression": "Task.executionPeriod.start",
+                    "order": "ASCENDING"
+                  }
+                }
+              ],
+              "emptyList": {
+                "message": "{{ c7a9a028c3a0d655ce6eed569aa76a84 }}"
+              },
+              "registerCard": {
+                "rules": [
+                  {
+                    "name": "taskStatus",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskStatus', fhirPath.extractValue(availableTasks, 'Task.status'))"
+                    ]
+                  },
+                  {
+                    "name": "taskStatusColorCode",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskStatusColorCode', service.generateTaskServiceStatus(availableTasks))"
+                    ]
+                  },
+                  {
+                    "name": "taskExecutionStartDate",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskExecutionStartDate', fhirPath.extractValue(availableTasks, 'Task.executionPeriod.start'))"
+                    ]
+                  },
+                  {
+                    "name": "taskPeriodDueDate",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskPeriodDueDate', service.formatDate(data.get('taskExecutionStartDate'), \"yyyy-MM-dd'T'HH:mm:ss\", \"dd MMM yyyy\"))"
+                    ]
+                  },
+                  {
+                    "name": "taskStatusIsDueOrOverdue",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskStatusIsDueOrOverdue',data.get('taskStatus').equals('ready') ? 'true' : data.get('taskStatus').equals('failed') || data.get('taskStatus').equals('cancelled') ? 'true' : 'false')"
+                    ]
+                  },
+                  {
+                    "name": "taskDescription",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskDescription', fhirPath.extractValue(availableTasks, 'Task.description'))"
+                    ]
+                  },
+                  {
+                    "name": "immunizationDate",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('immunizationDate', service.formatDate(fhirPath.extractValue(availableTasks, \"Task.output.where(type.coding.select(code) = '35123003').value\"), \"yyyy-MM-dd\", \"dd MMM yyyy\"))"
+                    ]
+                  },
+                  {
+                    "name": "taskDate",
+                    "condition": "true",
+                    "priority": 2,
+                    "actions": [
+                      "data.put('taskDate', data.get('taskStatus') == 'completed' && data.get('immunizationDate') != null ? data.get('immunizationDate') : data.get('taskPeriodDueDate'))"
+                    ]
+                  },
+                  {
+                    "name": "taskDescriptionWithStartDate",
+                    "condition": "true",
+                    "priority": 3,
+                    "actions": [
+                      "data.put('taskDescriptionWithStartDate', data.get('taskDescription') + ' - ' + data.get('taskDate'))"
+                    ]
+                  },
+                  {
+                    "name": "taskId",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskId', fhirPath.extractValue(availableTasks, 'Task.id'))"
+                    ]
+                  },
+                  {
+                    "name": "logicalTaskId",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('logicalTaskId', fhirPath.extractValue(availableTasks, 'Task.id').replace(\"Task/\",\"\").split(\"/\").get(0))"
+                    ]
+                  },
+                  {
+                    "name": "taskFor",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskFor', fhirPath.extractValue(availableTasks, 'Task.for.reference'))"
+                    ]
+                  },
+                  {
+                    "name": "taskQuestionnaireId",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskQuestionnaireId', fhirPath.extractValue(availableTasks, 'Task.reasonReference.reference'))"
+                    ]
+                  },
+                  {
+                    "name": "taskName",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskName', fhirPath.extractValue(availableTasks, 'Task.reasonCode.coding.display'))"
+                    ]
+                  },
+                  {
+                    "name": "taskCode",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskCode', fhirPath.extractValue(availableTasks, 'Task.reasonCode.coding.code'))"
+                    ]
+                  },
+                  {
+                    "name": "vaccineDoseNumber",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('vaccineDoseNumber', fhirPath.extractValue(availableTasks, \"Task.input.where(type.coding.select(code) = '260911001').value\"))"
+                    ]
+                  },
+                  {
+                    "name": "taskClickable",
+                    "condition": "true",
+                    "priority": 2,
+                    "actions": [
+                      "data.put('taskClickable', data.get('taskStatus') != 'completed' ? 'true':'false' )"
+                    ]
+                  }
+                ],
+                "views": [
+                  {
+                    "viewType": "BUTTON",
+                    "buttonType": "MEDIUM",
+                    "text": "@{taskDescription}",
+                    "status": "@{taskStatusColorCode}",
+                    "visible": true,
+                    "clickable": true,
+                    "enabled": true,
+                    "actions": [
+                      {
+                        "trigger": "ON_CLICK",
+                        "workflow": "LAUNCH_QUESTIONNAIRE",
+                        "questionnaire": {
+                          "id": "@{taskQuestionnaireId}",
+                          "title": "{{ b5b2dad2eda089b9695c3fa8f648beeb }}",
+                          "saveButtonText": "{{ save.button.text }}",
+                          "taskId": "@{taskId}",
+                          "resourceIdentifier": "@{taskFor}"
+                        },
+                        "params": [
+                          {
+                            "paramType": "PREPOPULATE",
+                            "linkId": "patient-dob",
+                            "dataType": "STRING",
+                            "key": "birthDate",
+                            "value": "@{birthDate}"
+                          },
+                          {
+                            "paramType": "PREPOPULATE",
+                            "linkId": "task-name",
+                            "dataType": "STRING",
+                            "key": "taskName",
+                            "value": "@{taskName}"
+                          },
+                          {
+                            "paramType": "PREPOPULATE",
+                            "linkId": "task-code",
+                            "dataType": "STRING",
+                            "key": "taskCode",
+                            "value": "@{taskCode}"
+                          },
+                          {
+                            "paramType": "PREPOPULATE",
+                            "linkId": "patient-id",
+                            "dataType": "STRING",
+                            "key": "patientId",
+                            "value": "@{patientId}"
+                          },
+                          {
+                            "paramType": "PREPOPULATE",
+                            "linkId": "task-description",
+                            "dataType": "STRING",
+                            "key": "taskDesc",
+                            "value": "@{taskDescription}"
+                          },
+                          {
+                            "paramType": "PREPOPULATE",
+                            "linkId": "logical-task-id",
+                            "dataType": "STRING",
+                            "key": "logicalTaskId",
+                            "value": "@{logicalTaskId}"
+                          },
+                          {
+                            "paramType": "PREPOPULATE",
+                            "linkId": "vaccine-dose-number",
+                            "dataType": "STRING",
+                            "key": "vaccineDoseNumber",
+                            "value": "@{vaccineDoseNumber}"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "viewType": "CARD",
+          "visible": "@{showAtTwentyThreeMonthsTasks}",
+          "padding": 16,
+          "header": {
+            "viewType": "COMPOUND_TEXT",
+            "primaryText": "{{ 0460c323fdba84b61a5516da3f9db67c }}",
+            "primaryTextColor": "#717171",
+            "fontSize": 14.0,
+            "padding": 16
+          },
+          "headerAction": {
+            "viewType": "COMPOUND_TEXT",
+            "visible": "@{showAtTwentyThreeMonthsTasks}",
+            "primaryText": "{{ 5b22625a04693de0dfd851206bda68a5 }}",
+            "primaryTextColor": "infoColor",
+            "fontSize": 16.0,
+            "primaryTextFontWeight": "MEDIUM",
+            "padding": 16,
+            "clickable": true,
+            "maxLines": 1,
+            "textOverflow": "ELLIPSIS",
+            "primaryTextActions": [
+              {
+                "trigger": "ON_CLICK",
+                "workflow": "LAUNCH_QUESTIONNAIRE",
+                "questionnaire": {
+                  "id": "unicef-mexico-record-all-dose",
+                  "title": "{{ cd9b9693e6c22ffdd8f210336ed3b3b7 }}",
+                  "resourceIdentifier": "@{patientId}",
+                  "saveButtonText": "{{ save.button.text }}",
+                  "taskId": "@{taskId}"
+                },
+                "params": [
+                  {
+                    "paramType": "PREPOPULATE",
+                    "linkId": "group-identifier",
+                    "dataType": "STRING",
+                    "key": "groupIdentifier",
+                    "value": "23_mo"
+                  }
+                ]
+              }
+            ]
+          },
+          "content": [
+            {
+              "viewType": "LIST",
+              "id": "at12To23MonthsTaskList",
+              "resources": [
+                {
+                  "id": "availableTasks",
+                  "relatedResourceId": "availableTasks",
+                  "resourceType": "Task",
+                  "conditionalFhirPathExpression": "Task.code.coding.code='33879002' and (Task.status = 'ready' or Task.status = 'requested'  or Task.status = 'failed' or Task.status = 'cancelled' or Task.status = 'completed') and Task.groupIdentifier.value = '23_mo'",
+                  "sortConfig": {
+                    "dataType": "DATETIME",
+                    "fhirPathExpression": "Task.executionPeriod.start",
+                    "order": "ASCENDING"
+                  }
+                }
+              ],
+              "emptyList": {
+                "message": "{{ c7a9a028c3a0d655ce6eed569aa76a84 }}"
+              },
+              "registerCard": {
+                "rules": [
+                  {
+                    "name": "taskStatus",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskStatus', fhirPath.extractValue(availableTasks, 'Task.status'))"
+                    ]
+                  },
+                  {
+                    "name": "taskStatusColorCode",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskStatusColorCode', service.generateTaskServiceStatus(availableTasks))"
+                    ]
+                  },
+                  {
+                    "name": "taskExecutionStartDate",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskExecutionStartDate', fhirPath.extractValue(availableTasks, 'Task.executionPeriod.start'))"
+                    ]
+                  },
+                  {
+                    "name": "taskPeriodDueDate",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskPeriodDueDate', service.formatDate(data.get('taskExecutionStartDate'), \"yyyy-MM-dd'T'HH:mm:ss\", \"dd MMM yyyy\"))"
+                    ]
+                  },
+                  {
+                    "name": "taskDescription",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskDescription', fhirPath.extractValue(availableTasks, 'Task.description'))"
+                    ]
+                  },
+                  {
+                    "name": "immunizationDate",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('immunizationDate', service.formatDate(fhirPath.extractValue(availableTasks, \"Task.output.where(type.coding.select(code) = '35123003').value\"), \"yyyy-MM-dd\", \"dd MMM yyyy\"))"
+                    ]
+                  },
+                  {
+                    "name": "taskDate",
+                    "condition": "true",
+                    "priority": 2,
+                    "actions": [
+                      "data.put('taskDate', data.get('taskStatus') == 'completed' ? data.get('immunizationDate').empty().not() ? data.get('immunizationDate') : data.get('taskPeriodDueDate') : data.get('taskPeriodDueDate'))"
+                    ]
+                  },
+                  {
+                    "name": "taskDescriptionWithStartDate",
+                    "condition": "true",
+                    "priority": 3,
+                    "actions": [
+                      "data.put('taskDescriptionWithStartDate', data.get('taskDescription') + ' - ' + data.get('taskDate'))"
+                    ]
+                  },
+                  {
+                    "name": "taskId",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskId', fhirPath.extractValue(availableTasks, 'Task.id'))"
+                    ]
+                  },
+                  {
+                    "name": "logicalTaskId",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('logicalTaskId', fhirPath.extractValue(availableTasks, 'Task.id').replace(\"Task/\",\"\").split(\"/\").get(0))"
+                    ]
+                  },
+                  {
+                    "name": "taskFor",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskFor', fhirPath.extractValue(availableTasks, 'Task.for.reference'))"
+                    ]
+                  },
+                  {
+                    "name": "taskQuestionnaireId",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskQuestionnaireId', fhirPath.extractValue(availableTasks, 'Task.reasonReference.reference'))"
+                    ]
+                  },
+                  {
+                    "name": "taskName",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskName', fhirPath.extractValue(availableTasks, 'Task.reasonCode.coding.display'))"
+                    ]
+                  },
+                  {
+                    "name": "taskCode",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskCode', fhirPath.extractValue(availableTasks, 'Task.reasonCode.coding.code'))"
+                    ]
+                  },
+                  {
+                    "name": "vaccineDoseNumber",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('vaccineDoseNumber', fhirPath.extractValue(availableTasks, \"Task.input.where(type.coding.select(code) = '260911001').value\"))"
+                    ]
+                  }
+                ],
+                "views": [
+                  {
+                    "viewType": "BUTTON",
+                    "buttonType": "MEDIUM",
+                    "text": "@{taskDescription}",
+                    "status": "@{taskStatusColorCode}",
+                    "visible": true,
+                    "clickable": true,
+                    "enabled": true,
+                    "actions": [
+                      {
+                        "trigger": "ON_CLICK",
+                        "workflow": "LAUNCH_QUESTIONNAIRE",
+                        "questionnaire": {
+                          "id": "@{taskQuestionnaireId}",
+                          "title": "{{ b5b2dad2eda089b9695c3fa8f648beeb }}",
+                          "saveButtonText": "{{ save.button.text }}",
+                          "taskId": "@{taskId}",
+                          "resourceIdentifier": "@{taskFor}"
+                        },
+                        "params": [
+                          {
+                            "paramType": "PREPOPULATE",
+                            "linkId": "patient-dob",
+                            "dataType": "STRING",
+                            "key": "birthDate",
+                            "value": "@{birthDate}"
+                          },
+                          {
+                            "paramType": "PREPOPULATE",
+                            "linkId": "task-name",
+                            "dataType": "STRING",
+                            "key": "taskName",
+                            "value": "@{taskName}"
+                          },
+                          {
+                            "paramType": "PREPOPULATE",
+                            "linkId": "task-code",
+                            "dataType": "STRING",
+                            "key": "taskCode",
+                            "value": "@{taskCode}"
+                          },
+                          {
+                            "paramType": "PREPOPULATE",
+                            "linkId": "patient-id",
+                            "dataType": "STRING",
+                            "key": "patientId",
+                            "value": "@{patientId}"
+                          },
+                          {
+                            "paramType": "PREPOPULATE",
+                            "linkId": "task-description",
+                            "dataType": "STRING",
+                            "key": "taskDesc",
+                            "value": "@{taskDescription}"
+                          },
+                          {
+                            "paramType": "PREPOPULATE",
+                            "linkId": "logical-task-id",
+                            "dataType": "STRING",
+                            "key": "logicalTaskId",
+                            "value": "@{logicalTaskId}"
+                          },
+                          {
+                            "paramType": "PREPOPULATE",
+                            "linkId": "vaccine-dose-number",
+                            "dataType": "STRING",
+                            "key": "vaccineDoseNumber",
+                            "value": "@{vaccineDoseNumber}"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "viewType": "CARD",
+          "visible": "@{showAtTwentyFourMonthsTasks}",
+          "padding": 16,
+          "header": {
+            "viewType": "COMPOUND_TEXT",
+            "primaryText": "{{ 1a78a389825825e180122c2eb7116743 }}",
+            "primaryTextColor": "#717171",
+            "fontSize": 14.0,
+            "padding": 16
+          },
+          "headerAction": {
+            "viewType": "COMPOUND_TEXT",
+            "visible": "@{showAtTwentyFourMonthsTasks}",
+            "primaryText": "{{ 5b22625a04693de0dfd851206bda68a5 }}",
+            "primaryTextColor": "infoColor",
+            "fontSize": 16.0,
+            "primaryTextFontWeight": "MEDIUM",
+            "padding": 16,
+            "clickable": true,
+            "maxLines": 1,
+            "textOverflow": "ELLIPSIS",
+            "primaryTextActions": [
+              {
+                "trigger": "ON_CLICK",
+                "workflow": "LAUNCH_QUESTIONNAIRE",
+                "questionnaire": {
+                  "id": "unicef-mexico-record-all-dose",
+                  "title": "{{ cd9b9693e6c22ffdd8f210336ed3b3b7 }}",
+                  "resourceIdentifier": "@{patientId}",
+                  "saveButtonText": "{{ save.button.text }}",
+                  "taskId": "@{taskId}"
+                },
+                "params": [
+                  {
+                    "paramType": "PREPOPULATE",
+                    "linkId": "group-identifier",
+                    "dataType": "STRING",
+                    "key": "groupIdentifier",
+                    "value": "24_mo"
+                  }
+                ]
+              }
+            ]
+          },
+          "content": [
+            {
+              "viewType": "LIST",
+              "id": "at2To18YearsTaskList",
+              "resources": [
+                {
+                  "id": "availableTasks",
+                  "relatedResourceId": "availableTasks",
+                  "resourceType": "Task",
+                  "conditionalFhirPathExpression": "Task.code.coding.code='33879002' and (Task.status = 'ready' or Task.status = 'requested'  or Task.status = 'failed' or Task.status = 'cancelled' or Task.status = 'completed') and Task.groupIdentifier.value = '24_mo'",
+                  "sortConfig": {
+                    "dataType": "DATETIME",
+                    "fhirPathExpression": "Task.executionPeriod.start",
+                    "order": "ASCENDING"
+                  }
+                }
+              ],
+              "emptyList": {
+                "message": "{{ c7a9a028c3a0d655ce6eed569aa76a84 }}"
+              },
+              "registerCard": {
+                "rules": [
+                  {
+                    "name": "taskStatus",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskStatus', fhirPath.extractValue(availableTasks, 'Task.status'))"
+                    ]
+                  },
+                  {
+                    "name": "taskStatusColorCode",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskStatusColorCode', service.generateTaskServiceStatus(availableTasks))"
+                    ]
+                  },
+                  {
+                    "name": "taskExecutionStartDate",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskExecutionStartDate', fhirPath.extractValue(availableTasks, 'Task.executionPeriod.start'))"
+                    ]
+                  },
+                  {
+                    "name": "taskPeriodDueDate",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskPeriodDueDate', service.formatDate(data.get('taskExecutionStartDate'), \"yyyy-MM-dd'T'HH:mm:ss\", \"dd MMM yyyy\"))"
+                    ]
+                  },
+                  {
+                    "name": "taskDescription",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskDescription', fhirPath.extractValue(availableTasks, 'Task.description'))"
+                    ]
+                  },
+                  {
+                    "name": "immunizationDate",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('immunizationDate', service.formatDate(fhirPath.extractValue(availableTasks, \"Task.output.where(type.coding.select(code) = '33879002').value\"), \"yyyy-MM-dd\", \"dd MMM yyyy\"))"
+                    ]
+                  },
+                  {
+                    "name": "taskDate",
+                    "condition": "true",
+                    "priority": 2,
+                    "actions": [
+                      "data.put('taskDate', data.get('taskStatus') == 'completed' ? data.get('immunizationDate').empty().not() ? data.get('immunizationDate') : data.get('taskPeriodDueDate') : data.get('taskPeriodDueDate'))"
+                    ]
+                  },
+                  {
+                    "name": "taskDescriptionWithStartDate",
+                    "condition": "true",
+                    "priority": 3,
+                    "actions": [
+                      "data.put('taskDescriptionWithStartDate', data.get('taskDescription') + ' - ' + data.get('taskDate'))"
+                    ]
+                  },
+                  {
+                    "name": "taskId",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskId', fhirPath.extractValue(availableTasks, 'Task.id'))"
+                    ]
+                  },
+                  {
+                    "name": "logicalTaskId",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('logicalTaskId', fhirPath.extractValue(availableTasks, 'Task.id').replace(\"Task/\",\"\").split(\"/\").get(0))"
+                    ]
+                  },
+                  {
+                    "name": "taskFor",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskFor', fhirPath.extractValue(availableTasks, 'Task.for.reference'))"
+                    ]
+                  },
+                  {
+                    "name": "taskQuestionnaireId",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskQuestionnaireId', fhirPath.extractValue(availableTasks, 'Task.reasonReference.reference'))"
+                    ]
+                  },
+                  {
+                    "name": "taskName",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskName', fhirPath.extractValue(availableTasks, 'Task.reasonCode.coding.display'))"
+                    ]
+                  },
+                  {
+                    "name": "taskCode",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('taskCode', fhirPath.extractValue(availableTasks, 'Task.reasonCode.coding.code'))"
+                    ]
+                  },
+                  {
+                    "name": "vaccineDoseNumber",
+                    "condition": "true",
+                    "actions": [
+                      "data.put('vaccineDoseNumber', fhirPath.extractValue(availableTasks, \"Task.input.where(type.coding.select(code) = '260911001').value\"))"
+                    ]
+                  }
+                ],
+                "views": [
+                  {
+                    "viewType": "BUTTON",
+                    "buttonType": "MEDIUM",
+                    "text": "@{taskDescription}",
+                    "status": "@{taskStatusColorCode}",
+                    "visible": true,
+                    "clickable": true,
+                    "enabled": true,
+                    "actions": [
+                      {
+                        "trigger": "ON_CLICK",
+                        "workflow": "LAUNCH_QUESTIONNAIRE",
+                        "questionnaire": {
+                          "id": "@{taskQuestionnaireId}",
+                          "title": "{{ b5b2dad2eda089b9695c3fa8f648beeb }}",
+                          "saveButtonText": "{{ save.button.text }}",
+                          "taskId": "@{taskId}",
+                          "resourceIdentifier": "@{taskFor}"
+                        },
+                        "params": [
+                          {
+                            "paramType": "PREPOPULATE",
+                            "linkId": "patient-dob",
+                            "dataType": "STRING",
+                            "key": "birthDate",
+                            "value": "@{birthDate}"
+                          },
+                          {
+                            "paramType": "PREPOPULATE",
+                            "linkId": "task-name",
+                            "dataType": "STRING",
+                            "key": "taskName",
+                            "value": "@{taskName}"
+                          },
+                          {
+                            "paramType": "PREPOPULATE",
+                            "linkId": "task-code",
+                            "dataType": "STRING",
+                            "key": "taskCode",
+                            "value": "@{taskCode}"
+                          },
+                          {
+                            "paramType": "PREPOPULATE",
+                            "linkId": "patient-id",
+                            "dataType": "STRING",
+                            "key": "patientId",
+                            "value": "@{patientId}"
+                          },
+                          {
+                            "paramType": "PREPOPULATE",
+                            "linkId": "task-description",
+                            "dataType": "STRING",
+                            "key": "taskDesc",
+                            "value": "@{taskDescription}"
+                          },
+                          {
+                            "paramType": "PREPOPULATE",
+                            "linkId": "logical-task-id",
+                            "dataType": "STRING",
+                            "key": "logicalTaskId",
+                            "value": "@{logicalTaskId}"
+                          },
+                          {
+                            "paramType": "PREPOPULATE",
+                            "linkId": "vaccine-dose-number",
+                            "dataType": "STRING",
+                            "key": "vaccineDoseNumber",
+                            "value": "@{vaccineDoseNumber}"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "overFlowMenuItems": [
+    {
+      "title": "{{ registration.info }}",
+      "titleColor": "@{patientTextColor}",
+      "visible": "@{patientActive}",
+      "enabled": "@{patientActive}",
+      "actions": [
+        {
+          "trigger": "ON_CLICK",
+          "workflow": "LAUNCH_QUESTIONNAIRE",
+          "questionnaire": {
+            "id": "unicef-mexico-child-registration",
+            "title": "{{ child.registration }}",
+            "saveButtonText": "{{ update.registration }}",
+            "setPractitionerDetails": true,
+            "setOrganizationDetails": true,
+            "type": "EDIT",
+            "resourceIdentifier": "@{patientId}",
+            "readOnlyLinkIds": [
+              "43f08bd6-f987-4f12-8dca-11a89a0af1e3",
+              "1784f24d-5550-4612-9ea9-c7713da8920b",
+              "child-id",
+              "dob-uknown-choice",
+              "is-age-in-y-m-w",
+              "age",
+              "nationality",
+              "state",
+              "specific-nationality",
+              "state-city"
+            ]
+          },
+          "params": [
+            {
+              "paramType": "PREPOPULATE",
+              "linkId": "is-edit-profile",
+              "dataType": "BOOLEAN",
+              "key": "isEditProfile",
+              "value": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "{{ 2408a31898b1b5e656addb1d500b5f3d }}",
+      "titleColor": "@{patientTextColor}",
+      "visible": "@{patientActive}",
+      "enabled": "@{patientActive}",
+      "actions": [
+        {
+          "trigger": "ON_CLICK",
+          "workflow": "LAUNCH_PROFILE",
+          "id": "childupcomingimmunizationencountersProfile"
+        }
+      ]
+    },
+    {
+      "title": "{{ f03b82c307efd5a19c797c75a707b776 }}",
+      "titleColor": "@{patientTextColor}",
+      "visible": "@{patientActive}",
+      "enabled": "@{availableImmunizationVisitEncounters}",
+      "actions": [
+        {
+          "trigger": "ON_CLICK",
+          "workflow": "LAUNCH_PROFILE",
+          "id": "childpastimmunizationencountersProfile"
+        }
+      ]
+    },
+    {
+      "title": "{{ 3e6a8b84a7e3793494214e87fdffc17a }}",
+      "titleColor": "@{patientTextColor}",
+      "visible": "@{patientActive}",
+      "enabled": "@{hasChildFollowUpEncounter}",
+      "actions": [
+        {
+          "trigger": "ON_CLICK",
+          "workflow": "LAUNCH_PROFILE",
+          "id": "childpastencountersProfile"
+        }
+      ]
+    }
+  ]
+}

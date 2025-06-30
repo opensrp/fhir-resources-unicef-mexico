@@ -1,0 +1,607 @@
+{
+  "resourceType": "StructureMap",
+  "id": "unicef-mexico-pregnancy-follow-up",
+  "meta": {
+    "versionId": "3",
+    "lastUpdated": "2024-09-04T10:46:51.300+00:00"
+  },
+  "url": "https://fhir-sid.stage.opensrp.id/fhir/StructureMap/unicef-mexico-pregnancy-follow-up",
+  "name": "Pregnancy Followup Visit",
+  "structure": [
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/QuestionnaireReponse",
+      "mode": "source"
+    },
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/Bundle",
+      "mode": "target"
+    }
+  ],
+  "group": [
+    {
+      "name": "CreateEncounter",
+      "typeMode": "none",
+      "input": [
+        {
+          "name": "src",
+          "type": "QuestionnaireResponse",
+          "mode": "source"
+        },
+        {
+          "name": "bundle",
+          "type": "Bundle",
+          "mode": "target"
+        }
+      ],
+      "rule": [
+        {
+          "name": "r_bundle_type",
+          "source": [
+            {
+              "context": "src"
+            }
+          ],
+          "target": [
+            {
+              "context": "bundle",
+              "contextType": "variable",
+              "element": "type",
+              "transform": "copy",
+              "parameter": [
+                {
+                  "valueString": "collection"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "r_bundle_entries",
+          "source": [
+            {
+              "context": "src"
+            }
+          ],
+          "target": [
+            {
+              "variable": "refPatient",
+              "transform": "evaluate",
+              "parameter": [
+                {
+                  "valueId": "src"
+                },
+                {
+                  "valueString": "$this.subject"
+                }
+              ]
+            }
+          ],
+          "dependent": [
+            {
+              "name": "ExtractEncounter",
+              "variable": [
+                "src",
+                "bundle"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ExtractEncounter",
+      "typeMode": "none",
+      "input": [
+        {
+          "name": "src",
+          "type": "QuestionnaireResponse",
+          "mode": "source"
+        },
+        {
+          "name": "bundle",
+          "type": "Bundle",
+          "mode": "target"
+        }
+      ],
+      "rule": [
+        {
+          "name": "r_bundle",
+          "source": [
+            {
+              "context": "src"
+            }
+          ],
+          "target": [
+            {
+              "context": "bundle",
+              "contextType": "variable",
+              "element": "entry",
+              "variable": "entry"
+            },
+            {
+              "context": "entry",
+              "contextType": "variable",
+              "element": "resource",
+              "variable": "encounter",
+              "transform": "create",
+              "parameter": [
+                {
+                  "valueString": "Encounter"
+                }
+              ]
+            }
+          ],
+          "rule": [
+            {
+              "name": "r_enc_data",
+              "source": [
+                {
+                  "context": "src"
+                }
+              ],
+              "target": [
+                {
+                  "context": "encounter",
+                  "contextType": "variable",
+                  "element": "id",
+                  "transform": "uuid"
+                },
+                {
+                  "context": "encounter",
+                  "contextType": "variable",
+                  "element": "class",
+                  "transform": "c",
+                  "parameter": [
+                    {
+                      "valueString": "http://terminology.hl7.org/CodeSystem/v3-ActCode"
+                    },
+                    {
+                      "valueString": "HH"
+                    },
+                    {
+                      "valueString": "home health"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "r_en_typ",
+              "source": [
+                {
+                  "context": "src"
+                }
+              ],
+              "target": [
+                {
+                  "context": "encounter",
+                  "contextType": "variable",
+                  "element": "type",
+                  "variable": "concept",
+                  "transform": "create",
+                  "parameter": [
+                    {
+                      "valueString": "CodeableConcept"
+                    }
+                  ]
+                }
+              ],
+              "rule": [
+                {
+                  "name": "r_en_text",
+                  "source": [
+                    {
+                      "context": "src"
+                    }
+                  ],
+                  "target": [
+                    {
+                      "context": "concept",
+                      "contextType": "variable",
+                      "element": "text",
+                      "transform": "copy",
+                      "parameter": [
+                        {
+                          "valueString": "Pregnancy Followup Visit"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "r_en_cc_cod",
+                  "source": [
+                    {
+                      "context": "src"
+                    }
+                  ],
+                  "target": [
+                    {
+                      "context": "concept",
+                      "contextType": "variable",
+                      "element": "coding",
+                      "variable": "coding",
+                      "transform": "c",
+                      "parameter": [
+                        {
+                          "valueString": "http://snomed.info/sct"
+                        },
+                        {
+                          "valueString": "0002"
+                        }
+                      ]
+                    }
+                  ],
+                  "rule": [
+                    {
+                      "name": "r_en_cod_disp",
+                      "source": [
+                        {
+                          "context": "src"
+                        }
+                      ],
+                      "target": [
+                        {
+                          "context": "coding",
+                          "contextType": "variable",
+                          "element": "display",
+                          "transform": "copy",
+                          "parameter": [
+                            {
+                              "valueString": "Pregnancy Followup Visit"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "r_priority",
+              "source": [
+                {
+                  "context": "src"
+                }
+              ],
+              "target": [
+                {
+                  "context": "encounter",
+                  "contextType": "variable",
+                  "element": "priority",
+                  "variable": "codeableConcept",
+                  "transform": "create",
+                  "parameter": [
+                    {
+                      "valueString": "CodeableConcept"
+                    }
+                  ]
+                }
+              ],
+              "rule": [
+                {
+                  "name": "r_enc_code_text",
+                  "source": [
+                    {
+                      "context": "src"
+                    }
+                  ],
+                  "target": [
+                    {
+                      "context": "codeableConcept",
+                      "contextType": "variable",
+                      "element": "text",
+                      "transform": "copy",
+                      "parameter": [
+                        {
+                          "valueString": "Elective"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "r_enc_code_coding",
+                  "source": [
+                    {
+                      "context": "src"
+                    }
+                  ],
+                  "target": [
+                    {
+                      "context": "codeableConcept",
+                      "contextType": "variable",
+                      "element": "coding",
+                      "variable": "coding",
+                      "transform": "create",
+                      "parameter": [
+                        {
+                          "valueString": "Coding"
+                        }
+                      ]
+                    }
+                  ],
+                  "rule": [
+                    {
+                      "name": "r_enc_code_coding_value",
+                      "source": [
+                        {
+                          "context": "src"
+                        }
+                      ],
+                      "target": [
+                        {
+                          "context": "coding",
+                          "contextType": "variable",
+                          "element": "system",
+                          "transform": "copy",
+                          "parameter": [
+                            {
+                              "valueString": "http://terminology.hl7.org/ValueSet/v3-ActPriority"
+                            }
+                          ]
+                        },
+                        {
+                          "context": "coding",
+                          "contextType": "variable",
+                          "element": "code",
+                          "transform": "copy",
+                          "parameter": [
+                            {
+                              "valueString": "EL"
+                            }
+                          ]
+                        },
+                        {
+                          "context": "coding",
+                          "contextType": "variable",
+                          "element": "display",
+                          "transform": "copy",
+                          "parameter": [
+                            {
+                              "valueString": "Elective"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "r_en_sub",
+              "source": [
+                {
+                  "context": "src"
+                }
+              ],
+              "target": [
+                {
+                  "context": "encounter",
+                  "contextType": "variable",
+                  "element": "subject",
+                  "transform": "evaluate",
+                  "parameter": [
+                    {
+                      "valueId": "src"
+                    },
+                    {
+                      "valueString": "$this.subject"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "r_en_period",
+              "source": [
+                {
+                  "context": "src"
+                }
+              ],
+              "target": [
+                {
+                  "context": "encounter",
+                  "contextType": "variable",
+                  "element": "period",
+                  "variable": "period",
+                  "transform": "create",
+                  "parameter": [
+                    {
+                      "valueString": "Period"
+                    }
+                  ]
+                }
+              ],
+              "rule": [
+                {
+                  "name": "r_en_period_start",
+                  "source": [
+                    {
+                      "context": "src"
+                    }
+                  ],
+                  "target": [
+                    {
+                      "context": "period",
+                      "contextType": "variable",
+                      "element": "start",
+                      "transform": "evaluate",
+                      "parameter": [
+                        {
+                          "valueId": "src"
+                        },
+                        {
+                          "valueString": "now()"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "r_en_period_end",
+                  "source": [
+                    {
+                      "context": "src"
+                    }
+                  ],
+                  "target": [
+                    {
+                      "context": "period",
+                      "contextType": "variable",
+                      "element": "end",
+                      "transform": "evaluate",
+                      "parameter": [
+                        {
+                          "valueId": "src"
+                        },
+                        {
+                          "valueString": "now()"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "r_bbbnv",
+              "source": [
+                {
+                  "context": "src"
+                }
+              ],
+              "target": [
+                {
+                  "context": "encounter",
+                  "contextType": "variable",
+                  "element": "reasonCode",
+                  "variable": "reasonConcept",
+                  "transform": "create",
+                  "parameter": [
+                    {
+                      "valueString": "CodeableConcept"
+                    }
+                  ]
+                }
+              ],
+              "rule": [
+                {
+                  "name": "r_en_st_com",
+                  "source": [
+                    {
+                      "context": "src"
+                    }
+                  ],
+                  "target": [
+                    {
+                      "context": "encounter",
+                      "contextType": "variable",
+                      "element": "status",
+                      "transform": "copy",
+                      "parameter": [
+                        {
+                          "valueString": "finished"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "r_enc_resonCode_text",
+                  "source": [
+                    {
+                      "context": "src"
+                    }
+                  ],
+                  "target": [
+                    {
+                      "context": "reasonConcept",
+                      "contextType": "variable",
+                      "element": "text",
+                      "transform": "copy",
+                      "parameter": [
+                        {
+                          "valueString": "Pregnancy Followup Visit"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "r_enc_resonCode_coding",
+                  "source": [
+                    {
+                      "context": "src"
+                    }
+                  ],
+                  "target": [
+                    {
+                      "context": "reasonConcept",
+                      "contextType": "variable",
+                      "element": "coding",
+                      "variable": "reasoncoding",
+                      "transform": "create",
+                      "parameter": [
+                        {
+                          "valueString": "Coding"
+                        }
+                      ]
+                    }
+                  ],
+                  "rule": [
+                    {
+                      "name": "r_enc_resonCode_coding_value",
+                      "source": [
+                        {
+                          "context": "src"
+                        }
+                      ],
+                      "target": [
+                        {
+                          "context": "reasoncoding",
+                          "contextType": "variable",
+                          "element": "system",
+                          "transform": "copy",
+                          "parameter": [
+                            {
+                              "valueString": "https://smartregister.org/"
+                            }
+                          ]
+                        },
+                        {
+                          "context": "reasoncoding",
+                          "contextType": "variable",
+                          "element": "code",
+                          "transform": "copy",
+                          "parameter": [
+                            {
+                              "valueString": "0002"
+                            }
+                          ]
+                        },
+                        {
+                          "context": "reasoncoding",
+                          "contextType": "variable",
+                          "element": "display",
+                          "transform": "copy",
+                          "parameter": [
+                            {
+                              "valueString": "Pregnancy Followup Visit"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

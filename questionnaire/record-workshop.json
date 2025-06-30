@@ -1,0 +1,3371 @@
+{
+  "resourceType": "Questionnaire",
+  "id": "unicef-mexico-record-workshop",
+  "title": "Record Workshop",
+  "description": "Record Workshop",
+  "status": "active",
+  "language": "en-GB",
+  "extension": [
+    {
+      "url": "http://helsenorge.no/fhir/StructureDefinition/sdf-sidebar",
+      "valueCoding": {
+        "system": "http://helsenorge.no/fhir/ValueSet/sdf-sidebar",
+        "code": "1"
+      }
+    },
+    {
+      "url": "http://helsenorge.no/fhir/StructureDefinition/sdf-information-message",
+      "valueCoding": {
+        "system": "http://helsenorge.no/fhir/ValueSet/sdf-information-message",
+        "code": "1"
+      }
+    },
+    {
+      "url": "http://helsenorge.no/fhir/StructureDefintion/sdf-itemControl-visibility",
+      "valueCodeableConcept": {
+        "coding": [
+          {
+            "system": "http://helsenorge.no/fhir/CodeSystem/AttachmentRenderOptions",
+            "code": "hide-help",
+            "display": "Hide help texts",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Ocultar ayuda textos"
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "system": "http://helsenorge.no/fhir/CodeSystem/AttachmentRenderOptions",
+            "code": "hide-sublabel",
+            "display": "Hide sublabel texts",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Ocultar subetiqueta textos"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "url": "http://hl7.org/fhir/uv/sdc/StructureDefinition/sdc-questionnaire-targetStructureMap",
+      "valueCanonical": "https://fhir.demo.smartregister.org/fhir/StructureMap/unicef-mexico-record-workshop"
+    }
+  ],
+  "subjectType": [
+    "Patient"
+  ],
+  "publisher": "ONA",
+  "item": [
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/ValueSet/questionnaire-item-control",
+                "code": "radio-button"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "record-workshop-consent-agreement",
+      "text": "Good day. My name is [FULL NAME], I am the [PROFESSIONAL AREA] of Vamos Juntos. In this workshop, we will cover health-related topics that we believe are useful for you. We will document the activities, including photographs, to keep a record of our actions. These photos will only be accessible to ADRA internal staff. At any time, you may choose not to participate in the workshop or to have your photo taken. Do you agree?",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Buen día. Mi nombre es [NOMBRE COMPLETO], soy el/la [ÁREA PROFESIONAL] de Vamos Juntos. En este taller, se enseñarán temas relacionados con la salud que consideramos útiles para ustedes. Tomaremos evidencia de las actividades, incluyendo fotografías, para llevar un registro de nuestras acciones. Estas fotos serán accesibles únicamente para el personal interno de ADRA. En cualquier momento, pueden negarse a participar en el taller o a que se les tome fotos. ¿Están de acuerdo?"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "choice",
+      "required": true,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "id": "6ab9767d-0449-44e6-89cb-619cf1ff3ca1",
+            "system": "http://snomed.info/sct",
+            "code": "373066001",
+            "display": "Yes",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Sí"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "de49995f-45b6-4a0b-a8f9-d3b1e6937db0",
+            "system": "http://snomed.info/sct",
+            "code": "373067005",
+            "display": "No",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "No"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/ValueSet/questionnaire-item-control",
+                "code": "drop-down"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "1636c39d-cbb0-4321-8500-32c0ea741695",
+      "text": "Workshop area",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Área de taller"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "choice",
+      "enableWhen": [
+        {
+          "question": "record-workshop-consent-agreement",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "373066001"
+          }
+        }
+      ],
+      "required": true,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "id": "8ec2552d-443a-4c7e-f122-930ba4262d30",
+            "system": "http://snomed.info/sct",
+            "code": "385827001",
+            "display": "Health prevention",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Prevención en salud"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "a2cce055-a03a-4ebf-9177-0d5a35527539",
+            "system": "http://snomed.info/sct",
+            "code": "61310001",
+            "display": "Nutrition",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Nutrición"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "d9974fd3-d01e-4f66-f745-211df34bd692",
+            "system": "http://snomed.info/sct",
+            "code": "385859008",
+            "display": "Psychosocial",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Psicosocial"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "7a062c3e-67f5-4411-8f13-26e4b31bb40b",
+            "system": "http://snomed.info/sct",
+            "code": "223721003",
+            "display": "Other",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Otro"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/ValueSet/questionnaire-item-control",
+                "code": "drop-down"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "ff9d0bb6-06d3-4b0f-9b0f-3877802240c1",
+      "text": "State/City",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Estado/Ciudad"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "choice",
+      "enableWhen": [
+        {
+          "question": "record-workshop-consent-agreement",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "373066001"
+          }
+        }
+      ],
+      "required": true,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "id": "ec5e6238-0f43-46ec-9192-7959f74786d7",
+            "system": "https://system.unicef.org",
+            "code": "2236870060201",
+            "display": "Tijuana",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Tijuana"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "d1a23417-db4e-4d14-aa6f-f8fcadeddd98",
+            "system": "https://system.unicef.org",
+            "code": "2236870060501",
+            "display": "Tapachula",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Tapachula"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "11d9dfd5-997b-4a8c-e805-4ff9a42d76c5",
+            "system": "https://system.unicef.org",
+            "code": "2236870060601",
+            "display": "Juárez",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Juárez"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "b6a0af21-78f2-4a08-fc2c-46b75a1c6d26",
+            "system": "https://system.unicef.org",
+            "code": "2236870062601",
+            "display": "Nogales",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Nogales"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "37e9d69f-6b50-4fa2-829e-645a43edf41a",
+            "system": "https://system.unicef.org",
+            "code": "2236870060202",
+            "display": "Mexicali",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Mexicali"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "1f2c3de0-2d58-4419-89e6-2bdb36c5c560",
+            "system": "https://system.unicef.org",
+            "code": "2236870061201",
+            "display": "Guerrero",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Guerrero"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/ValueSet/questionnaire-item-control",
+                "code": "drop-down"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "c2358759-243b-4935-8c2e-5aa6f0b3eb5c",
+      "text": "Place of care",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Lugar de atención"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "choice",
+      "enableWhen": [
+        {
+          "question": "record-workshop-consent-agreement",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "373066001"
+          }
+        },
+        {
+          "question": "ff9d0bb6-06d3-4b0f-9b0f-3877802240c1",
+          "operator": "=",
+          "answerCoding": {
+            "system": "https://system.unicef.org",
+            "code": "2236870060201"
+          }
+        }
+      ],
+      "enableBehavior": "all",
+      "required": true,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "id": "21148f55-500f-4873-9216-9bb966f1d0da",
+            "system": "https://system.unicef.org",
+            "code": "cim",
+            "display": "CIM",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "CIM"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "36aa476b-6dea-4942-c8ff-8972783c1d77",
+            "system": "https://system.unicef.org",
+            "code": "comar",
+            "display": "Comar",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Comar"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "c43fd348-167b-41ca-d336-4df2df23c006",
+            "system": "https://system.unicef.org",
+            "code": "ejército-de-salvación",
+            "display": "Ejército de Salvación",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Ejército de Salvación"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "87a2e6d5-1a6d-457a-8a08-a36cc827bd0b",
+            "system": "https://system.unicef.org",
+            "code": "embajadores-de-jesús",
+            "display": "Embajadores de Jesús",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Embajadores de Jesús"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "c76f2f88-68da-4e53-f83e-e2deef0c0464",
+            "system": "https://system.unicef.org",
+            "code": "223687006020105",
+            "display": "Juventud 2000",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Juventud 2000"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "3b8b68f9-c205-4869-8030-3cd6b33a84eb",
+            "system": "https://system.unicef.org",
+            "code": "223687006020106",
+            "display": "Little Haiti",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Little Haiti"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "49a6402a-f1f9-4ecb-e912-4b4eee65a6e2",
+            "system": "https://system.unicef.org",
+            "code": "223687006020107",
+            "display": "Madre Asunta",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Madre Asunta"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "183c3d6e-b5d0-4fec-b57c-0820f7df6353",
+            "system": "https://system.unicef.org",
+            "code": "223687006020108",
+            "display": "Proamore Dei",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Proamore Dei"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "0c948766-dbba-4016-88f8-951198c6fb2e",
+            "system": "https://system.unicef.org",
+            "code": "223687006020109",
+            "display": "Salesianos Don Bosco",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Salesianos Don Bosco"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "2915781c-42a3-4a55-a6ea-d7e1e802d449",
+            "system": "https://system.unicef.org",
+            "code": "223687006020110",
+            "display": "Unidad Deportiva Reforma",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Unidad Deportiva Reforma"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "d731e8d0-de9a-43ad-8fc8-0ef23302aa1b",
+            "system": "https://system.unicef.org",
+            "code": "223721003",
+            "display": "Other",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Otro"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "item": [
+        {
+          "linkId": "1352c72d-52b0-4a4d-973d-22de11634de0",
+          "text": "Specify place of care",
+          "_text": {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                "extension": [
+                  {
+                    "url": "lang",
+                    "valueCode": "es"
+                  },
+                  {
+                    "url": "content",
+                    "valueString": "Especificar lugar de atención"
+                  }
+                ]
+              }
+            ]
+          },
+          "type": "string",
+          "enableWhen": [
+            {
+              "question": "record-workshop-consent-agreement",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "373066001"
+              }
+            },
+            {
+              "question": "c2358759-243b-4935-8c2e-5aa6f0b3eb5c",
+              "operator": "=",
+              "answerCoding": {
+                "system": "https://system.unicef.org",
+                "code": "223721003"
+              }
+            }
+          ],
+          "enableBehavior": "all",
+          "required": true
+        }
+      ]
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/ValueSet/questionnaire-item-control",
+                "code": "drop-down"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "c023c4fb-e4c2-4da5-aadd-37a13adc026b",
+      "text": "Place of care",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Lugar de atención"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "choice",
+      "enableWhen": [
+        {
+          "question": "record-workshop-consent-agreement",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "373066001"
+          }
+        },
+        {
+          "question": "ff9d0bb6-06d3-4b0f-9b0f-3877802240c1",
+          "operator": "=",
+          "answerCoding": {
+            "system": "https://system.unicef.org",
+            "code": "2236870060501"
+          }
+        }
+      ],
+      "enableBehavior": "all",
+      "required": true,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "id": "574eb9c8-290d-4bbe-872c-969bab7f08cd",
+            "system": "https://system.unicef.org",
+            "code": "223687006050101",
+            "display": "Albergue Belém",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Albergue Belém"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "2926cbb2-570a-4e96-e036-86340f4660da",
+            "system": "https://system.unicef.org",
+            "code": "223687006050102",
+            "display": "Casas GEO",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Casas GEO"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "ef9d5b59-3a99-4a80-c7fd-465bd09cc378",
+            "system": "https://system.unicef.org",
+            "code": "223687006050103",
+            "display": "CEDECO",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "CEDECO"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "4872d280-ea9c-4bb2-844e-6ca1c07b0811",
+            "system": "https://system.unicef.org",
+            "code": "223687006050104",
+            "display": "COMAR",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "COMAR"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "6e33dbbc-35c9-4b7a-e3d5-4117c46dbc0c",
+            "system": "https://system.unicef.org",
+            "code": "223687006050105",
+            "display": "Hospitalidad y Solidaridad",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Hospitalidad y Solidaridad"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "f36d30b3-7e72-4547-8814-84262c932865",
+            "system": "https://system.unicef.org",
+            "code": "223687006050106",
+            "display": "Suchiate",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Suchiate"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "2f2c9443-dbb7-45f7-da45-452ae5ad07d4",
+            "system": "https://system.unicef.org",
+            "code": "223687006050107",
+            "display": "Viva México",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Viva México"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "75ad03f2-e560-4d05-9966-9ebbb1f61ceb",
+            "system": "https://system.unicef.org",
+            "code": "223721003",
+            "display": "Other",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Otro"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "item": [
+        {
+          "linkId": "3b5dc495-6acd-471b-8d84-c42058c2f835",
+          "text": "Specify place of care",
+          "_text": {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                "extension": [
+                  {
+                    "url": "lang",
+                    "valueCode": "es"
+                  },
+                  {
+                    "url": "content",
+                    "valueString": "Especificar lugar de atención"
+                  }
+                ]
+              }
+            ]
+          },
+          "type": "string",
+          "enableWhen": [
+            {
+              "question": "record-workshop-consent-agreement",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "373066001"
+              }
+            },
+            {
+              "question": "c023c4fb-e4c2-4da5-aadd-37a13adc026b",
+              "operator": "=",
+              "answerCoding": {
+                "system": "https://system.unicef.org",
+                "code": "223721003"
+              }
+            }
+          ],
+          "enableBehavior": "all",
+          "required": true
+        }
+      ]
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/ValueSet/questionnaire-item-control",
+                "code": "drop-down"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "0a7a3662-b7eb-412d-8073-417b6cfc04f4",
+      "text": "Place of care",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Lugar de atención"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "choice",
+      "enableWhen": [
+        {
+          "question": "record-workshop-consent-agreement",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "373066001"
+          }
+        },
+        {
+          "question": "ff9d0bb6-06d3-4b0f-9b0f-3877802240c1",
+          "operator": "=",
+          "answerCoding": {
+            "system": "https://system.unicef.org",
+            "code": "2236870060601"
+          }
+        }
+      ],
+      "enableBehavior": "all",
+      "required": true,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "id": "1c336c13-792d-4b94-8eab-e23a82b96b4a",
+            "system": "https://system.unicef.org",
+            "code": "223687006060101",
+            "display": "Alabanzas al rey",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Alabanzas al rey"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "7fa96d8a-370a-479d-8b25-33bc02bf2d3d",
+            "system": "https://system.unicef.org",
+            "code": "223687006060102",
+            "display": "Casa del migrante",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Casa del migrante"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "6a5a507f-c73b-41cc-95a4-e0a3223a14c3",
+            "system": "https://system.unicef.org",
+            "code": "223687006060103",
+            "display": "El buen samaritano",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "El buen samaritano"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "e1e8569c-3c59-4d3f-bf97-c282b30d08c7",
+            "system": "https://system.unicef.org",
+            "code": "223687006060104",
+            "display": "Frontera de gracia",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Frontera de gracia"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "51aebd27-9399-45d2-8daa-80e6a09356db",
+            "system": "https://system.unicef.org",
+            "code": "223687006060105",
+            "display": "Hope Center",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Hope Center"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "972a81b4-50d9-4315-8101-939bcc55885b",
+            "system": "https://system.unicef.org",
+            "code": "223687006060106",
+            "display": "México mi hogar",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "México mi hogar"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "23086666-2bc3-451f-870c-6557360198ca",
+            "system": "https://system.unicef.org",
+            "code": "223687006060107",
+            "display": "Misión con visión",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Misión con visión"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "c695836b-e183-4f18-8e49-adce6ca7b506",
+            "system": "https://system.unicef.org",
+            "code": "223687006060108",
+            "display": "Oásis del migrante",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Oásis del migrante"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "c998619f-5a8a-4173-c4eb-9800873972fe",
+            "system": "https://system.unicef.org",
+            "code": "223687006060109",
+            "display": "Pasos de fe",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Pasos de fe"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "6aa0a354-ef1a-4c5f-9f18-da0ddcbe06ce",
+            "system": "https://system.unicef.org",
+            "code": "223687006060110",
+            "display": "San Óscar Romero",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "San Óscar Romero"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "8ad3d091-0925-4137-8f18-7b4f3fc53e90",
+            "system": "https://system.unicef.org",
+            "code": "223687006060111",
+            "display": "Tierra de Oro Casita",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Tierra de Oro Casita"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "08147835-52cb-4fcd-80f6-97dd3366e9d9",
+            "system": "https://system.unicef.org",
+            "code": "223687006060112",
+            "display": "Tierra de Oro México 68",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Tierra de Oro México 68"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "aef9584b-d6b0-4132-8854-f61524a42043",
+            "system": "https://system.unicef.org",
+            "code": "223687006060113",
+            "display": "Tierra de Oro Puerto Palomas",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Tierra de Oro Puerto Palomas"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "d731e8d0-de9a-43ad-8fc8-0ef23302aa1b",
+            "system": "https://system.unicef.org",
+            "code": "223721003",
+            "display": "Other",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Otro"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "item": [
+        {
+          "linkId": "b4d53750-d372-442d-cbb3-b57e9177383c",
+          "text": "Specify place of care",
+          "_text": {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                "extension": [
+                  {
+                    "url": "lang",
+                    "valueCode": "es"
+                  },
+                  {
+                    "url": "content",
+                    "valueString": "Especificar lugar de atención"
+                  }
+                ]
+              }
+            ]
+          },
+          "type": "string",
+          "enableWhen": [
+            {
+              "question": "record-workshop-consent-agreement",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "373066001"
+              }
+            },
+            {
+              "question": "0a7a3662-b7eb-412d-8073-417b6cfc04f4",
+              "operator": "=",
+              "answerCoding": {
+                "system": "https://system.unicef.org",
+                "code": "223721003"
+              }
+            }
+          ],
+          "enableBehavior": "all",
+          "required": true
+        }
+      ]
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/ValueSet/questionnaire-item-control",
+                "code": "drop-down"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "d798b461-5920-4bd6-de6a-ef2e7dc88f82",
+      "text": "Place of care",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Lugar de atención"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "choice",
+      "enableWhen": [
+        {
+          "question": "record-workshop-consent-agreement",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "373066001"
+          }
+        },
+        {
+          "question": "ff9d0bb6-06d3-4b0f-9b0f-3877802240c1",
+          "operator": "=",
+          "answerCoding": {
+            "system": "https://system.unicef.org",
+            "code": "2236870062601"
+          }
+        }
+      ],
+      "enableBehavior": "all",
+      "required": true,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "id": "fa4af986-f0fe-4146-93de-12d379ff940c",
+            "system": "https://system.unicef.org",
+            "code": "223687006260101",
+            "display": "Alas de Libertad",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Alas de Libertad"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "3e388458-fdf6-4e30-8182-a88122b04622",
+            "system": "https://system.unicef.org",
+            "code": "223687006260102",
+            "display": "Casa Cristo Rey",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Casa Cristo Rey"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "60a465c5-eb42-4e40-870d-e5d0233e5386",
+            "system": "https://system.unicef.org",
+            "code": "223687006260103",
+            "display": "Casa Madre Conchita",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Casa Madre Conchita"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "084d0952-ef5f-405b-f1d0-eb187b5cf5c5",
+            "system": "https://system.unicef.org",
+            "code": "223687006260104",
+            "display": "Casa Misericordia",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Casa Misericordia"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "00512440-d06a-4364-a34f-5c9dc0228f63",
+            "system": "https://system.unicef.org",
+            "code": "223687006260105",
+            "display": "Casa Reyno de los Niños",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Casa Reyno de los Niños"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "fbdd44e9-4f73-495c-854d-fb28ba876030",
+            "system": "https://system.unicef.org",
+            "code": "223687006260106",
+            "display": "Casa Timoteo",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Casa Timoteo"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "a11513bd-02c8-4509-bf71-081880bd8b57",
+            "system": "https://system.unicef.org",
+            "code": "223687006260107",
+            "display": "Centro de Sueños NANA",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Centro de Sueños NANA"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "b386ef06-11fe-402b-e699-a235f4b46d78",
+            "system": "https://system.unicef.org",
+            "code": "223687006260108",
+            "display": "DIF Camino a Casa",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "DIF Camino a Casa"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "009ddba0-21aa-4e5e-bcc8-cc5e9a09c9b8",
+            "system": "https://system.unicef.org",
+            "code": "223687006260109",
+            "display": "DIF Nogales",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "DIF Nogales"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "2da1f237-555b-42a2-bb96-6699cb063572",
+            "system": "https://system.unicef.org",
+            "code": "223687006260110",
+            "display": "Esperanza",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Esperanza"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "2b9d6258-bfac-4b95-9da9-5ed4a2831fef",
+            "system": "https://system.unicef.org",
+            "code": "223687006260111",
+            "display": "Iniciativa Kino",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Iniciativa Kino"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "5cab883f-c966-468f-9088-589f2001a079",
+            "system": "https://system.unicef.org",
+            "code": "223687006260112",
+            "display": "La Roca",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "La Roca"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "087437f8-78cc-43eb-8a7d-50cde2c92f6b",
+            "system": "https://system.unicef.org",
+            "code": "223687006260113",
+            "display": "San Juan Bosco",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "San Juan Bosco"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "a490d4b9-9ace-4ea9-8ccd-8c2d12153dc3",
+            "system": "https://system.unicef.org",
+            "code": "223687006260114",
+            "display": "Transportistas",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Transportistas"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "219270f4-ea6b-4cd7-9bef-7e402b708666",
+            "system": "https://system.unicef.org",
+            "code": "223687006260115",
+            "display": "Vida Nueva",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Vida Nueva"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "d731e8d0-de9a-43ad-8fc8-0ef23302aa1b",
+            "system": "https://system.unicef.org",
+            "code": "223721003",
+            "display": "Other",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Otro"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "item": [
+        {
+          "linkId": "52f81558-52db-4688-8862-e285a305a94a",
+          "text": "Specify place of care",
+          "_text": {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                "extension": [
+                  {
+                    "url": "lang",
+                    "valueCode": "es"
+                  },
+                  {
+                    "url": "content",
+                    "valueString": "Especificar lugar de atención"
+                  }
+                ]
+              }
+            ]
+          },
+          "type": "string",
+          "enableWhen": [
+            {
+              "question": "record-workshop-consent-agreement",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "373066001"
+              }
+            },
+            {
+              "question": "d798b461-5920-4bd6-de6a-ef2e7dc88f82",
+              "operator": "=",
+              "answerCoding": {
+                "system": "https://system.unicef.org",
+                "code": "223721003"
+              }
+            }
+          ],
+          "enableBehavior": "all",
+          "required": true
+        }
+      ]
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/ValueSet/questionnaire-item-control",
+                "code": "drop-down"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "46bc5caf-e6dc-4a09-80bd-129c66f9da68",
+      "text": "Place of care",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Lugar de atención"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "choice",
+      "enableWhen": [
+        {
+          "question": "record-workshop-consent-agreement",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "373066001"
+          }
+        },
+        {
+          "question": "ff9d0bb6-06d3-4b0f-9b0f-3877802240c1",
+          "operator": "=",
+          "answerCoding": {
+            "system": "https://system.unicef.org",
+            "code": "2236870060202"
+          }
+        }
+      ],
+      "enableBehavior": "all",
+      "required": true,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "id": "56783a0c-399f-40c2-fe60-6ea489db4171",
+            "system": "https://system.unicef.org",
+            "code": "223687006020201",
+            "display": "Alfa y Omega",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Alfa y Omega"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "1c61bc13-5ff0-4f10-b955-e63e88386d96",
+            "system": "https://system.unicef.org",
+            "code": "223687006020202",
+            "display": "El Desierto",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "El Desierto"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "57c99cdb-755a-4c63-b7e5-d6efb5b62bac",
+            "system": "https://system.unicef.org",
+            "code": "223687006020203",
+            "display": "Hijo Pródigo",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Hijo Pródigo"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "78100346-2f22-49c8-81f8-a2d490102837",
+            "system": "https://system.unicef.org",
+            "code": "223687006020204",
+            "display": "Hogar de Ángeles",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Hogar de Ángeles"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "c6a5c3af-945c-49ba-8088-adf23c3ae789",
+            "system": "https://system.unicef.org",
+            "code": "223687006020205",
+            "display": "HWAMH",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "HWAMH"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "72c68c7c-492b-472a-9cb2-dac9de69ee3e",
+            "system": "https://system.unicef.org",
+            "code": "223687006020206",
+            "display": "Maná",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Maná"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "dfae9745-2337-4191-8a5a-b2517892697b",
+            "system": "https://system.unicef.org",
+            "code": "223687006020207",
+            "display": "Nuevo Amanecer",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Nuevo Amanecer"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "61192de7-0eb1-4866-85da-563b78e485f8",
+            "system": "https://system.unicef.org",
+            "code": "223687006020208",
+            "display": "Peregrino",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Peregrino"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "621c5e97-d1d0-431a-8c7f-61975cf12a50",
+            "system": "https://system.unicef.org",
+            "code": "223687006020209",
+            "display": "Posada COBINA",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Posada COBINA"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "7eefac33-bf2f-4d84-9652-e0e799e05cd3",
+            "system": "https://system.unicef.org",
+            "code": "223687006020210",
+            "display": "Refugio COBINA",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Refugio COBINA"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "9f0c63bb-b5c0-4ecb-8080-bf95cb843d42",
+            "system": "https://system.unicef.org",
+            "code": "223687006020211",
+            "display": "Una Misma Sangre",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Una Misma Sangre"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "d731e8d0-de9a-43ad-8fc8-0ef23302aa1b",
+            "system": "https://system.unicef.org",
+            "code": "223721003",
+            "display": "Other",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Otro"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "item": [
+        {
+          "linkId": "89e865d2-14c2-4b14-9105-a3cb128cf53f",
+          "text": "Specify place of care",
+          "_text": {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                "extension": [
+                  {
+                    "url": "lang",
+                    "valueCode": "es"
+                  },
+                  {
+                    "url": "content",
+                    "valueString": "Especificar lugar de atención"
+                  }
+                ]
+              }
+            ]
+          },
+          "type": "string",
+          "enableWhen": [
+            {
+              "question": "record-workshop-consent-agreement",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "373066001"
+              }
+            },
+            {
+              "question": "46bc5caf-e6dc-4a09-80bd-129c66f9da68",
+              "operator": "=",
+              "answerCoding": {
+                "system": "https://system.unicef.org",
+                "code": "223721003"
+              }
+            }
+          ],
+          "enableBehavior": "all",
+          "required": true
+        }
+      ]
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-itemControl",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://hl7.org/fhir/ValueSet/questionnaire-item-control",
+                "code": "drop-down"
+              }
+            ]
+          }
+        }
+      ],
+      "linkId": "47d850f4-f22d-4f39-b541-a1f6fc7e6efe",
+      "text": "Place of care",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Lugar de atención"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "choice",
+      "enableWhen": [
+        {
+          "question": "record-workshop-consent-agreement",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "373066001"
+          }
+        },
+        {
+          "question": "ff9d0bb6-06d3-4b0f-9b0f-3877802240c1",
+          "operator": "=",
+          "answerCoding": {
+            "system": "https://system.unicef.org",
+            "code": "2236870061201"
+          }
+        }
+      ],
+      "enableBehavior": "all",
+      "required": true,
+      "answerOption": [
+        {
+          "valueCoding": {
+            "id": "bb484b6c-f11f-46a9-8403-d35ed32d7e35",
+            "system": "https://system.unicef.org",
+            "code": "223687006120101",
+            "display": "CADI",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "CADI"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "00e2ffe6-26c5-4cc4-9db6-c9c065aef7b9",
+            "system": "https://system.unicef.org",
+            "code": "223687006120102",
+            "display": "Campamento de Marina",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Campamento de Marina"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "90e00754-dee7-423c-d799-55f28fef060f",
+            "system": "https://system.unicef.org",
+            "code": "223687006120103",
+            "display": "Centro de Salud Renacimiento I",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Centro de Salud Renacimiento I"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "d025848e-038b-4bc8-842c-1ae0687e0e3a",
+            "system": "https://system.unicef.org",
+            "code": "223687006120104",
+            "display": "Centro de Salud Renacimiento III",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Centro de Salud Renacimiento III"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "c73972ac-8bac-4358-872c-6f760478adac",
+            "system": "https://system.unicef.org",
+            "code": "223687006120105",
+            "display": "DIF Río Grande",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "DIF Río Grande"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "901ae3d4-4fb8-4906-8100-dd40963828d3",
+            "system": "https://system.unicef.org",
+            "code": "223687006120106",
+            "display": "Parroquia Sagrado Corazón",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Parroquia Sagrado Corazón"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "64b52e37-fce7-47e4-898f-d46e460fece5",
+            "system": "https://system.unicef.org",
+            "code": "223687006120107",
+            "display": "Primaria Hermila Galindo",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Primaria Hermila Galindo"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "f48a0bf2-2dc3-4e3e-8a7b-b404f8fb2301",
+            "system": "https://system.unicef.org",
+            "code": "223687006120108",
+            "display": "Secundaria David Alfaro Siqueiros",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Secundaria David Alfaro Siqueiros"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        {
+          "valueCoding": {
+            "id": "d731e8d0-de9a-43ad-8fc8-0ef23302aa1b",
+            "system": "https://system.unicef.org",
+            "code": "223721003",
+            "display": "Other",
+            "_display": {
+              "extension": [
+                {
+                  "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                  "extension": [
+                    {
+                      "url": "lang",
+                      "valueCode": "es"
+                    },
+                    {
+                      "url": "content",
+                      "valueString": "Otro"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      ],
+      "item": [
+        {
+          "linkId": "ff89db76-6abf-4959-a03b-f39d7499fe3b",
+          "text": "Specify place of care",
+          "_text": {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                "extension": [
+                  {
+                    "url": "lang",
+                    "valueCode": "es"
+                  },
+                  {
+                    "url": "content",
+                    "valueString": "Especificar lugar de atención"
+                  }
+                ]
+              }
+            ]
+          },
+          "type": "string",
+          "enableWhen": [
+            {
+              "question": "record-workshop-consent-agreement",
+              "operator": "=",
+              "answerCoding": {
+                "system": "http://snomed.info/sct",
+                "code": "373066001"
+              }
+            },
+            {
+              "question": "47d850f4-f22d-4f39-b541-a1f6fc7e6efe",
+              "operator": "=",
+              "answerCoding": {
+                "system": "https://system.unicef.org",
+                "code": "223721003"
+              }
+            }
+          ],
+          "enableBehavior": "all",
+          "required": true
+        }
+      ]
+    },
+    {
+      "linkId": "46996f66-f7fe-4185-a214-ead7a79a82f0",
+      "text": "Name of the activity",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Nombre de el actividad"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "string",
+      "enableWhen": [
+        {
+          "question": "record-workshop-consent-agreement",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "373066001"
+          }
+        }
+      ],
+      "required": true
+    },
+    {
+      "linkId": "65c208d4-08ca-4336-a28e-4217a9903e1b",
+      "text": "Attendance",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Lista de asistencia"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "string",
+      "enableWhen": [
+        {
+          "question": "record-workshop-consent-agreement",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "373066001"
+          }
+        }
+      ],
+      "required": true
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/minValue",
+          "valueInteger": 0
+        },
+        {
+          "url": "http://ehelse.no/fhir/StructureDefinition/validationtext",
+          "valueString": "Enter a value greater than or equal to zero"
+        }
+      ],
+      "linkId": "9f2e54c0-7c93-4a0e-827a-c98e32c23fba",
+      "text": "Number of children",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Número de niños"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "integer",
+      "enableWhen": [
+        {
+          "question": "record-workshop-consent-agreement",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "373066001"
+          }
+        }
+      ],
+      "required": true
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/minValue",
+          "valueInteger": 0
+        },
+        {
+          "url": "http://ehelse.no/fhir/StructureDefinition/validationtext",
+          "valueString": "Enter a value greater than or equal to zero"
+        }
+      ],
+      "linkId": "6a1856fc-9d2a-44dd-d0d4-0d9dcec2514a",
+      "text": "Number of girls",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Número de niñas"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "integer",
+      "enableWhen": [
+        {
+          "question": "record-workshop-consent-agreement",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "373066001"
+          }
+        }
+      ],
+      "required": true
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/minValue",
+          "valueInteger": 0
+        },
+        {
+          "url": "http://ehelse.no/fhir/StructureDefinition/validationtext",
+          "valueString": "Enter a value greater than or equal to zero"
+        }
+      ],
+      "linkId": "5f0d5720-63a0-46bc-81f7-dc3961ae2574",
+      "text": "Number of male adolescents",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Número de adolescentes hombres"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "integer",
+      "enableWhen": [
+        {
+          "question": "record-workshop-consent-agreement",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "373066001"
+          }
+        }
+      ],
+      "required": true
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/minValue",
+          "valueInteger": 0
+        },
+        {
+          "url": "http://ehelse.no/fhir/StructureDefinition/validationtext",
+          "valueString": "Enter a value greater than or equal to 0"
+        }
+      ],
+      "linkId": "d4da21df-5434-4eea-9a4a-c02d462f67ea",
+      "text": "Number of female adolescents",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Número de adolescentes mujeres"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "integer",
+      "enableWhen": [
+        {
+          "question": "record-workshop-consent-agreement",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "373066001"
+          }
+        }
+      ],
+      "required": true
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/minValue",
+          "valueInteger": 0
+        },
+        {
+          "url": "http://ehelse.no/fhir/StructureDefinition/validationtext",
+          "valueString": "Enter a value greater than or equal to 0."
+        }
+      ],
+      "linkId": "ac864ad5-13b9-4bd2-f8f7-13aee38d4179",
+      "text": "Number of adult men",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Número de adultos hombres"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "integer",
+      "enableWhen": [
+        {
+          "question": "record-workshop-consent-agreement",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "373066001"
+          }
+        }
+      ],
+      "required": true
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/minValue",
+          "valueInteger": 0
+        },
+        {
+          "url": "http://ehelse.no/fhir/StructureDefinition/validationtext",
+          "valueString": "Enter a value greater than or equal to 0."
+        }
+      ],
+      "linkId": "6765b9d9-c148-469b-9304-0713a4fdf09b",
+      "text": "Number of adult women",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Número de adultos mujeres"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "integer",
+      "enableWhen": [
+        {
+          "question": "record-workshop-consent-agreement",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "373066001"
+          }
+        }
+      ],
+      "required": true
+    },
+    {
+      "linkId": "0e6fdc38-8b40-4c80-961b-989c8b2274c4",
+      "text": "Objectives and expected results of the activity",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Objetivos y resultados esperados de la actividad"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "string",
+      "enableWhen": [
+        {
+          "question": "record-workshop-consent-agreement",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "373066001"
+          }
+        }
+      ]
+    },
+    {
+      "linkId": "1c32d788-3ec7-471a-84b8-5b1f2a6f6613",
+      "text": "Used materials",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Materiales utilizados"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "string",
+      "enableWhen": [
+        {
+          "question": "record-workshop-consent-agreement",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "373066001"
+          }
+        }
+      ]
+    },
+    {
+      "linkId": "20db67be-573d-4208-bd11-65684fcbea3b",
+      "text": "Eventualities",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Eventualidades"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "string",
+      "enableWhen": [
+        {
+          "question": "record-workshop-consent-agreement",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "373066001"
+          }
+        }
+      ]
+    },
+    {
+      "extension": [
+        {
+          "url": "http://hl7.org/fhir/StructureDefinition/mimeType",
+          "valueCode": "image/*"
+        }
+      ],
+      "linkId": "1811bdee-bb7f-4232-b96d-a63a3e1b7a33",
+      "text": "Attach image of the activity",
+      "_text": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/translation",
+            "extension": [
+              {
+                "url": "lang",
+                "valueCode": "es"
+              },
+              {
+                "url": "content",
+                "valueString": "Adjuntar imagen de la actividad"
+              }
+            ]
+          }
+        ]
+      },
+      "type": "attachment",
+      "enableWhen": [
+        {
+          "question": "record-workshop-consent-agreement",
+          "operator": "=",
+          "answerCoding": {
+            "system": "http://snomed.info/sct",
+            "code": "373066001"
+          }
+        }
+      ],
+      "required": false,
+      "item": [
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/questionnaire-displayCategory",
+              "valueCodeableConcept": {
+                "coding": [
+                  {
+                    "system": "http://hl7.org/fhir/questionnaire-display-category",
+                    "code": "instructions"
+                  }
+                ]
+              }
+            }
+          ],
+          "linkId": "1-media-types-supported",
+          "text": "Media types supported: .jpg, .png",
+          "_text": {
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/translation",
+                "extension": [
+                  {
+                    "url": "lang",
+                    "valueCode": "es"
+                  },
+                  {
+                    "url": "content",
+                    "valueString": "Tipos de medios soportado: .jpg, .png"
+                  }
+                ]
+              }
+            ]
+          },
+          "type": "display"
+        }
+      ]
+    }
+  ]
+}

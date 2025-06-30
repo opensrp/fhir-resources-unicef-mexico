@@ -1,0 +1,125 @@
+map "https://fhir-sid.stage.opensrp.id/fhir/StructureMap/unicef-mexico-record-single-dose" = 'ChildImmunization Single'
+
+uses "http://hl7.org/fhir/StructureDefinition/QuestionnaireResponse" as source
+uses "http://hl7.org/fhir/StructureDefinition/Bundle" as target
+
+
+group ProcessChildImmunization(source src: QuestionnaireResponse, target bundle: Bundle) {
+    src -> create('Encounter') as encounter then {
+        src -> encounter.id = uuid(),
+        encounter.status = "finished",
+        encounter.class = c("http://terminology.hl7.org/CodeSystem/v3-ActCode", "HH", "home"),
+        encounter.priority = cc("http://terminology.hl7.org/ValueSet/v3-ActPriority", "EL", "Elective") as encounterPriority,
+        encounterPriority.text = "Elective" "r_en_static";
+
+    src -> encounter.subject = evaluate(src, $this.subject) "r_en_sub";
+    src -> encounter.period = create("Period") as period then {
+        src -> period.start = evaluate(src, now()) "r_start";
+        src -> period.end = evaluate(src, now()) "r_end";
+    } "r_period";
+    src -> encounter.reasonCode = create('CodeableConcept') as reason then {
+        src -> reason.coding = create("Coding") as coding then {
+            src -> coding.system = "http://snomed.info/sct",
+                coding.display = evaluate(src, $this.item.where(linkId = '8baf36fb-0529-4678-b19d-933211faf3a2').answer.value),
+                coding.code = evaluate(src, $this.item.where(linkId = '903ac7cf-663d-43d5-8d1e-ae23a3d68d0d').answer.value) "r_en_code_coding";
+        } "r_en_reason_code";
+        src -> reason.text = evaluate(src, $this.item.where(linkId = '8baf36fb-0529-4678-b19d-933211faf3a2').answer.value) "r_en_reason_text";
+    } "r_en_reason";
+     src -> encounter.type = create('CodeableConcept') as code then {
+                src -> code.coding = create('Coding') as coding then {
+                    src -> coding.system = 'https://smartregister.org/' "rule_encounter_c_coding_system";
+                    src -> coding.code = '41000179103' "rule_observation_c_coding_code";
+                    src -> coding.display = 'Immunization' "rule_encounter_c_coding_display";
+                } "rule_observation_c_coding";
+                src -> code.text = evaluate(src, $this.item.where(linkId = '8baf36fb-0529-4678-b19d-933211faf3a2').answer.value.toString()) "rule_observation_c_text";
+     } "rule_encounter_code";
+    src then extractTaskStatus(src, bundle) "rule_output_not_admn";
+    src then ExtractVaccineNotGivenFlag(src, bundle, encounter) "r_anc_flag";
+    src -> bundle.entry as entry,
+        entry.resource = encounter,create("Immunization") as immunization then ExtractImmunization(src,encounter,immunization,bundle) "r_bundle_entry_encounter";
+    } "r_child_encounter";
+}
+
+group ExtractImmunization(source src: QuestionnaireResponse, source encounter: Encounter, target immunization: Immunization, target bundle: Bundle) {
+    src.item where(linkId ='4fb27053-464e-4fc6-9026-fa536bed2ce8' and answer.value.exists() and answer.value.code = "yes") then {
+    src -> immunization.id = uuid(),
+        immunization.recorded = evaluate(src, now()),
+        immunization.status = "completed",
+        immunization.lotNumber = evaluate(src, $this.descendants().where(linkId='615a3c87-5270-46d8-843f-d2ba2c1be440').answer.value),
+        immunization.patient = evaluate(src, $this.subject),
+        immunization.encounter = reference(encounter) "r_imm_static";
+        src -> immunization.occurrence = evaluate(src, $this.item.where(linkId = '1e1f0f3b-58de-41b4-8db0-6c4b033cce57').answer.value.toString() + 'T00:00:00.00Z') "rule_immunization_occurrence";
+    src -> immunization.vaccineCode = create('CodeableConcept') as vaccineCode then {
+        src -> evaluate(src, $this.item.where(linkId = '903ac7cf-663d-43d5-8d1e-ae23a3d68d0d').answer.value.toString()) as immunizationCode then {
+            src -> vaccineCode.coding = c("http://snomed.info/sct", immunizationCode) as vaccineCodeCoding then {
+                src -> evaluate(src, $this.item.where(linkId = '8baf36fb-0529-4678-b19d-933211faf3a2').answer.value.toString()) as immunizationName then {
+                    src -> vaccineCodeCoding.display = immunizationName "r_imm_vaccineCode_coding_display";
+                    src -> vaccineCode.text = immunizationName "r_imm_vaccineCode_text";
+                } "r_imm_vaccineCode_imm_coding_code";
+            } "r_imm_vaccineCode_imm_coding";
+        } "r_imm_vaccineCode_imm";
+    } "r_imm_vaccineCode";
+
+    src -> bundle.entry as entry,
+        entry.resource = immunization "r_bundle_entry_imm";
+    src then extractTaskOutput( src, bundle, immunization) "rule_output_two";
+  } "rule_generate_imm";
+}
+
+group extractTaskOutput(source questionnaireResponse : QuestionnaireResponse, target bundle: Bundle, source immunization : Immunization) {
+    questionnaireResponse -> bundle.entry as entry, entry.resource = create('Task') as task then {
+        questionnaireResponse -> task.id = create('id') as id then {
+            questionnaireResponse -> id.value = evaluate(questionnaireResponse, $this.item.where(linkId = 'ccc7ec06-f61d-4bec-a9ad-93cd644a0da2').answer.value.toString()) "rule_task_id";
+        } "rule_update_task";
+
+        questionnaireResponse -> task.status = 'completed' "r_task_status";
+
+        // Task Immunization Output
+        questionnaireResponse -> task.output = create('Task_Output') as outputTask then {
+            questionnaireResponse -> outputTask.type = create("CodeableConcept") as concept then {
+                questionnaireResponse-> concept.coding = c("http://snomed.info/sct","41000179103") as coding then {
+                    questionnaireResponse -> coding.display = "Immunization record (record artifact)" "rule_coding_display";
+                } "rule_task_concept_coding";
+            } "rule_codeable_concept";
+            questionnaireResponse -> outputTask.value = reference(immunization) "rule_task_output_reference";
+        } "rule_task_output";
+    } "rule_task";
+}
+
+group extractTaskStatus(source questionnaireResponse : QuestionnaireResponse, target bundle: Bundle) {
+    questionnaireResponse.item where(linkId ='4fb27053-464e-4fc6-9026-fa536bed2ce8' and answer.value.exists() and answer.value.code = "no") then {
+    questionnaireResponse -> bundle.entry as entry, entry.resource = create('Task') as task then {
+        questionnaireResponse -> task.id = create('id') as id then {
+            questionnaireResponse -> id.value = evaluate(questionnaireResponse, $this.item.where(linkId = 'ccc7ec06-f61d-4bec-a9ad-93cd644a0da2').answer.value.toString()) "rule_task_id";
+        } "rule_update_task";
+
+    questionnaireResponse -> task.status = 'failed' "r_task_status";
+    } "rule_task";
+ } "rule_not_administered";
+}
+
+group ExtractVaccineNotGivenFlag(source src: QuestionnaireResponse, target bundle: Bundle, target encounter: Encounter) {
+        src.item where(linkId ='4fb27053-464e-4fc6-9026-fa536bed2ce8' and answer.value.exists() and answer.value.code = "no") then {
+            src -> bundle.entry as entry, entry.resource = create('Flag') as flag then {
+            src -> flag.id = uuid() "r_flag_id";
+            src -> flag.subject = evaluate(src, $this.subject) "r_flag_subj";
+
+             src -> flag.code = create('CodeableConcept') as concept then {
+                src -> concept.coding = create('Coding') as coding then {
+                        src -> coding.system = "https://smartregister.org/" "r_code_sys";
+                        src -> coding.code = evaluate(src, 'Task/'+$this.item.where(linkId = 'ccc7ec06-f61d-4bec-a9ad-93cd644a0da2').answer.value) "rule_coding_code";
+                        src -> coding.display = evaluate(src, ' Vaccine_not_given_'+$this.item.where(linkId = '8baf36fb-0529-4678-b19d-933211faf3a2').answer.value) "r_en_cod_disp";
+                } "r_en_cc_cod";
+                src -> concept.text = "Vaccine Not Administered" "r_en_typ_text";
+             } "r_en_typ";
+
+             src -> flag.period = create("Period") as period then {
+                src -> period.start = evaluate(src, now()) "r_start";
+                src -> period.end = evaluate(src, now()) "r_end";
+            } "r_period";
+
+            src -> flag.encounter = reference(encounter) "r_flag_ref_enc";
+
+    } "r_flag";
+  } "rule_not_administered";
+}

@@ -1,0 +1,1092 @@
+{
+  "appId": "contigo",
+  "configType": "profile",
+  "id": "pathologicalHistoryProfile",
+  "contentBackgroundColor": "#F2F4F7",
+  "fhirResource": {
+    "baseResource": {
+      "resource": "Patient"
+    },
+    "relatedResources": [
+      {
+        "id": "availableEncounters",
+        "resource": "Encounter",
+        "searchParameter": "subject",
+        "sortConfigs": [
+          {
+            "paramName": "_lastUpdated",
+            "dataType": "DATE",
+            "order": "DESCENDING"
+          }
+        ],
+        "relatedResources": [
+          {
+            "id": "availableQuestionnaireResponses",
+            "resource": "QuestionnaireResponse",
+            "searchParameter": "encounter",
+            "sortConfigs": [
+              {
+                "paramName": "authored",
+                "dataType": "DATE",
+                "order": "DESCENDING"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "availableConditions",
+        "resource": "Condition",
+        "searchParameter": "subject",
+        "sortConfigs": [
+          {
+            "paramName": "recorded-date",
+            "dataType": "DATE",
+            "order": "DESCENDING"
+          }
+        ]
+      },
+      {
+        "id": "availableAllergies",
+        "resource": "AllergyIntolerance",
+        "searchParameter": "patient",
+        "sortConfigs": [
+          {
+            "paramName": "date",
+            "dataType": "DATE",
+            "order": "DESCENDING"
+          }
+        ]
+      },
+      {
+        "id": "availableProcedures",
+        "resource": "Procedure",
+        "searchParameter": "subject",
+        "sortConfigs": [
+          {
+            "paramName": "_lastUpdated",
+            "dataType": "DATE",
+            "order": "DESCENDING"
+          }
+        ]
+      }
+    ]
+  },
+  "topAppBar": {
+    "title": {
+      "viewType": "COMPOUND_TEXT",
+      "primaryText": "{{ c1f4b29805551d2fe98dc4e8b8051eb0 }}",
+      "primaryTextColor": "#FFFFFF",
+      "fontSize": 16.0,
+      "maxLines": 1,
+      "primaryTextFontWeight": "BOLD"
+    },
+    "collapsible": false
+  },
+  "rules": [
+    {
+      "name": "patientName",
+      "condition": "true",
+      "priority": 1,
+      "actions": [
+        "data.put('patientName', fhirPath.extractValue(Patient, \"Patient.name.given\"))"
+      ]
+    },
+    {
+      "name": "latestEncounterQRWithPathologicalHistory",
+      "condition": "true",
+      "priority": 3,
+      "actions": [
+        "data.put('latestEncounterQRWithPathologicalHistory', service.filterResources(availableQuestionnaireResponses, \"QuestionnaireResponse.descendants().where(linkId = 'medical-history' and answer.value.exists()).answer.value.code contains 'pathological-history'\").get(0))"
+      ]
+    },
+    {
+      "name": "latestPathologicalHistoryEncounterID",
+      "condition": "true",
+      "priority": 4,
+      "actions": [
+        "data.put('latestPathologicalHistoryEncounterID', fhirPath.extractValue(data.get('latestEncounterQRWithPathologicalHistory'), \"QuestionnaireResponse.encounter.reference.substring(10)\"))"
+      ]
+    },
+    {
+      "name": "hasPathologicalHistory",
+      "condition": "true",
+      "priority": 5,
+      "actions": [
+        "data.put('hasPathologicalHistory', data.get('latestPathologicalHistoryEncounterID') != null && data.get('latestPathologicalHistoryEncounterID') != '')"
+      ]
+    },
+    {
+      "name": "chronicDegenerativeDiseases",
+      "condition": "true",
+      "priority": 2,
+      "actions": [
+        "data.put('chronicDegenerativeDiseases', service.filterResources(availableConditions, \"Condition.category.coding.code = 'chronic-problem-list-item'\"))"
+      ]
+    },
+    {
+      "name": "latestChronicDegenerativeDiseases",
+      "condition": "true",
+      "priority": 5,
+      "actions": [
+        "var illnesses = ''; for (var condition: data.get('chronicDegenerativeDiseases')) { if((data.get('latestPathologicalHistoryEncounterID')).equals(fhirPath.extractValue(condition, 'Condition.encounter.reference.substring(10)'))){ illnesses = illnesses + fhirPath.extractValue(condition, 'Condition.code.coding.display') + ', '; }}; data.put('latestChronicDegenerativeDiseases', illnesses.replaceAll(',\\\\s*$', ''));"
+      ]
+    },
+    {
+      "name": "displayChronicDegenerativeDiseases",
+      "condition": "true",
+      "priority": 6,
+      "actions": [
+        "data.put('displayChronicDegenerativeDiseases', (data.get('latestChronicDegenerativeDiseases') != null) && (data.get('latestChronicDegenerativeDiseases') != ''))"
+      ]
+    },
+    {
+      "name": "otherChronicDegenerativeDiseases",
+      "condition": "true",
+      "priority": 2,
+      "actions": [
+        "data.put('otherChronicDegenerativeDiseases', service.filterResources(availableConditions, \"Condition.category.coding.code = 'other-chronic-problem-list-item'\"))"
+      ]
+    },
+    {
+      "name": "latestOtherChronicDegenerativeDiseases",
+      "condition": "true",
+      "priority": 5,
+      "actions": [
+        "var illnesses = ''; for (var condition: data.get('otherChronicDegenerativeDiseases')) { if((data.get('latestPathologicalHistoryEncounterID')).equals(fhirPath.extractValue(condition, 'Condition.encounter.reference.substring(10)'))){ illnesses = illnesses + fhirPath.extractValue(condition, 'Condition.note.text') + ', '; }}; data.put('latestOtherChronicDegenerativeDiseases', illnesses.replaceAll(',\\\\s*$', ''));"
+      ]
+    },
+    {
+      "name": "displayLatestOtherChronicDegenerativeDiseases",
+      "condition": "true",
+      "priority": 6,
+      "actions": [
+        "data.put('displayLatestOtherChronicDegenerativeDiseases', (data.get('latestOtherChronicDegenerativeDiseases') != null) && (data.get('latestOtherChronicDegenerativeDiseases') != ''))"
+      ]
+    },
+    {
+      "name": "cancer",
+      "condition": "true",
+      "priority": 2,
+      "actions": [
+        "data.put('cancer', service.filterResources(availableConditions, \"Condition.category.coding.code = 'cancer-problem-list-item'\"))"
+      ]
+    },
+    {
+      "name": "latestCancer",
+      "condition": "true",
+      "priority": 5,
+      "actions": [
+        "var cancers = ''; for (var condition: data.get('cancer')) { if((data.get('latestPathologicalHistoryEncounterID')).equals(fhirPath.extractValue(condition, 'Condition.encounter.reference.substring(10)'))){ cancers = cancers + fhirPath.extractValue(condition, 'Condition.code.coding.display') + ', '; }}; data.put('latestCancer', cancers.replaceAll(',\\\\s*$', ''));"
+      ]
+    },
+    {
+      "name": "displayLatestCancer",
+      "condition": "true",
+      "priority": 6,
+      "actions": [
+        "data.put('displayLatestCancer', (data.get('latestCancer') != null) && (data.get('latestCancer') != ''))"
+      ]
+    },
+    {
+      "name": "otherCancer",
+      "condition": "true",
+      "priority": 2,
+      "actions": [
+        "data.put('otherCancer', service.filterResources(availableConditions, \"Condition.category.coding.code = 'other-cancer-problem-list-item'\"))"
+      ]
+    },
+    {
+      "name": "latestOtherCancer",
+      "condition": "true",
+      "priority": 5,
+      "actions": [
+        "var cancers = ''; for (var condition: data.get('otherCancer')) { if((data.get('latestPathologicalHistoryEncounterID')).equals(fhirPath.extractValue(condition, 'Condition.encounter.reference.substring(10)'))){ cancers = cancers + fhirPath.extractValue(condition, 'Condition.note.text') + ', '; }}; data.put('latestOtherCancer', cancers.replaceAll(',\\\\s*$', ''));"
+      ]
+    },
+    {
+      "name": "displayLatestOtherCancer",
+      "condition": "true",
+      "priority": 6,
+      "actions": [
+        "data.put('displayLatestOtherCancer', (data.get('latestOtherCancer') != null) && (data.get('latestOtherCancer') != ''))"
+      ]
+    },
+    {
+      "name": "surgicalProcedures",
+      "condition": "true",
+      "priority": 2,
+      "actions": [
+        "data.put('surgicalProcedures', service.filterResources(availableProcedures, \"Procedure.category.coding.code = '387713003'\"))"
+      ]
+    },
+    {
+      "name": "latestSurgicalProcedures",
+      "condition": "true",
+      "priority": 5,
+      "actions": [
+        "var surgeries = ''; for (var procedure: data.get('surgicalProcedures')) { if((data.get('latestPathologicalHistoryEncounterID')).equals(fhirPath.extractValue(procedure, 'Procedure.encounter.reference.substring(10)'))){ surgeries = surgeries + fhirPath.extractValue(procedure, 'Procedure.note.text') + ', '; }}; data.put('latestSurgicalProcedures', surgeries.replaceAll(',\\\\s*$', ''));"
+      ]
+    },
+    {
+      "name": "displayLatestSurgicalProcedures",
+      "condition": "true",
+      "priority": 6,
+      "actions": [
+        "data.put('displayLatestSurgicalProcedures', (data.get('latestSurgicalProcedures') != null) && (data.get('latestSurgicalProcedures') != ''))"
+      ]
+    },
+    {
+      "name": "illnessesInTheLastYear",
+      "condition": "true",
+      "priority": 2,
+      "actions": [
+        "data.put('illnessesInTheLastYear', service.filterResources(availableConditions, \"Condition.category.coding.code = 'illness-problem-list-item'\"))"
+      ]
+    },
+    {
+      "name": "latestIllnessesInTheLastYear",
+      "condition": "true",
+      "priority": 5,
+      "actions": [
+        "var illnesses = ''; for (var condition: data.get('illnessesInTheLastYear')) { if((data.get('latestPathologicalHistoryEncounterID')).equals(fhirPath.extractValue(condition, 'Condition.encounter.reference.substring(10)'))){ illnesses = illnesses + fhirPath.extractValue(condition, 'Condition.code.coding.display') + ', '; }}; data.put('latestIllnessesInTheLastYear', illnesses.replaceAll(',\\\\s*$', '')  );"
+      ]
+    },
+    {
+      "name": "displayLatestIllnessesInTheLastYear",
+      "condition": "true",
+      "priority": 6,
+      "actions": [
+        "data.put('displayLatestIllnessesInTheLastYear', (data.get('latestIllnessesInTheLastYear') != null) && (data.get('latestIllnessesInTheLastYear') != ''))"
+      ]
+    },
+    {
+      "name": "otherIllnessesInTheLastYear",
+      "condition": "true",
+      "priority": 2,
+      "actions": [
+        "data.put('otherIllnessesInTheLastYear', service.filterResources(availableConditions, \"Condition.category.coding.code = 'other-illness-problem-list-item'\"))"
+      ]
+    },
+    {
+      "name": "latestOtherIllnessesInTheLastYear",
+      "condition": "true",
+      "priority": 5,
+      "actions": [
+        "var illnesses = ''; for (var condition: data.get('otherIllnessesInTheLastYear')) { if((data.get('latestPathologicalHistoryEncounterID')).equals(fhirPath.extractValue(condition, 'Condition.encounter.reference.substring(10)'))){ illnesses = illnesses + fhirPath.extractValue(condition, 'Condition.note.text') + ', '; }}; data.put('latestOtherIllnessesInTheLastYear', illnesses.replaceAll(',\\\\s*$', '')  );"
+      ]
+    },
+    {
+      "name": "displayLatestOtherIllnessesInTheLastYear",
+      "condition": "true",
+      "priority": 6,
+      "actions": [
+        "data.put('displayLatestOtherIllnessesInTheLastYear', (data.get('latestOtherIllnessesInTheLastYear') != null) && (data.get('latestOtherIllnessesInTheLastYear') != ''))"
+      ]
+    },
+    {
+      "name": "trauma",
+      "condition": "true",
+      "priority": 2,
+      "actions": [
+        "data.put('trauma', service.filterResources(availableConditions, \"Condition.category.coding.code = 'trauma-problem-list-item'\"))"
+      ]
+    },
+    {
+      "name": "latestTrauma",
+      "condition": "true",
+      "priority": 5,
+      "actions": [
+        "var traumas = ''; for (var condition: data.get('trauma')) { if((data.get('latestPathologicalHistoryEncounterID')).equals(fhirPath.extractValue(condition, 'Condition.encounter.reference.substring(10)'))){ traumas = traumas + fhirPath.extractValue(condition, 'Condition.code.coding.display') + ', '; }}; data.put('latestTrauma', traumas.replaceAll(',\\\\s*$', ''));"
+      ]
+    },
+    {
+      "name": "displayLatestTrauma",
+      "condition": "true",
+      "priority": 6,
+      "actions": [
+        "data.put('displayLatestTrauma', (data.get('latestTrauma') != null) && (data.get('latestTrauma') != ''))"
+      ]
+    },
+    {
+      "name": "allergies",
+      "condition": "true",
+      "priority": 2,
+      "actions": [
+        "data.put('allergies', service.filterResources(availableAllergies, \"AllergyIntolerance.identifier.value = 'general_allergy_category'\"))"
+      ]
+    },
+    {
+      "name": "latestAllergies",
+      "condition": "true",
+      "priority": 5,
+      "actions": [
+        "var allergies = ''; for (var allergy: data.get('allergies')) { if((data.get('latestPathologicalHistoryEncounterID')).equals(fhirPath.extractValue(allergy, 'AllergyIntolerance.encounter.reference.substring(10)'))){ allergies = allergies + fhirPath.extractValue(allergy, 'AllergyIntolerance.code.coding.display') + ', '; }}; data.put('latestAllergies', allergies.replaceAll(',\\\\s*$', ''));"
+      ]
+    },
+    {
+      "name": "displayLatestAllergies",
+      "condition": "true",
+      "priority": 6,
+      "actions": [
+        "data.put('displayLatestAllergies', (data.get('latestAllergies') != null) && (data.get('latestAllergies') != ''))"
+      ]
+    },
+    {
+      "name": "otherAllergies",
+      "condition": "true",
+      "priority": 2,
+      "actions": [
+        "data.put('otherAllergies', service.filterResources(availableAllergies, \"AllergyIntolerance.identifier.value = 'other_allergy_category'\"))"
+      ]
+    },
+    {
+      "name": "latestOtherAllergies",
+      "condition": "true",
+      "priority": 5,
+      "actions": [
+        "var allergies = ''; for (var allergy: data.get('otherAllergies')) { if((data.get('latestPathologicalHistoryEncounterID')).equals(fhirPath.extractValue(allergy, 'AllergyIntolerance.encounter.reference.substring(10)'))){ allergies = allergies + fhirPath.extractValue(allergy, 'AllergyIntolerance.note.text') + ', '; }}; data.put('latestOtherAllergies', allergies.replaceAll(',\\\\s*$', ''));"
+      ]
+    },
+    {
+      "name": "displayLatestOtherAllergies",
+      "condition": "true",
+      "priority": 6,
+      "actions": [
+        "data.put('displayLatestOtherAllergies', (data.get('latestOtherAllergies') != null) && (data.get('latestOtherAllergies') != ''))"
+      ]
+    },
+    {
+      "name": "foodAllergies",
+      "condition": "true",
+      "priority": 2,
+      "actions": [
+        "data.put('foodAllergies', service.filterResources(availableAllergies, \"AllergyIntolerance.identifier.value = 'food_allergy_category'\"))"
+      ]
+    },
+    {
+      "name": "latestFoodAllergies",
+      "condition": "true",
+      "priority": 5,
+      "actions": [
+        "var allergies = ''; for (var allergy: data.get('foodAllergies')) { if((data.get('latestPathologicalHistoryEncounterID')).equals(fhirPath.extractValue(allergy, 'AllergyIntolerance.encounter.reference.substring(10)'))){ allergies = allergies + fhirPath.extractValue(allergy, 'AllergyIntolerance.code.coding.display') + ', '; }}; data.put('latestFoodAllergies', allergies.replaceAll(',\\\\s*$', ''));"
+      ]
+    },
+    {
+      "name": "displayLatestFoodAllergies",
+      "condition": "true",
+      "priority": 6,
+      "actions": [
+        "data.put('displayLatestFoodAllergies', (data.get('latestFoodAllergies') != null) && (data.get('latestFoodAllergies') != ''))"
+      ]
+    },
+    {
+      "name": "otherFoodAllergies",
+      "condition": "true",
+      "priority": 2,
+      "actions": [
+        "data.put('otherFoodAllergies', service.filterResources(availableAllergies, \"AllergyIntolerance.identifier.value = 'other_food_allergy_category'\"))"
+      ]
+    },
+    {
+      "name": "latestOtherFoodAllergies",
+      "condition": "true",
+      "priority": 5,
+      "actions": [
+        "var allergies = ''; for (var allergy: data.get('otherFoodAllergies')) { if((data.get('latestPathologicalHistoryEncounterID')).equals(fhirPath.extractValue(allergy, 'AllergyIntolerance.encounter.reference.substring(10)'))){ allergies = allergies + fhirPath.extractValue(allergy, 'AllergyIntolerance.note.text') + ', '; }}; data.put('latestOtherFoodAllergies', allergies.replaceAll(',\\\\s*$', ''));"
+      ]
+    },
+    {
+      "name": "displayLatestOtherFoodAllergies",
+      "condition": "true",
+      "priority": 6,
+      "actions": [
+        "data.put('displayLatestOtherFoodAllergies', (data.get('latestOtherFoodAllergies') != null) && (data.get('latestOtherFoodAllergies') != ''))"
+      ]
+    },
+    {
+      "name": "drugAllergies",
+      "condition": "true",
+      "priority": 2,
+      "actions": [
+        "data.put('drugAllergies', service.filterResources(availableAllergies, \"AllergyIntolerance.identifier.value = 'drug_allergy_category'\"))"
+      ]
+    },
+    {
+      "name": "latestDrugAllergies",
+      "condition": "true",
+      "priority": 5,
+      "actions": [
+        "var allergies = ''; for (var allergy: data.get('drugAllergies')) { if((data.get('latestPathologicalHistoryEncounterID')).equals(fhirPath.extractValue(allergy, 'AllergyIntolerance.encounter.reference.substring(10)'))){ allergies = allergies + fhirPath.extractValue(allergy, 'AllergyIntolerance.code.coding.display') + ', '; }}; data.put('latestDrugAllergies', allergies.replaceAll(',\\\\s*$', ''));"
+      ]
+    },
+    {
+      "name": "displayLatestDrugAllergies",
+      "condition": "true",
+      "priority": 6,
+      "actions": [
+        "data.put('displayLatestDrugAllergies', (data.get('latestDrugAllergies') != null) && (data.get('latestDrugAllergies') != ''))"
+      ]
+    },
+    {
+      "name": "otherDrugAllergies",
+      "condition": "true",
+      "priority": 2,
+      "actions": [
+        "data.put('otherDrugAllergies', service.filterResources(availableAllergies, \"AllergyIntolerance.identifier.value = 'other_drug_allergy_category'\"))"
+      ]
+    },
+    {
+      "name": "latestOtherDrugA1llergies",
+      "condition": "true",
+      "priority": 5,
+      "actions": [
+        "var allergies = ''; for (var allergy: data.get('otherDrugAllergies')) { if((data.get('latestPathologicalHistoryEncounterID')).equals(fhirPath.extractValue(allergy, 'AllergyIntolerance.encounter.reference.substring(10)'))){ allergies = allergies + fhirPath.extractValue(allergy, 'AllergyIntolerance.note.text') + ', '; }}; data.put('latestOtherDrugAllergies', allergies.replaceAll(',\\\\s*$', ''));"
+      ]
+    },
+    {
+      "name": "displayLatestOtherDrugAllergies",
+      "condition": "true",
+      "priority": 6,
+      "actions": [
+        "data.put('displayLatestOtherDrugAllergies', (data.get('latestOtherDrugAllergies') != null) && (data.get('latestOtherDrugAllergies') != ''))"
+      ]
+    },
+    {
+      "name": "antibioticsAllergies",
+      "condition": "true",
+      "priority": 2,
+      "actions": [
+        "data.put('antibioticsAllergies', service.filterResources(availableAllergies, \"AllergyIntolerance.identifier.value = 'antibiotics_allergy'\"))"
+      ]
+    },
+    {
+      "name": "latestAntibioticsAllergies",
+      "condition": "true",
+      "priority": 5,
+      "actions": [
+        "var allergies = ''; for (var allergy: data.get('antibioticsAllergies')) { if((data.get('latestPathologicalHistoryEncounterID')).equals(fhirPath.extractValue(allergy, 'AllergyIntolerance.encounter.reference.substring(10)'))){ allergies = allergies + fhirPath.extractValue(allergy, 'AllergyIntolerance.code.coding.display') + ', '; }}; data.put('latestAntibioticsAllergies', allergies.replaceAll(',\\\\s*$', ''));"
+      ]
+    },
+    {
+      "name": "displayLatestAntibioticsAllergies",
+      "condition": "true",
+      "priority": 6,
+      "actions": [
+        "data.put('displayLatestAntibioticsAllergies', (data.get('latestAntibioticsAllergies') != null) && (data.get('latestAntibioticsAllergies') != ''))"
+      ]
+    },
+    {
+      "name": "analgesicsAndAntiInflammatoriesAllergies",
+      "condition": "true",
+      "priority": 2,
+      "actions": [
+        "data.put('analgesicsAndAntiInflammatoriesAllergies', service.filterResources(availableAllergies, \"AllergyIntolerance.identifier.value = 'analgesics_and_anti_inflammatories_allergy'\"))"
+      ]
+    },
+    {
+      "name": "latestAnalgesicsAndAntiInflammatoriesAllergies",
+      "condition": "true",
+      "priority": 5,
+      "actions": [
+        "var allergies = ''; for (var allergy: data.get('analgesicsAndAntiInflammatoriesAllergies')) { if((data.get('latestPathologicalHistoryEncounterID')).equals(fhirPath.extractValue(allergy, 'AllergyIntolerance.encounter.reference.substring(10)'))){ allergies = allergies + fhirPath.extractValue(allergy, 'AllergyIntolerance.code.coding.display') + ', '; }}; data.put('latestAnalgesicsAndAntiInflammatoriesAllergies', allergies.replaceAll(',\\\\s*$', ''));"
+      ]
+    },
+    {
+      "name": "displayLatestAnalgesicsAndAntiInflammatoriesAllergies",
+      "condition": "true",
+      "priority": 6,
+      "actions": [
+        "data.put('displayLatestAnalgesicsAndAntiInflammatoriesAllergies', (data.get('latestAnalgesicsAndAntiInflammatoriesAllergies') != null) && (data.get('latestAnalgesicsAndAntiInflammatoriesAllergies') != '') )"
+      ]
+    },
+    {
+      "name": "localAnestheticsAllergies",
+      "condition": "true",
+      "priority": 2,
+      "actions": [
+        "data.put('localAnestheticsAllergies', service.filterResources(availableAllergies, \"AllergyIntolerance.identifier.value = 'local_anesthetics_allergy'\"))"
+      ]
+    },
+    {
+      "name": "latestLocalAnestheticsAllergies",
+      "condition": "true",
+      "priority": 5,
+      "actions": [
+        "var allergies = ''; for (var allergy: data.get('localAnestheticsAllergies')) { if((data.get('latestPathologicalHistoryEncounterID')).equals(fhirPath.extractValue(allergy, 'AllergyIntolerance.encounter.reference.substring(10)'))){ allergies = allergies + fhirPath.extractValue(allergy, 'AllergyIntolerance.code.coding.display') + ', '; }}; data.put('latestLocalAnestheticsAllergies', allergies.replaceAll(',\\\\s*$', ''));"
+      ]
+    },
+    {
+      "name": "displayLatestLocalAnestheticsAllergies",
+      "condition": "true",
+      "priority": 6,
+      "actions": [
+        "data.put('displayLatestLocalAnestheticsAllergies', (data.get('latestLocalAnestheticsAllergies') != null) && (data.get('latestLocalAnestheticsAllergies') != ''))"
+      ]
+    },
+    {
+      "name": "otherMedicationsAllergies",
+      "condition": "true",
+      "priority": 2,
+      "actions": [
+        "data.put('otherMedicationsAllergies', service.filterResources(availableAllergies, \"AllergyIntolerance.identifier.value = 'other_medications_allergy'\"))"
+      ]
+    },
+    {
+      "name": "latestOtherMedicationsAllergies",
+      "condition": "true",
+      "priority": 5,
+      "actions": [
+        "var allergies = ''; for (var allergy: data.get('otherMedicationsAllergies')) { if((data.get('latestPathologicalHistoryEncounterID')).equals(fhirPath.extractValue(allergy, 'AllergyIntolerance.encounter.reference.substring(10)'))){ allergies = allergies + fhirPath.extractValue(allergy, 'AllergyIntolerance.code.coding.display') + ', '; }}; data.put('latestOtherMedicationsAllergies', allergies.replaceAll(',\\\\s*$', ''));"
+      ]
+    },
+    {
+      "name": "displayLatestOtherMedicationsAllergies",
+      "condition": "true",
+      "priority": 6,
+      "actions": [
+        "data.put('displayLatestOtherMedicationsAllergies', (data.get('latestOtherMedicationsAllergies') != null) && (data.get('latestOtherMedicationsAllergies') != ''))"
+      ]
+    },
+    {
+      "name": "otherDiseaseChoices",
+      "condition": "true",
+      "priority": 2,
+      "actions": [
+        "data.put('otherDiseaseChoices', service.filterResources(availableConditions, \"Condition.identifier.value = 'other-disease-problem-list-item'\"))"
+      ]
+    },
+    {
+      "name": "latestOtherDiseasesChoice",
+      "condition": "true",
+      "priority": 5,
+      "actions": [
+        "var otherDiseases = ''; for (var disease: data.get('otherDiseaseChoices')) { if((data.get('latestPathologicalHistoryEncounterID')).equals(fhirPath.extractValue(disease, 'Condition.encounter.reference.substring(10)'))){ otherDiseases = otherDiseases + fhirPath.extractValue(disease, 'Condition.code.coding.display') + ', '; }}; data.put('latestOtherDiseasesChoice', otherDiseases.replaceAll(',\\\\s*$', ''));"
+      ]
+    },
+    {
+      "name": "displayOtherDiseasesChoice",
+      "condition": "true",
+      "priority": 6,
+      "actions": [
+        "data.put('displayOtherDiseasesChoice', (data.get('latestOtherDiseasesChoice') != null) && (data.get('latestOtherDiseasesChoice') != ''))"
+      ]
+    },
+    {
+      "name": "otherDiseases",
+      "condition": "true",
+      "priority": 2,
+      "actions": [
+        "data.put('otherDiseases', service.filterResources(availableConditions, \"Condition.identifier.value = 'other-disease-problem-item'\"))"
+      ]
+    },
+    {
+      "name": "latestOtherDiseases",
+      "condition": "true",
+      "priority": 5,
+      "actions": [
+        "var otherDiseases = ''; for (var disease: data.get('otherDiseases')) { if((data.get('latestPathologicalHistoryEncounterID')).equals(fhirPath.extractValue(disease, 'Condition.encounter.reference.substring(10)'))){ otherDiseases = otherDiseases + fhirPath.extractValue(disease, 'Condition.note.text') + ', '; }}; data.put('latestOtherDiseases', otherDiseases.replaceAll(',\\\\s*$', ''));"
+      ]
+    },
+    {
+      "name": "displayLatestOtherDiseases",
+      "condition": "true",
+      "priority": 6,
+      "actions": [
+        "data.put('displayLatestOtherDiseases', (data.get('latestOtherDiseases') != null) && (data.get('latestOtherDiseases') != ''))"
+      ]
+    }
+  ],
+  "views": [
+    {
+      "viewType": "CARD",
+      "visible": "@{hasPathologicalHistory}",
+      "padding": 0,
+      "header": {
+        "viewType": "COMPOUND_TEXT",
+        "primaryText": "{{ personal.pathological.history }}",
+        "primaryTextColor": "#323232",
+        "fontSize": 14.0,
+        "padding": 17
+      },
+      "content": [
+        {
+          "viewType": "COLUMN",
+          "visible": "@{hasPathologicalHistory}",
+          "children": [
+            {
+              "viewType": "COMPOUND_TEXT",
+              "visible": "@{displayChronicDegenerativeDiseases}",
+              "primaryText": "{{ chronic.degenerative.diseases }}: ",
+              "primaryTextColor": "#323232",
+              "fontWeight": "BOLD",
+              "fontSize": 14.0
+            },
+            {
+              "viewType": "SPACER",
+              "visible": "@{displayChronicDegenerativeDiseases}",
+              "height": 4
+            },
+            {
+              "viewType": "COMPOUND_TEXT",
+              "visible": "@{displayChronicDegenerativeDiseases}",
+              "primaryText": "@{latestChronicDegenerativeDiseases}",
+              "primaryTextColor": "#717171",
+              "fontSize": 14.0
+            },
+            {
+              "viewType": "SPACER",
+              "visible": "@{displayLatestChronicDegenerativeDiseases}",
+              "height": 6
+            },
+            {
+              "viewType": "COMPOUND_TEXT",
+              "visible": "@{displayLatestOtherChronicDegenerativeDiseases}",
+              "primaryText": "{{ other.chronic.degenerative.diseases }}: ",
+              "primaryTextColor": "#323232",
+              "fontWeight": "BOLD",
+              "fontSize": 14.0
+            },
+            {
+              "viewType": "SPACER",
+              "visible": "@{displayLatestOtherChronicDegenerativeDiseases}",
+              "height": 4
+            },
+            {
+              "viewType": "COMPOUND_TEXT",
+              "visible": "@{displayLatestOtherChronicDegenerativeDiseases}",
+              "primaryText": "@{latestOtherChronicDegenerativeDiseases}",
+              "primaryTextColor": "#717171",
+              "fontSize": 14.0
+            },
+            {
+              "viewType": "SPACER",
+              "visible": "@{displayLatestCancer}",
+              "height": 6
+            },
+            {
+              "viewType": "COMPOUND_TEXT",
+              "visible": "@{displayLatestCancer}",
+              "primaryText": "{{ cancer }}: ",
+              "primaryTextColor": "#323232",
+              "fontWeight": "BOLD",
+              "fontSize": 14.0
+            },
+            {
+              "viewType": "SPACER",
+              "visible": "@{displayLatestCancer}",
+              "height": 4
+            },
+            {
+              "viewType": "COMPOUND_TEXT",
+              "visible": "@{displayLatestCancer}",
+              "primaryText": "@{latestCancer}",
+              "primaryTextColor": "#717171",
+              "fontSize": 14.0
+            },
+            {
+              "viewType": "SPACER",
+              "visible": "@{displayLatestIllnessesInTheLastYear}",
+              "height": 6
+            },
+            {
+              "viewType": "COMPOUND_TEXT",
+              "visible": "@{displayLatestIllnessesInTheLastYear}",
+              "primaryText": "{{ illnesses.in.the.last.year }}: ",
+              "primaryTextColor": "#323232",
+              "fontWeight": "BOLD",
+              "fontSize": 14.0
+            },
+            {
+              "viewType": "SPACER",
+              "visible": "@{displayLatestIllnessesInTheLastYear}",
+              "height": 4
+            },
+            {
+              "viewType": "COMPOUND_TEXT",
+              "visible": "@{displayLatestIllnessesInTheLastYear}",
+              "primaryText": "@{latestIllnessesInTheLastYear}",
+              "primaryTextColor": "#717171",
+              "fontSize": 14.0
+            },
+            {
+              "viewType": "SPACER",
+              "visible": "@{displayLatestOtherIllnessesInTheLastYear}",
+              "height": 6
+            },
+            {
+              "viewType": "COMPOUND_TEXT",
+              "visible": "@{displayLatestOtherIllnessesInTheLastYear}",
+              "primaryText": "{{ other.illnesses.in.the.last.year }}: ",
+              "primaryTextColor": "#323232",
+              "fontWeight": "BOLD",
+              "fontSize": 14.0
+            },
+            {
+              "viewType": "SPACER",
+              "visible": "@{displayLatestOtherIllnessesInTheLastYear}",
+              "height": 4
+            },
+            {
+              "viewType": "COMPOUND_TEXT",
+              "visible": "@{displayLatestOtherIllnessesInTheLastYear}",
+              "primaryText": "@{latestOtherIllnessesInTheLastYear}",
+              "primaryTextColor": "#717171",
+              "fontSize": 14.0
+            },
+            {
+              "viewType": "SPACER",
+              "height": 6,
+              "visible": "@{displayLatestSurgicalProcedures}"
+            },
+            {
+              "viewType": "COMPOUND_TEXT",
+              "visible": "@{displayLatestSurgicalProcedures}",
+              "primaryText": "{{ surgical.procedures }}: ",
+              "primaryTextColor": "#323232",
+              "fontWeight": "BOLD",
+              "fontSize": 14.0
+            },
+            {
+              "viewType": "SPACER",
+              "visible": "@{displayLatestSurgicalProcedures}",
+              "height": 4
+            },
+            {
+              "viewType": "COMPOUND_TEXT",
+              "visible": "@{displayLatestSurgicalProcedures}",
+              "primaryText": "@{latestSurgicalProcedures}",
+              "primaryTextColor": "#717171",
+              "fontSize": 14.0
+            },
+            {
+              "viewType": "SPACER",
+              "height": 6,
+              "visible": "@{displayLatestTrauma}"
+            },
+            {
+              "viewType": "COMPOUND_TEXT",
+              "visible": "@{displayLatestTrauma}",
+              "primaryText": "{{ trauma }}: ",
+              "primaryTextColor": "#323232",
+              "fontWeight": "BOLD",
+              "fontSize": 14.0
+            },
+            {
+              "viewType": "SPACER",
+              "visible": "@{displayLatestTrauma}",
+              "height": 4
+            },
+            {
+              "viewType": "COMPOUND_TEXT",
+              "visible": "@{displayLatestTrauma}",
+              "primaryText": "@{latestTrauma}",
+              "primaryTextColor": "#717171",
+              "fontSize": 14.0
+            },
+            {
+              "viewType": "SPACER",
+              "visible": "@{displayLatestAllergies}",
+              "height": 6
+            },
+            {
+              "viewType": "COMPOUND_TEXT",
+              "visible": "@{displayLatestAllergies}",
+              "primaryText": "{{ allergies }}: ",
+              "primaryTextColor": "#323232",
+              "fontWeight": "BOLD",
+              "fontSize": 14.0
+            },
+            {
+              "viewType": "SPACER",
+              "visible": "@{displayLatestAllergies}",
+              "height": 4
+            },
+            {
+              "viewType": "COMPOUND_TEXT",
+              "visible": "@{displayLatestAllergies}",
+              "primaryText": "@{latestAllergies}",
+              "primaryTextColor": "#717171",
+              "fontSize": 14.0
+            },
+            {
+              "viewType": "SPACER",
+              "visible": "@{displayLatestOtherAllergies}",
+              "height": 6
+            },
+            {
+              "viewType": "COMPOUND_TEXT",
+              "visible": "@{displayLatestOtherAllergies}",
+              "primaryText": "{{ other.allergies }}: ",
+              "primaryTextColor": "#323232",
+              "fontWeight": "BOLD",
+              "fontSize": 14.0
+            },
+            {
+              "viewType": "SPACER",
+              "visible": "@{displayLatestOtherAllergies}",
+              "height": 4
+            },
+            {
+              "viewType": "COMPOUND_TEXT",
+              "visible": "@{displayLatestOtherAllergies}",
+              "primaryText": "@{latestOtherAllergies}",
+              "primaryTextColor": "#717171",
+              "fontSize": 14.0
+            },
+            {
+              "viewType": "SPACER",
+              "visible": "@{displayLatestFoodAllergies}",
+              "height": 6
+            },
+            {
+              "viewType": "COMPOUND_TEXT",
+              "visible": "@{displayLatestFoodAllergies}",
+              "primaryText": "{{ food.allergies }}: ",
+              "primaryTextColor": "#323232",
+              "fontWeight": "BOLD",
+              "fontSize": 14.0
+            },
+            {
+              "viewType": "SPACER",
+              "visible": "@{displayLatestFoodAllergies}",
+              "height": 4
+            },
+            {
+              "viewType": "COMPOUND_TEXT",
+              "visible": "@{displayLatestFoodAllergies}",
+              "primaryText": "@{latestFoodAllergies}",
+              "primaryTextColor": "#717171",
+              "fontSize": 14.0
+            },
+            {
+              "viewType": "SPACER",
+              "visible": "@{displayLatestOtherFoodAllergies}",
+              "height": 6
+            },
+            {
+              "viewType": "COMPOUND_TEXT",
+              "visible": "@{displayLatestOtherFoodAllergies}",
+              "primaryText": "{{ other.food.allergies }}: ",
+              "primaryTextColor": "#323232",
+              "fontWeight": "BOLD",
+              "fontSize": 14.0
+            },
+            {
+              "viewType": "SPACER",
+              "visible": "@{displayLatestOtherFoodAllergies}",
+              "height": 4
+            },
+            {
+              "viewType": "COMPOUND_TEXT",
+              "visible": "@{displayLatestOtherFoodAllergies}",
+              "primaryText": "@{latestOtherFoodAllergies}",
+              "primaryTextColor": "#717171",
+              "fontSize": 14.0
+            },
+            {
+              "viewType": "SPACER",
+              "visible": "@{displayLatestDrugAllergies}",
+              "height": 6
+            },
+            {
+              "viewType": "COMPOUND_TEXT",
+              "visible": "@{displayLatestDrugAllergies}",
+              "primaryText": "{{ drug.allergies }}: ",
+              "primaryTextColor": "#323232",
+              "fontWeight": "BOLD",
+              "fontSize": 14.0
+            },
+            {
+              "viewType": "SPACER",
+              "visible": "@{displayLatestDrugAllergies}",
+              "width": 4
+            },
+            {
+              "viewType": "COMPOUND_TEXT",
+              "visible": "@{displayLatestDrugAllergies}",
+              "primaryText": "@{latestDrugAllergies}",
+              "primaryTextColor": "#717171",
+              "fontSize": 14.0
+            },
+            {
+              "viewType": "SPACER",
+              "visible": "@{displayLatestOtherDrugAllergies}",
+              "height": 6
+            },
+            {
+              "viewType": "COMPOUND_TEXT",
+              "visible": "@{displayLatestOtherDrugAllergies}",
+              "primaryText": "{{ other.drug.allergies }}: ",
+              "primaryTextColor": "#323232",
+              "fontWeight": "BOLD",
+              "fontSize": 14.0
+            },
+            {
+              "viewType": "SPACER",
+              "visible": "@{displayLatestOtherDrugAllergies}",
+              "height": 4
+            },
+            {
+              "viewType": "COMPOUND_TEXT",
+              "visible": "@{displayLatestOtherDrugAllergies}",
+              "primaryText": "@{latestOtherDrugAllergies}",
+              "primaryTextColor": "#717171",
+              "fontSize": 14.0
+            },
+            {
+              "viewType": "SPACER",
+              "visible": "@{displayLatestAntibioticsAllergies}",
+              "height": 6
+            },
+            {
+              "viewType": "COMPOUND_TEXT",
+              "visible": "@{displayLatestAntibioticsAllergies}",
+              "primaryText": "{{ antibiotics.allergies }}: ",
+              "primaryTextColor": "#323232",
+              "fontWeight": "BOLD",
+              "fontSize": 14.0
+            },
+            {
+              "viewType": "SPACER",
+              "visible": "@{displayLatestAntibioticsAllergies}",
+              "height": 4
+            },
+            {
+              "viewType": "COMPOUND_TEXT",
+              "visible": "@{displayLatestAntibioticsAllergies}",
+              "primaryText": "@{latestAntibioticsAllergies}",
+              "primaryTextColor": "#717171",
+              "fontSize": 14.0
+            },
+            {
+              "viewType": "SPACER",
+              "visible": "@{displayLatestAnalgesicsAndAntiInflammatoriesAllergies}",
+              "height": 6
+            },
+            {
+              "viewType": "COMPOUND_TEXT",
+              "visible": "@{displayLatestAnalgesicsAndAntiInflammatoriesAllergies}",
+              "primaryText": "{{ analgesics.and.anti.inflammatories.allergies }}: ",
+              "primaryTextColor": "#323232",
+              "fontWeight": "BOLD",
+              "fontSize": 14.0
+            },
+            {
+              "viewType": "SPACER",
+              "visible": "@{displayLatestAnalgesicsAndAntiInflammatoriesAllergies}",
+              "height": 4
+            },
+            {
+              "viewType": "COMPOUND_TEXT",
+              "visible": "@{displayLatestAnalgesicsAndAntiInflammatoriesAllergies}",
+              "primaryText": "@{latestAnalgesicsAndAntiInflammatoriesAllergies}",
+              "primaryTextColor": "#717171",
+              "fontSize": 14.0
+            },
+            {
+              "viewType": "SPACER",
+              "visible": "@{displayLatestLocalAnestheticsAllergies}",
+              "height": 6
+            },
+            {
+              "viewType": "COMPOUND_TEXT",
+              "visible": "@{displayLatestLocalAnestheticsAllergies}",
+              "primaryText": "{{ local.anesthetics.allergies }}: ",
+              "primaryTextColor": "#323232",
+              "fontWeight": "BOLD",
+              "fontSize": 14.0
+            },
+            {
+              "viewType": "SPACER",
+              "visible": "@{displayLatestLocalAnestheticsAllergies}",
+              "height": 4
+            },
+            {
+              "viewType": "COMPOUND_TEXT",
+              "visible": "@{displayLatestLocalAnestheticsAllergies}",
+              "primaryText": "@{latestLocalAnestheticsAllergies}",
+              "primaryTextColor": "#717171",
+              "fontSize": 14.0
+            },
+            {
+              "viewType": "SPACER",
+              "visible": "@{displayLatestOtherMedicationsAllergies}",
+              "height": 6
+            },
+            {
+              "viewType": "COMPOUND_TEXT",
+              "visible": "@{displayLatestOtherMedicationsAllergies}",
+              "primaryText": "{{ other.medications.allergies }}: ",
+              "primaryTextColor": "#323232",
+              "fontWeight": "BOLD",
+              "fontSize": 14.0
+            },
+            {
+              "viewType": "SPACER",
+              "visible": "@{displayLatestOtherMedicationsAllergies}",
+              "height": 4
+            },
+            {
+              "viewType": "COMPOUND_TEXT",
+              "visible": "@{displayLatestOtherMedicationsAllergies}",
+              "primaryText": "@{latestOtherMedicationsAllergies}",
+              "primaryTextColor": "#717171",
+              "fontSize": 14.0
+            },
+            {
+              "viewType": "SPACER",
+              "visible": "@{displayOtherDiseasesChoice}",
+              "height": 6
+            },
+            {
+              "viewType": "COMPOUND_TEXT",
+              "visible": "@{displayOtherDiseasesChoice}",
+              "primaryText": "{{ other.diseases }}: ",
+              "primaryTextColor": "#323232",
+              "fontWeight": "BOLD",
+              "fontSize": 14.0
+            },
+            {
+              "viewType": "SPACER",
+              "visible": "@{displayOtherDiseasesChoice}",
+              "height": 4
+            },
+            {
+              "viewType": "COMPOUND_TEXT",
+              "visible": "@{displayOtherDiseasesChoice}",
+              "primaryText": "@{latestOtherDiseasesChoice}",
+              "primaryTextColor": "#717171",
+              "fontSize": 14.0
+            },
+            {
+              "viewType": "SPACER",
+              "visible": "@{displayLatestOtherDiseases}",
+              "height": 6
+            },
+            {
+              "viewType": "COMPOUND_TEXT",
+              "visible": "@{displayLatestOtherDiseases}",
+              "primaryText": "{{ specific.other.diseases }}: ",
+              "primaryTextColor": "#323232",
+              "fontWeight": "BOLD",
+              "fontSize": 14.0
+            },
+            {
+              "viewType": "SPACER",
+              "visible": "@{displayLatestOtherDiseases}",
+              "height": 4
+            },
+            {
+              "viewType": "COMPOUND_TEXT",
+              "visible": "@{displayLatestOtherDiseases}",
+              "primaryText": "@{latestOtherDiseases}",
+              "primaryTextColor": "#717171",
+              "fontSize": 14.0
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

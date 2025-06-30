@@ -1,0 +1,981 @@
+{
+  "resourceType": "StructureMap",
+  "id": "unicef-mexico-lactating-enrollment",
+  "meta": {
+    "versionId": "7",
+    "lastUpdated": "2024-08-09T21:06:51.735+00:00"
+  },
+  "url": "https://fhir-sid.stage.opensrp.id/fhir/StructureMap/unicef-mexico-lactating-enrollment",
+  "name": "Lactating",
+  "structure": [
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/QuestionnaireReponse",
+      "mode": "source"
+    },
+    {
+      "url": "http://hl7.org/fhir/StructureDefinition/Bundle",
+      "mode": "target"
+    }
+  ],
+  "group": [
+    {
+      "name": "EnrollLactating",
+      "typeMode": "none",
+      "input": [
+        {
+          "name": "src",
+          "type": "QuestionnaireResponse",
+          "mode": "source"
+        },
+        {
+          "name": "bundle",
+          "type": "Bundle",
+          "mode": "target"
+        }
+      ],
+      "rule": [
+        {
+          "name": "r_bundle_type",
+          "source": [
+            {
+              "context": "src"
+            }
+          ],
+          "target": [
+            {
+              "context": "bundle",
+              "contextType": "variable",
+              "element": "type",
+              "transform": "copy",
+              "parameter": [
+                {
+                  "valueString": "collection"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "r_bundle_entries",
+          "source": [
+            {
+              "context": "src"
+            }
+          ],
+          "target": [
+            {
+              "variable": "refPatient",
+              "transform": "evaluate",
+              "parameter": [
+                {
+                  "valueId": "src"
+                },
+                {
+                  "valueString": "$this.subject"
+                }
+              ]
+            }
+          ],
+          "dependent": [
+            {
+              "name": "ExtractEncounter",
+              "variable": [
+                "src",
+                "bundle",
+                "refPatient"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ExtractEncounter",
+      "typeMode": "none",
+      "input": [
+        {
+          "name": "src",
+          "type": "QuestionnaireResponse",
+          "mode": "source"
+        },
+        {
+          "name": "bundle",
+          "type": "Bundle",
+          "mode": "target"
+        },
+        {
+          "name": "refPatient",
+          "type": "Patient",
+          "mode": "source"
+        }
+      ],
+      "rule": [
+        {
+          "name": "r_en",
+          "source": [
+            {
+              "context": "src"
+            }
+          ],
+          "target": [
+            {
+              "context": "bundle",
+              "contextType": "variable",
+              "element": "entry",
+              "variable": "entry"
+            },
+            {
+              "context": "entry",
+              "contextType": "variable",
+              "element": "resource",
+              "variable": "encounter",
+              "transform": "create",
+              "parameter": [
+                {
+                  "valueString": "Encounter"
+                }
+              ]
+            }
+          ],
+          "rule": [
+            {
+              "name": "r_en_id",
+              "source": [
+                {
+                  "context": "src"
+                }
+              ],
+              "target": [
+                {
+                  "context": "encounter",
+                  "contextType": "variable",
+                  "element": "id",
+                  "transform": "uuid"
+                }
+              ]
+            },
+            {
+              "name": "r_en_st",
+              "source": [
+                {
+                  "context": "src"
+                }
+              ],
+              "target": [
+                {
+                  "context": "encounter",
+                  "contextType": "variable",
+                  "element": "status",
+                  "transform": "copy",
+                  "parameter": [
+                    {
+                      "valueString": "finished"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "r_en_cls",
+              "source": [
+                {
+                  "context": "src"
+                }
+              ],
+              "target": [
+                {
+                  "context": "encounter",
+                  "contextType": "variable",
+                  "element": "class",
+                  "transform": "c",
+                  "parameter": [
+                    {
+                      "valueString": "http://terminology.hl7.org/CodeSystem/v3-ActCode"
+                    },
+                    {
+                      "valueString": "HH"
+                    },
+                    {
+                      "valueString": "Home Health"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "r_en_typ",
+              "source": [
+                {
+                  "context": "src"
+                }
+              ],
+              "target": [
+                {
+                  "context": "encounter",
+                  "contextType": "variable",
+                  "element": "type",
+                  "variable": "concept",
+                  "transform": "create",
+                  "parameter": [
+                    {
+                      "valueString": "CodeableConcept"
+                    }
+                  ]
+                }
+              ],
+              "rule": [
+                {
+                  "name": "r_en_cc_cod",
+                  "source": [
+                    {
+                      "context": "src"
+                    }
+                  ],
+                  "target": [
+                    {
+                      "context": "concept",
+                      "contextType": "variable",
+                      "element": "coding",
+                      "variable": "coding",
+                      "transform": "c",
+                      "parameter": [
+                        {
+                          "valueString": "http://snomed.info/sct"
+                        },
+                        {
+                          "valueString": "77386006"
+                        }
+                      ]
+                    }
+                  ],
+                  "rule": [
+                    {
+                      "name": "r_en_cod_disp",
+                      "source": [
+                        {
+                          "context": "src"
+                        }
+                      ],
+                      "target": [
+                        {
+                          "context": "coding",
+                          "contextType": "variable",
+                          "element": "display",
+                          "transform": "copy",
+                          "parameter": [
+                            {
+                              "valueString": "Lactating Enrollment"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "r_en_typ_text",
+                  "source": [
+                    {
+                      "context": "src"
+                    }
+                  ],
+                  "target": [
+                    {
+                      "context": "concept",
+                      "contextType": "variable",
+                      "element": "text",
+                      "transform": "copy",
+                      "parameter": [
+                        {
+                          "valueString": "Lactating Enrollment"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "r_en_prio",
+              "source": [
+                {
+                  "context": "src"
+                }
+              ],
+              "target": [
+                {
+                  "context": "encounter",
+                  "contextType": "variable",
+                  "element": "priority",
+                  "variable": "concept",
+                  "transform": "create",
+                  "parameter": [
+                    {
+                      "valueString": "CodeableConcept"
+                    }
+                  ]
+                }
+              ],
+              "rule": [
+                {
+                  "name": "r_en_cc_cod",
+                  "source": [
+                    {
+                      "context": "src"
+                    }
+                  ],
+                  "target": [
+                    {
+                      "context": "concept",
+                      "contextType": "variable",
+                      "element": "coding",
+                      "variable": "coding",
+                      "transform": "c",
+                      "parameter": [
+                        {
+                          "valueString": "http://snomed.info/sct"
+                        },
+                        {
+                          "valueString": "17621005"
+                        }
+                      ]
+                    }
+                  ],
+                  "rule": [
+                    {
+                      "name": "r_en_cod_disp",
+                      "source": [
+                        {
+                          "context": "src"
+                        }
+                      ],
+                      "target": [
+                        {
+                          "context": "coding",
+                          "contextType": "variable",
+                          "element": "display",
+                          "transform": "copy",
+                          "parameter": [
+                            {
+                              "valueString": "Normal"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "r_en_prio_text",
+                  "source": [
+                    {
+                      "context": "src"
+                    }
+                  ],
+                  "target": [
+                    {
+                      "context": "concept",
+                      "contextType": "variable",
+                      "element": "text",
+                      "transform": "copy",
+                      "parameter": [
+                        {
+                          "valueString": "Normal"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "r_en_sub",
+              "source": [
+                {
+                  "context": "src"
+                }
+              ],
+              "target": [
+                {
+                  "context": "encounter",
+                  "contextType": "variable",
+                  "element": "subject",
+                  "transform": "evaluate",
+                  "parameter": [
+                    {
+                      "valueId": "src"
+                    },
+                    {
+                      "valueString": "$this.subject"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "r_en_per",
+              "source": [
+                {
+                  "context": "src"
+                }
+              ],
+              "target": [
+                {
+                  "context": "encounter",
+                  "contextType": "variable",
+                  "element": "period",
+                  "variable": "enPeriod",
+                  "transform": "create",
+                  "parameter": [
+                    {
+                      "valueString": "Period"
+                    }
+                  ]
+                }
+              ],
+              "rule": [
+                {
+                  "name": "r_en_per_start",
+                  "source": [
+                    {
+                      "context": "src"
+                    }
+                  ],
+                  "target": [
+                    {
+                      "context": "enPeriod",
+                      "contextType": "variable",
+                      "element": "start",
+                      "transform": "evaluate",
+                      "parameter": [
+                        {
+                          "valueId": "src"
+                        },
+                        {
+                          "valueString": "now()"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "r_en_per_end",
+                  "source": [
+                    {
+                      "context": "src"
+                    }
+                  ],
+                  "target": [
+                    {
+                      "context": "enPeriod",
+                      "contextType": "variable",
+                      "element": "end",
+                      "transform": "evaluate",
+                      "parameter": [
+                        {
+                          "valueId": "src"
+                        },
+                        {
+                          "valueString": "now()"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "r_en_reason",
+              "source": [
+                {
+                  "context": "src"
+                }
+              ],
+              "target": [
+                {
+                  "context": "encounter",
+                  "contextType": "variable",
+                  "element": "reasonCode",
+                  "variable": "concept",
+                  "transform": "create",
+                  "parameter": [
+                    {
+                      "valueString": "CodeableConcept"
+                    }
+                  ]
+                }
+              ],
+              "rule": [
+                {
+                  "name": "r_en_rc_cod",
+                  "source": [
+                    {
+                      "context": "src"
+                    }
+                  ],
+                  "target": [
+                    {
+                      "context": "concept",
+                      "contextType": "variable",
+                      "element": "coding",
+                      "variable": "coding",
+                      "transform": "c",
+                      "parameter": [
+                        {
+                          "valueString": "http://smartregsiter.org/"
+                        },
+                        {
+                          "valueString": "lactating"
+                        }
+                      ]
+                    }
+                  ],
+                  "rule": [
+                    {
+                      "name": "r_en_rc_cod_disp",
+                      "source": [
+                        {
+                          "context": "src"
+                        }
+                      ],
+                      "target": [
+                        {
+                          "context": "coding",
+                          "contextType": "variable",
+                          "element": "display",
+                          "transform": "copy",
+                          "parameter": [
+                            {
+                              "valueString": "Lactating Enrollment"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "r_en_text",
+                  "source": [
+                    {
+                      "context": "src"
+                    }
+                  ],
+                  "target": [
+                    {
+                      "context": "concept",
+                      "contextType": "variable",
+                      "element": "text",
+                      "transform": "copy",
+                      "parameter": [
+                        {
+                          "valueString": "Lactating Enrollment"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "ruleReferralLinkIdExist",
+              "source": [
+                {
+                  "context": "src",
+                  "element": "item",
+                  "variable": "item",
+                  "condition": "((linkId = '834f9057-21b1-4ab6-c5d1-fbe97c488e96') and (answer.value.exists() and (answer.value.code = '373066001')))"
+                }
+              ],
+              "rule": [
+                {
+                  "name": "r_extract_obs",
+                  "source": [
+                    {
+                      "context": "src"
+                    }
+                  ],
+                  "dependent": [
+                    {
+                      "name": "ExtractRefs",
+                      "variable": [
+                        "src",
+                        "bundle",
+                        "encounter"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ExtractRefs",
+      "typeMode": "none",
+      "input": [
+        {
+          "name": "src",
+          "type": "QuestionnaireResponse",
+          "mode": "source"
+        },
+        {
+          "name": "bundle",
+          "type": "Bundle",
+          "mode": "target"
+        },
+        {
+          "name": "encounter",
+          "type": "Encounter",
+          "mode": "target"
+        }
+      ],
+      "rule": [
+        {
+          "name": "r_enc_refs",
+          "source": [
+            {
+              "context": "src"
+            }
+          ],
+          "dependent": [
+            {
+              "name": "extractLactatingCondition",
+              "variable": [
+                "src",
+                "bundle",
+                "encounter"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "extractLactatingCondition",
+      "typeMode": "none",
+      "input": [
+        {
+          "name": "src",
+          "type": "QuestionnaireResponse",
+          "mode": "source"
+        },
+        {
+          "name": "bundle",
+          "type": "Bundle",
+          "mode": "target"
+        },
+        {
+          "name": "encounter",
+          "type": "Encounter",
+          "mode": "target"
+        }
+      ],
+      "rule": [
+        {
+          "name": "r_cnd",
+          "source": [
+            {
+              "context": "src"
+            }
+          ],
+          "target": [
+            {
+              "context": "bundle",
+              "contextType": "variable",
+              "element": "entry",
+              "variable": "entry"
+            },
+            {
+              "context": "entry",
+              "contextType": "variable",
+              "element": "resource",
+              "variable": "cnd",
+              "transform": "create",
+              "parameter": [
+                {
+                  "valueString": "Condition"
+                }
+              ]
+            }
+          ],
+          "rule": [
+            {
+              "name": "r_obs_data_date_of_lmp_gest_age_collection",
+              "source": [
+                {
+                  "context": "src"
+                }
+              ],
+              "target": [
+                {
+                  "context": "cnd",
+                  "contextType": "variable",
+                  "element": "id",
+                  "transform": "uuid"
+                },
+                {
+                  "context": "cnd",
+                  "contextType": "variable",
+                  "element": "encounter",
+                  "transform": "reference",
+                  "parameter": [
+                    {
+                      "valueId": "encounter"
+                    }
+                  ]
+                },
+                {
+                  "context": "cnd",
+                  "contextType": "variable",
+                  "element": "subject",
+                  "transform": "evaluate",
+                  "parameter": [
+                    {
+                      "valueId": "src"
+                    },
+                    {
+                      "valueString": "$this.subject"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "r_cnd_clinical_st",
+              "source": [
+                {
+                  "context": "src"
+                }
+              ],
+              "target": [
+                {
+                  "context": "cnd",
+                  "contextType": "variable",
+                  "element": "clinicalStatus",
+                  "transform": "cc",
+                  "parameter": [
+                    {
+                      "valueString": "http://terminology.hl7.org/CodeSystem/condition-clinical"
+                    },
+                    {
+                      "valueString": "active"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "r_cnd_verif_st",
+              "source": [
+                {
+                  "context": "src"
+                }
+              ],
+              "target": [
+                {
+                  "context": "cnd",
+                  "contextType": "variable",
+                  "element": "verificationStatus",
+                  "transform": "cc",
+                  "parameter": [
+                    {
+                      "valueString": "http://terminology.hl7.org/CodeSystem/condition-ver-status"
+                    },
+                    {
+                      "valueString": "confirmed"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "r_cnd_category",
+              "source": [
+                {
+                  "context": "src"
+                }
+              ],
+              "target": [
+                {
+                  "context": "cnd",
+                  "contextType": "variable",
+                  "element": "category",
+                  "transform": "cc",
+                  "parameter": [
+                    {
+                      "valueString": "http://terminology.hl7.org/CodeSystem/condition-category"
+                    },
+                    {
+                      "valueString": "problem-list-item"
+                    },
+                    {
+                      "valueString": "Problem List Item"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "r_cnd_recorded",
+              "source": [
+                {
+                  "context": "src"
+                }
+              ],
+              "target": [
+                {
+                  "context": "cnd",
+                  "contextType": "variable",
+                  "element": "recordedDate",
+                  "transform": "evaluate",
+                  "parameter": [
+                    {
+                      "valueId": "src"
+                    },
+                    {
+                      "valueString": "now()"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "r_obs_ref",
+              "source": [
+                {
+                  "context": "src"
+                }
+              ],
+              "target": [
+                {
+                  "context": "encounter",
+                  "contextType": "variable",
+                  "element": "reasonReference",
+                  "variable": "ref",
+                  "transform": "create",
+                  "parameter": [
+                    {
+                      "valueString": "Reference"
+                    }
+                  ]
+                },
+                {
+                  "context": "ref",
+                  "contextType": "variable",
+                  "element": "reference",
+                  "transform": "evaluate",
+                  "parameter": [
+                    {
+                      "valueId": "src"
+                    },
+                    {
+                      "valueString": "'Condition/' + cnd.id"
+                    }
+                  ]
+                },
+                {
+                  "context": "ref",
+                  "contextType": "variable",
+                  "element": "type",
+                  "transform": "copy",
+                  "parameter": [
+                    {
+                      "valueString": "Condition"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "name": "r_cnd_code",
+              "source": [
+                {
+                  "context": "src"
+                }
+              ],
+              "target": [
+                {
+                  "context": "cnd",
+                  "contextType": "variable",
+                  "element": "code",
+                  "variable": "ccPreg",
+                  "transform": "create",
+                  "parameter": [
+                    {
+                      "valueString": "CodeableConcept"
+                    }
+                  ]
+                }
+              ],
+              "rule": [
+                {
+                  "name": "r_cnd_code_coding",
+                  "source": [
+                    {
+                      "context": "src"
+                    }
+                  ],
+                  "target": [
+                    {
+                      "context": "ccPreg",
+                      "contextType": "variable",
+                      "element": "coding",
+                      "variable": "coding",
+                      "transform": "c",
+                      "parameter": [
+                        {
+                          "valueString": "http://snomed.info/sct"
+                        },
+                        {
+                          "valueString": "234234234"
+                        },
+                        {
+                          "valueString": "Lactating"
+                        }
+                      ]
+                    },
+                    {
+                      "context": "coding",
+                      "contextType": "variable",
+                      "element": "display",
+                      "transform": "copy",
+                      "parameter": [
+                        {
+                          "valueString": "Lactating"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "name": "r_cnd_code_text",
+                  "source": [
+                    {
+                      "context": "src"
+                    }
+                  ],
+                  "target": [
+                    {
+                      "context": "ccPreg",
+                      "contextType": "variable",
+                      "element": "text",
+                      "transform": "copy",
+                      "parameter": [
+                        {
+                          "valueString": "Lactating"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

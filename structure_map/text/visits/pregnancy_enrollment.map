@@ -1,0 +1,77 @@
+map "https://fhir-sid.stage.opensrp.id/fhir/StructureMap/unicef-mexico-pregnancy-enrollment" = "Pregnancy"
+
+uses "http://hl7.org/fhir/StructureDefinition/QuestionnaireReponse" as source
+uses "http://hl7.org/fhir/StructureDefinition/Bundle" as target
+
+group EnrollPregnancy(source src : QuestionnaireResponse, target bundle: Bundle) {
+    src -> bundle.type = "collection" "r_bundle_type";
+    src.item as item where(linkId = 'd2b277f2-a202-41af-9901-47e361caf6ef' and (answer.value.exists() and answer.value.code = '373066001')) then {
+        src -> evaluate(src, $this.subject) as refPatient then
+        ExtractEncounter(src, bundle, refPatient) "r_bundle_entries";
+    }"ruleReferralLinkIdExist";
+
+
+}
+
+group ExtractEncounter(source src : QuestionnaireResponse, target bundle: Bundle, source refPatient: Patient,) {
+    src -> bundle.entry as entry, entry.resource = create("Encounter") as encounter then {
+        src -> encounter.id = uuid(),
+               encounter.class = c("http://terminology.hl7.org/CodeSystem/v3-ActCode", "HH","home health") "r_enc_data";
+       src -> encounter.type = create('CodeableConcept') as concept then {
+                       src -> concept.text = 'Pregnancy registration' "r_en_text";
+                       src -> concept.coding = c("http://snomed.info/sct", "167226008") as coding then {
+                              src -> coding.display = 'Pregnancy registration' "r_en_cod_disp";
+                        } "r_en_cc_cod";
+                       } "r_en_typ";
+
+        src->encounter.priority = create("CodeableConcept") as codeableConcept then {
+                        src->codeableConcept.text = "Elective" "r_enc_code_text";
+                        src-> codeableConcept.coding = create("Coding") as coding then {
+                            src->coding.system = "http://terminology.hl7.org/ValueSet/v3-ActPriority",
+                                coding.code = "EL",
+                                coding.display = "Elective" "r_enc_code_coding_value";
+                        } "r_enc_code_coding";
+                    }"r_priority";
+
+         src -> encounter.subject = evaluate(src, $this.subject) "r_en_sub";
+
+        src->encounter.reasonCode = create("CodeableConcept") as reasonConcept then {
+                  src -> encounter.status = "finished" "r_en_st_com";
+                  src->reasonConcept.text = "Pregnancy registration" "r_enc_resonCode_text";
+                  src-> reasonConcept.coding = create("Coding") as reasoncoding then {
+                        src->reasoncoding.system = "https://smartregister.org/",
+                                    reasoncoding.code ="167226008",
+                                    reasoncoding.display = "Pregnancy registration" "r_enc_resonCode_coding_value";
+                        } "r_enc_resonCode_coding";
+        }"r_bbbnv";
+
+
+        src.item as item where(linkId = 'd2b277f2-a202-41af-9901-47e361caf6ef' and (answer.value.exists() and answer.value.code = '373066001')) then {
+            src then ExtractRefs(src, bundle, encounter) "r_extract_obs";
+          }"ruleReferralLinkIdExist";
+
+
+    }"r_bundle";
+}
+
+group ExtractRefs(source src: QuestionnaireResponse, target bundle: Bundle, target encounter: Encounter) {
+    src then
+    ExtractPregnancyCondition(src, bundle, encounter) "r_enc_refs";
+}
+
+group ExtractPregnancyCondition(source src : QuestionnaireResponse, target bundle : Bundle, target encounter: Encounter) {
+    src -> bundle.entry as entry, entry.resource = create("Condition") as cnd then {
+    	 src->cnd.id = uuid(),
+                cnd.encounter = reference(encounter),
+                cnd.subject  = evaluate(src, $this.subject)  "r_obs_data_date_of_lmp_gest_age_collection";
+    	src -> cnd.clinicalStatus = cc("http://terminology.hl7.org/CodeSystem/condition-clinical", "active") "r_cnd_clinical_st";
+    	src -> cnd.verificationStatus = cc("http://terminology.hl7.org/CodeSystem/condition-ver-status", "confirmed") "r_cnd_verif_st";
+    	src -> cnd.category = cc("http://terminology.hl7.org/CodeSystem/condition-category", "problem-list-item", "Problem List Item") "r_cnd_category";
+    	src -> cnd.recordedDate = evaluate(src, now()) "r_cnd_recorded";
+        src -> encounter.reasonReference = create('Reference') as ref, ref.reference = evaluate(src,'Condition/' +cnd.id), ref.type = 'Condition' "r_obs_ref";
+    	src -> cnd.code = create("CodeableConcept") as ccPreg then {
+             src -> ccPreg.coding = c("http://snomed.info/sct", "77386006", "Pregnancy") as coding, coding.display = 'Pregnancy' "r_cnd_code_coding";
+             src -> ccPreg.text = "Pregnant" "r_cnd_code_text";
+        } "r_cnd_code";
+    } "r_cnd";
+}

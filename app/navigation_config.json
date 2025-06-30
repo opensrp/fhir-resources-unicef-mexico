@@ -1,0 +1,130 @@
+{
+  "appId": "contigo",
+  "configType": "navigation",
+  "menuActionButton": {
+    "id": "mainActionButton",
+    "visible": true,
+    "display": "{{ add.new.client }}",
+    "actions": [
+      {
+        "trigger": "ON_CLICK",
+        "workflow": "LAUNCH_QUESTIONNAIRE",
+        "questionnaire": {
+          "id": "unicef-mexico-patient-registration",
+          "title": "{{ add.new.client }}",
+          "saveButtonText": "{{ add.new.client }}",
+          "snackBarMessage": {
+            "message": "{{ new.client.added }}",
+            "actionLabel": "UNDO",
+            "duration": "Short"
+          },
+          "configRules": [
+            {
+              "name": "humanReadableId",
+              "condition": "true",
+              "actions": [
+                "data.put('humanReadableId', service.generateRandomSixDigitInt())"
+              ]
+            }
+          ],
+          "extraParams": [
+            {
+              "paramType": "PREPOPULATE",
+              "linkId": "caregiver-id",
+              "dataType": "INTEGER",
+              "key": "opensrpId1",
+              "value": "@{humanReadableId}"
+            }
+          ],
+          "setPractitionerDetails": true,
+          "setOrganizationDetails": true
+        }
+      }
+    ]
+  },
+  "clientRegisters": [
+    {
+      "id": "caregiverRegister",
+      "display": "{{ 34fc9c26c4ad487a175c2e7b85eb9b6d }}",
+      "showCount": true,
+      "menuIconConfig": {
+        "type": "local",
+        "reference": "ic_baby_mother"
+      },
+      "actions": [
+        {
+          "trigger": "ON_CLICK",
+          "workflow": "LAUNCH_REGISTER",
+          "id": "caregiverRegister"
+        },
+        {
+          "trigger": "ON_COUNT",
+          "id": "caregiverRegister"
+        }
+      ]
+    },
+    {
+      "id": "childRegister",
+      "display": "{{ children }}",
+      "showCount": true,
+      "menuIconConfig": {
+        "type": "local",
+        "reference": "ic_children"
+      },
+      "actions": [
+        {
+          "trigger": "ON_CLICK",
+          "workflow": "LAUNCH_REGISTER",
+          "id": "childRegister"
+        },
+        {
+          "trigger": "ON_COUNT",
+          "id": "childRegister"
+        }
+      ]
+    }
+  ],
+  "staticMenu": [
+    {
+      "id": "workshop",
+      "visible": true,
+      "display": "{{ 37a98f3282613f254bccb82009cc33b6 }}",
+      "menuIconConfig": {
+        "type": "local",
+        "reference": "ic_workshop"
+      },
+      "actions": [
+        {
+          "trigger": "ON_CLICK",
+          "workflow": "LAUNCH_QUESTIONNAIRE",
+          "questionnaire": {
+            "id": "unicef-mexico-record-workshop",
+            "title": "{{ b862d4e2205421a35fd181cf972430c3 }}",
+            "saveButtonText": "{{ questionnaire.submit }}",
+            "snackBarMessage": {
+              "message": "{{ 07a338a1bb214966e6fbf0a314a3a17c }}",
+              "actionLabel": "UNDO",
+              "duration": "Short"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "settings",
+      "visible": true,
+      "display": "{{ f4f70727dc34561dfde1a3c529b6205c }}",
+      "menuIconConfig": {
+        "type": "local",
+        "reference": "ic_settings"
+      },
+      "actions": [
+        {
+          "trigger": "ON_CLICK",
+          "workflow": "LAUNCH_SETTINGS",
+          "id": "navigateToSettingsScreen"
+        }
+      ]
+    }
+  ]
+}

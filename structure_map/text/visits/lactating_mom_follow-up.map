@@ -1,0 +1,48 @@
+map "https://fhir-sid.stage.opensrp.id/fhir/StructureMap/unicef-mexico-lactating-follow-up" = "Lactating Followup Visit"
+
+uses "http://hl7.org/fhir/StructureDefinition/QuestionnaireReponse" as source
+uses "http://hl7.org/fhir/StructureDefinition/Bundle" as target
+
+group CreateEncounter(source src : QuestionnaireResponse, target bundle: Bundle) {
+    src -> bundle.type = "collection" "r_bundle_type";
+    src -> evaluate(src, $this.subject) as refPatient then
+            ExtractEncounter(src, bundle) "r_bundle_entries";
+}
+
+group ExtractEncounter(source src : QuestionnaireResponse, target bundle: Bundle){
+    src -> bundle.entry as entry, entry.resource = create("Encounter") as encounter then {
+        src -> encounter.id = uuid(),
+               encounter.class = c("http://terminology.hl7.org/CodeSystem/v3-ActCode", "HH","home health") "r_enc_data";
+       src -> encounter.type = create('CodeableConcept') as concept then {
+                       src -> concept.text = 'Lactating Followup Visit' "r_en_text";
+                       src -> concept.coding = c("http://snomed.info/sct", "0003") as coding then {
+                              src -> coding.display = 'Lactating Followup Visit' "r_en_cod_disp";
+                        } "r_en_cc_cod";
+                       } "r_en_typ";
+
+        src->encounter.priority = create("CodeableConcept") as codeableConcept then {
+                        src->codeableConcept.text = "Elective" "r_enc_code_text";
+                        src-> codeableConcept.coding = create("Coding") as coding then {
+                            src->coding.system = "http://terminology.hl7.org/ValueSet/v3-ActPriority",
+                                coding.code = "EL",
+                                coding.display = "Elective" "r_enc_code_coding_value";
+                        } "r_enc_code_coding";
+                    }"r_priority";
+        src -> encounter.period = create("Period") as period then {
+            src -> period.start = evaluate(src, now()) "r_en_period_start";
+            src -> period.end = evaluate(src, now()) "r_en_period_end";
+        } "r_en_period";
+
+         src -> encounter.subject = evaluate(src, $this.subject) "r_en_sub";
+
+        src->encounter.reasonCode = create("CodeableConcept") as reasonConcept then {
+                  src -> encounter.status = "finished" "r_en_st_com";
+                  src->reasonConcept.text = "Lactating Followup Visit" "r_enc_resonCode_text";
+                  src-> reasonConcept.coding = create("Coding") as reasoncoding then {
+                        src->reasoncoding.system = "https://smartregister.org/",
+                                    reasoncoding.code ="0003",
+                                    reasoncoding.display = "Lactating Followup Visit" "r_enc_resonCode_coding_value";
+                        } "r_enc_resonCode_coding";
+        }"r_bbbnv";
+    }"r_bundle";
+}

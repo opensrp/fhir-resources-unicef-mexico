@@ -1,0 +1,34 @@
+{
+  "resourceType": "ImplementationGuide",
+  "id": "unicef-mexico-implementation-guide",
+  "meta": {
+    "versionId": "4",
+    "lastUpdated": "2024-07-04T18:01:30.767+00:00"
+  },
+  "url": "https://fhir.eir.smartregister.org/fhir/ImplementationGuide/contigo",
+  "version": "1.0.0",
+  "name": "contigo",
+  "title": "Vamos Juntos Implementation Guide",
+  "status": "draft",
+  "date": "2024-05-27",
+  "publisher": "Ona Systems, Inc.",
+  "useContext": [
+    {
+      "valueRange": {
+        "high": {
+          "value": 11
+        }
+      }
+    }
+  ],
+  "packageId": "org.smartregister.fhircore",
+  "definition": {
+    "resource": [
+      {
+        "reference": {
+          "reference": "Composition/unicef-mexico"
+        }
+      }
+    ]
+  }
+}
